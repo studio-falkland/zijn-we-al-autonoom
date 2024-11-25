@@ -5,11 +5,13 @@ import { Task, TaskExecutor } from './lib/Task';
 import RetrieveBasisbeveiligingURLs from './tasks/RetrieveBasisbeveiligingURLs';
 import RetrieveMX from './tasks/RetrieveMX';
 import RetrieveElsevier500URLs from './tasks/RetrieveElsevier500URLs';
+import RetrieveWebhost from './tasks/RetrieveWebhost';
 
 const tasks: Task[] = [
     RetrieveBasisbeveiligingURLs,
     RetrieveElsevier500URLs,
     RetrieveMX,
+    RetrieveWebhost,
 ];
 
 function App() {

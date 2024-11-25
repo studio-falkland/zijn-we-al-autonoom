@@ -3,7 +3,6 @@ import { Resolver } from 'dns/promises';
 import db, { URL } from '../db';
 import { Task } from '../lib/Task';
 import psl from 'psl';
-import fs from 'fs/promises';
 
 const resolver = new Resolver()
 resolver.setServers([
@@ -15,25 +14,19 @@ const RetrieveMX: Task = {
     name: 'check-mx',
     description: 'Retrieving MX records',
     async onStart({ finish, updateProgress, updateTotal }) {
-        const data = db.prepare('SELECT * FROM urls').all() as URL[];
-        const urls = new Set<string>();
-
-        data.forEach((d) => {
-            const root = psl.get(d.url);
-            if (root) urls.add(root);
-        });
+        const urls = db.prepare('SELECT * FROM urls').all() as URL[];
 
         const insertMx = db.prepare('INSERT INTO measurements (url, type, measurement) VALUES (@url, \'mx\', @measurement)');
         const insertMxRoot = db.prepare('INSERT INTO measurements (url, type, measurement) VALUES (@url, \'mx-root\', @measurement)');
         const insertError = db.prepare('INSERT INTO measurement_errors (url, type, error) VALUES (@url, \'mx\', @error)');
 
-        updateTotal(urls.size);
+        updateTotal(urls.length);
 
         await PromisePool
             .withConcurrency(25)
             .withTaskTimeout(5_000)
             .handleError((err) => console.error(err))
-            .for(urls)
+            .for(urls.map((u) => u.url))
             .process(async (url, index) => {
                 try {
                     const [mx] = await resolver.resolveMx(url);
