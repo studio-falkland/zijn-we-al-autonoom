@@ -130,3 +130,5 @@ dist
 .pnp.*
 
 data/**.db
+data/**.db-shm
+data/**.db-wal

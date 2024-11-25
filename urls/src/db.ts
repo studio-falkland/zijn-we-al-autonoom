@@ -33,7 +33,7 @@ db.exec(`
         measurement TEXT
     );
 
-    CREATE INDEX url_idx ON urls (url);
+    CREATE INDEX IF NOT EXISTS url_idx ON urls (url);
 
     CREATE TABLE IF NOT EXISTS measurement_errors (
         id INTEGER PRIMARY KEY,
