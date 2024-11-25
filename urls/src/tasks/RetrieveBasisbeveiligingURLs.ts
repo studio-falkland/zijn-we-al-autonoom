@@ -1,6 +1,7 @@
 import { Task } from '../lib/Task';
 import { BasisBeveiligingConfig, Organization, URL } from '../lib/Basisbeveiliging';
 import db from '../db';
+import psl from 'psl';
 
 /**
  * Convert a CSV-formatted JSON array (first row header, proceeding rows data)
@@ -54,12 +55,19 @@ const RetrieveBasisbeveiligingURLs: Task = {
             const urlData = (await urlRequest.json()).data;
             const urls = parseCSVJSON<URL>(urlData);
 
+            const roots = new Set<string>();
+
+            urls.forEach((d) => {
+                const root = psl.get(d.url);
+                if (root) roots.add(root);
+            });
+
             // Insert URLs into database
             const insertUrl = db.prepare('INSERT OR IGNORE INTO urls (url, category, organisation_id) VALUES (@url, @category, null);');
             const insertAllURLs = db.transaction((urls: URL[]) => {
-                for (const url of urls) 
+                for (const url of roots) 
                     insertUrl.run({ 
-                        url: url.url,
+                        url: url,
                         category: `bb_${layer}`
                     });
             });
