@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { render, Text } from 'ink';
 import { Task, TaskExecutor } from './lib/Task';
 
@@ -18,7 +18,7 @@ function App() {
     const handleFinish = useCallback(() => setState((s) => s + 1), []);
 
     useEffect(() => {
-        if (state > tasks.length) {
+        if (state >= tasks.length) {
             process.exit();
         }
     }, [state])
