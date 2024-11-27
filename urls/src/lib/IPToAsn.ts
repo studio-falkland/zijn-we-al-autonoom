@@ -1,3 +1,9 @@
+/**
+ * This library is adapted from `chadkeck`'s `ip-to-asn` library, licensed under MIT
+ * @see https://github.com/chadkeck/ip-to-asn/blob/master/lib/ip-to-asn.js
+ * @author Chad Bibler (https://chadbibler.com)
+ */
+
 import net from 'net';
 
 const SERVICE_HOST = 'v4.whois.cymru.com';
@@ -22,6 +28,7 @@ class IPToASN {
     query(addresses: string[]) {
         return new Promise<IPToASNResponse[]>((resolve, reject) => {
             const client = net.connect(this.serviceOptions);
+            const results: IPToASNResponse[] = []; 
             client.setEncoding('utf8');
 
             client.on('connect', () => {
@@ -29,8 +36,13 @@ class IPToASN {
                 client.write(request);
             });
 
+
             client.on('data', (response) => {
-                const results = this._handleResponse(response);
+                const chunks = this._handleResponse(response);
+                results.push(...chunks);
+            });
+
+            client.on('end', () => {
                 resolve(results);
             });
 

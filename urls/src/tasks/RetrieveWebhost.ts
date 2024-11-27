@@ -32,16 +32,18 @@ const RetrieveWebhost: Task = {
             .process(async (url, index) => {
                 try {
                     const [ip] = await resolver.resolve4(url);
+                    updateProgress((p) => p + 1);
                     return { ip, url };
                 } catch (e) {
+                    updateProgress((p) => p + 1);
                     insertError.run({
                         url,
                         error: e.message,
                     });
                 }
-
-                updateProgress((p) => p + 1);
             });
+
+        updateProgress(0)
 
         const ips = results.filter((r) => !!r);
 
