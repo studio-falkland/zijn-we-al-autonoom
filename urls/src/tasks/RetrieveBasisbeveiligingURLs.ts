@@ -21,7 +21,7 @@ function parseCSVJSON<T>(input: unknown[][]): T[] {
 }
 
 const RetrieveBasisbeveiligingURLs: Task = {
-    name: 'retrieve_urls',
+    name: 'retrieve_basisbeveiliging_urls',
     description: 'Retrieving URLs from basisbeveiliging.nl',
     async onStart({ finish, updateProgress, updateTotal }) {
         // Retrieve the available config from basisbeveiliging

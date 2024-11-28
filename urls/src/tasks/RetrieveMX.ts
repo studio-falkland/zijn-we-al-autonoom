@@ -18,12 +18,12 @@ const RetrieveMX: Task = {
 
         const insertMx = db.prepare('INSERT INTO measurements (url, type, measurement) VALUES (@url, \'mx\', @measurement)');
         const insertMxRoot = db.prepare('INSERT INTO measurements (url, type, measurement) VALUES (@url, \'mx-root\', @measurement)');
-        const insertError = db.prepare('INSERT INTO measurement_errors (url, type, error) VALUES (@url, \'mx\', @error)');
+        const insertError = db.prepare('INSERT INTO measurement_errors (url, type, error, stack) VALUES (@url, \'mx\', @error, @stack)');
 
         updateTotal(urls.length);
 
         await PromisePool
-            .withConcurrency(25)
+            .withConcurrency(10)
             .withTaskTimeout(5_000)
             .handleError((err) => console.error(err))
             .for(urls.map((u) => u.url))
@@ -39,7 +39,10 @@ const RetrieveMX: Task = {
                     insertError.run({
                         url,
                         error: e.message,
+                        stack: e.stack,
                     });
+                    insertMx.run({ url, measurement: 'unknown_error' });
+                    insertMxRoot.run({ url, measurement: 'unknown_error' });
                 }
 
                 updateProgress((p) => p + 1);

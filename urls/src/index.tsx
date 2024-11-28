@@ -6,10 +6,14 @@ import RetrieveBasisbeveiligingURLs from './tasks/RetrieveBasisbeveiligingURLs';
 import RetrieveMX from './tasks/RetrieveMX';
 import RetrieveElsevier500URLs from './tasks/RetrieveElsevier500URLs';
 import RetrieveWebhost from './tasks/RetrieveWebhost';
+import RetrieveRijksoverheidURLs from './tasks/RetrieveRijksoverheidURLs';
+import RetrieveSchoolURLs from './tasks/RetrieveSchoolURLs';
 
 const tasks: Task[] = [
-    RetrieveBasisbeveiligingURLs,
+    RetrieveRijksoverheidURLs,
+    RetrieveSchoolURLs,
     RetrieveElsevier500URLs,
+    // RetrieveBasisbeveiligingURLs,
     RetrieveMX,
     RetrieveWebhost,
 ];
