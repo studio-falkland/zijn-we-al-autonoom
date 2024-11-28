@@ -12,8 +12,8 @@ db.pragma('journal_mode = WAL');
 db.exec(`
     CREATE TABLE IF NOT EXISTS urls (
         id INTEGER PRIMARY KEY,
-        url TEXT,
-        category TEXT,
+        url TEXT NOT NULL,
+        category TEXT NOT NULL,
         organisation_id INTEGER,
         UNIQUE(url)
     );
@@ -28,9 +28,9 @@ db.exec(`
 
     CREATE TABLE IF NOT EXISTS measurements (
         id INTEGER PRIMARY KEY,
-        url TEXT,
-        type TEXT,
-        measurement TEXT
+        url TEXT NOT NULL,
+        type TEXT NOT NULL,
+        measurement TEXT NOT NULL
     );
 
     CREATE INDEX IF NOT EXISTS url_idx ON urls (url);
@@ -39,7 +39,8 @@ db.exec(`
         id INTEGER PRIMARY KEY,
         url TEXT,
         type TEXT,
-        error TEXT
+        error TEXT,
+        stack TEXT
     )
 `);
 

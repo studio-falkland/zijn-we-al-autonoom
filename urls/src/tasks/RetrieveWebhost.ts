@@ -4,6 +4,7 @@ import { Task } from '../lib/Task';
 import { Resolver } from 'dns/promises';
 import { cluster, objectify } from 'radash';
 import IPToASN from '../lib/IPToAsn';
+import parseURL from '../lib/ParseURL';
 
 const ASN_LOOKUP_CHUNK = 2_000;
 
@@ -20,12 +21,13 @@ const RetrieveWebhost: Task = {
         const urls = db.prepare('SELECT * FROM urls').all() as URL[];
 
         const insertWebhost = db.prepare('INSERT INTO measurements (url, type, measurement) VALUES (@url, \'webhost\', @measurement)');
-        const insertError = db.prepare('INSERT INTO measurement_errors (url, type, error) VALUES (@url, \'webhost\', @error)');
+        const insertError = db.prepare('INSERT INTO measurement_errors (url, type, error, stack) VALUES (@url, \'webhost\', @error, @stack)');
 
         updateTotal(urls.length);
 
+        const errors: string[] = [];
         const { results } = await PromisePool
-            .withConcurrency(25)
+            .withConcurrency(10)
             .withTaskTimeout(5_000)
             .handleError((err) => console.error(err))
             .for(urls.map((u) => u.url))
@@ -39,7 +41,9 @@ const RetrieveWebhost: Task = {
                     insertError.run({
                         url,
                         error: e.message,
+                        stack: e.stack,
                     });
+                    errors.push(url);
                 }
             });
 
@@ -61,7 +65,9 @@ const RetrieveWebhost: Task = {
             const mergedData = results.map((result) => {
                 if (!result.address) return null;
 
-                const url = ipToUrlMap[result.address];
+                const url = parseURL(ipToUrlMap[result.address]);
+                if (!url) return null;
+                
                 return {
                     url,
                     measurement: `${result.ASN}-${result.description}`,
@@ -69,6 +75,10 @@ const RetrieveWebhost: Task = {
             }).filter((o) => !!o);
 
             insertMeasurements(mergedData);
+        }
+
+        for (const error in errors) {
+            insertWebhost.run({ url: error, measurement: 'unknown_error' });
         }
 
         finish();
