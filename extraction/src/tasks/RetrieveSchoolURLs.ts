@@ -1,6 +1,6 @@
 import { parseString } from '@fast-csv/parse';
 import { Task } from '../lib/Task';
-import db from '../db';
+import db, { insertOrganisation, insertUrl } from '../db';
 import parseURL from '../lib/ParseURL';
 
 interface DUORow {
@@ -36,6 +36,9 @@ interface DUORow {
     'RMC-REGIO NAAM': string;
 }
 
+/**
+ * These are the individual datasets that contain the schools.
+ */
 const DATASETS = [
     { name: 'basisonderwijs', url: 'https://duo.nl/open_onderwijsdata/images/01.-hoofdvestigingen-basisonderwijs.csv',},
     { name: 'voortgezet-onderwijs', url: 'https://duo.nl/open_onderwijsdata/images/01.-hoofdvestigingen-vo.csv',},
@@ -48,25 +51,26 @@ const RetrieveSchoolURLs: Task = {
     name: 'retrieve-school-urls',
     description: 'Retrieve school URLs from DUO dataset',
     async onStart({ finish, updateProgress, updateTotal }) {
-        const insertOrg = db.prepare('INSERT OR IGNORE INTO organisations (name, source, category) VALUES (@name, \'duo\', @category);');
-        const insertUrl = db.prepare('INSERT OR IGNORE INTO urls (url, category, organisation_id) VALUES (@url, @category, null);');
-
         updateTotal(DATASETS.length);
 
         await Promise.all(DATASETS.map(async (dataset) => {
+            // Retrieve and verify dataset
             const request = await fetch(dataset.url);
             if (!request.ok)  throw new Error(`Failed to retrieve dataset "${dataset.name}"`);
+
+            // Convert data to string
             const text = await request.text();
             
             await new Promise<void>((resolve, reject) => {
                 parseString(text, { headers: true, delimiter: ';' })
                     .on('data', (row: DUORow) => {
+                        // GUARD: Attempt to parse the URL
                         const url = parseURL(row.INTERNETADRES)
                         if (!url) return;
 
-                        insertOrg.run({
+                        insertOrganisation.run({
                             name: row.INSTELLINGSNAAM,
-                            source: 'duo-onderwijs',
+                            source: 'duo',
                             category: `duo-${dataset.name}`,
                         })
                         insertUrl.run({

@@ -2,7 +2,7 @@ import { parse } from '@fast-csv/parse';
 import { Task } from '../lib/Task';
 import { ElsevierOrganisation } from '../lib/Elsevier';
 import { createReadStream } from 'fs';
-import db from '../db';
+import db, { insertOrganisation, insertUrl } from '../db';
 
 const RetrieveElsevier500URLs: Task = {
     name: 'retrieve-elsevier-500-urls',
@@ -12,6 +12,7 @@ const RetrieveElsevier500URLs: Task = {
 
         updateProgress(0);
 
+        // Retrieve the dataset from disk
         await new Promise((resolve, reject) => {
             createReadStream('../eda/top-500-bedrijven.csv')
                 .pipe(parse({ headers: true, delimiter: ';' }))
@@ -24,13 +25,19 @@ const RetrieveElsevier500URLs: Task = {
 
         updateTotal(rows.length);
 
-        const insertUrl = db.prepare('INSERT OR IGNORE INTO urls (url, category, organisation_id) VALUES (@url, @category, null);');
-
+        // Insert all URLs in the dataset
         const insertAllURLs = db.transaction((orgs: ElsevierOrganisation[]) => {
             for (const org of orgs) {
+                const result = insertOrganisation.run({
+                    name: org.Bedrijfsnaam,
+                    category: 'elsevier_500',
+                    source: 'elsevier',
+                })
+
                 insertUrl.run({ 
                     url: org.Domeinnaam,
-                    category: `elsevier_500`
+                    category: `elsevier_500`,
+                    organisation_id: result.lastInsertRowid,
                 });
 
                 updateProgress((n) => n + 1)

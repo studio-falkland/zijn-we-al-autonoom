@@ -13,7 +13,7 @@ const tasks: Task[] = [
     RetrieveRijksoverheidURLs,
     RetrieveSchoolURLs,
     RetrieveElsevier500URLs,
-    // RetrieveBasisbeveiligingURLs,
+    RetrieveBasisbeveiligingURLs,
     RetrieveMX,
     RetrieveWebhost,
 ];
