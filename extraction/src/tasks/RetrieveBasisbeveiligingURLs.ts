@@ -1,7 +1,55 @@
 import { Task } from '../lib/Task';
 import { BasisBeveiligingConfig, Organization, URL } from '../lib/Basisbeveiliging';
-import db from '../db';
+import db, { insertOrganisation, insertUrl } from '../db';
 import psl from 'psl';
+
+/**
+ * We retain organisations from other datasets. Since we attempt to collect a
+ * single URL from a single organisations, we prefer these datasets over the
+ * basisbeveiliging dataset. Hence, we'll filter them here.
+ */
+const LAYER_BLACKLIST = new Set([
+    "municipality",
+    // "cyber",
+    // "healthcare",
+    "province",
+    "waterschappen",
+    "safety_region",
+    // "political_parties",
+    "government",
+    "education_university",
+    "education_hbo",
+    "education_junior_college",
+    "education_secondary_education",
+    "education_primary_education",
+    "central_government_general_affairs",
+    "central_government_interior_relations",
+    "central_government_foreign_affairs",
+    "central_government_defense",
+    "central_government_economy",
+    "central_government_finance",
+    "central_government_infrastructure",
+    "central_government_justice",
+    "central_government_agriculture",
+    "central_government_education",
+    "central_government_employment",
+    "central_government_health",
+    "zelfstandige-bestuursorganen",
+    "adviescolleges",
+    "agentschappen",
+    "openbare-lichamen-voor-beroep-en-bedrijf",
+    "koepelorganisaties",
+    "saba",
+    "st_eustatius",
+    "bonaire",
+    // "healthcare_hospital",
+    // "healthcare_ggd",
+    // "healthcare_ggz",
+    // "vital_energy",
+    // "vital_finance_bank_deposit_guarantee",
+    // "vital_finance_payment_processing",
+    // "vital_finance_bank_eer_dutch_market"
+]);
 
 /**
  * Convert a CSV-formatted JSON array (first row header, proceeding rows data)
@@ -27,7 +75,8 @@ const RetrieveBasisbeveiligingURLs: Task = {
         // Retrieve the available config from basisbeveiliging
         const configResponse = await fetch('https://basisbeveiliging.nl/data/config/');
         const config: BasisBeveiligingConfig = await configResponse.json();
-        const layers = config.country_and_layers.NL.layers;
+        const layers = config.country_and_layers.NL.layers
+            .filter((layer) => !LAYER_BLACKLIST.has(layer));
 
         // Update the progress
         updateTotal(layers.length);
@@ -40,11 +89,11 @@ const RetrieveBasisbeveiligingURLs: Task = {
             const organisations = parseCSVJSON<Organization>(orgData);
 
             // Insert all organisations into the database
-            const insertOrg = db.prepare('INSERT OR IGNORE INTO organisations (name, source, category) VALUES (@name, \'basisbeveiliging\', @category);');
             const insertAllOrgs = db.transaction((orgs: Organization[]) => {
                 for (const org of orgs) 
-                    insertOrg.run({ 
+                    insertOrganisation.run({ 
                         ...org,
+                        source: 'basisbeveiliging',
                         category: `bb_${layer}`
                     });
             });
@@ -63,12 +112,12 @@ const RetrieveBasisbeveiligingURLs: Task = {
             });
 
             // Insert URLs into database
-            const insertUrl = db.prepare('INSERT OR IGNORE INTO urls (url, category, organisation_id) VALUES (@url, @category, null);');
             const insertAllURLs = db.transaction((urls: URL[]) => {
                 for (const url of roots) 
                     insertUrl.run({ 
                         url: url,
-                        category: `bb_${layer}`
+                        category: `bb_${layer}`,
+                        organisation_id: null,
                     });
             });
             insertAllURLs(urls);

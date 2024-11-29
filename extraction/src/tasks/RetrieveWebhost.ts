@@ -1,5 +1,5 @@
 import { PromisePool } from '@supercharge/promise-pool'
-import db, { URL } from '../db';
+import db, { insertError, insertMeasurement, Measurement, URL } from '../db';
 import { Task } from '../lib/Task';
 import { Resolver } from 'dns/promises';
 import { cluster, objectify } from 'radash';
@@ -18,16 +18,14 @@ const RetrieveWebhost: Task = {
     name: 'retrieve-webhost',
     description: 'Retrieving webhosts',
     async onStart({ finish, updateProgress, updateTotal }) {
+        // Retrieve all URLs
         const urls = db.prepare('SELECT * FROM urls').all() as URL[];
-
-        const insertWebhost = db.prepare('INSERT INTO measurements (url, type, measurement) VALUES (@url, \'webhost\', @measurement)');
-        const insertError = db.prepare('INSERT INTO measurement_errors (url, type, error, stack) VALUES (@url, \'webhost\', @error, @stack)');
-
         updateTotal(urls.length);
 
         const errors: string[] = [];
+
         const { results } = await PromisePool
-            .withConcurrency(10)
+            .withConcurrency(25)
             .withTaskTimeout(5_000)
             .handleError((err) => console.error(err))
             .for(urls.map((u) => u.url))
@@ -42,6 +40,7 @@ const RetrieveWebhost: Task = {
                         url,
                         error: e.message,
                         stack: e.stack,
+                        type: 'webhost',
                     });
                     errors.push(url);
                 }
@@ -53,7 +52,7 @@ const RetrieveWebhost: Task = {
 
         const insertMeasurements = db.transaction((data: { url: string, measurement: string }[]) => {
             for (const datum of data) {
-                insertWebhost.run(datum);
+                insertMeasurement.run(datum);
             }
         });
 
@@ -71,14 +70,15 @@ const RetrieveWebhost: Task = {
                 return {
                     url,
                     measurement: `${result.ASN}-${result.description}`,
-                }
+                    type: 'webhost',
+                } as Omit<Measurement, 'id'>
             }).filter((o) => !!o);
 
             insertMeasurements(mergedData);
         }
 
         for (const error in errors) {
-            insertWebhost.run({ url: error, measurement: 'unknown_error' });
+            insertMeasurement.run({ url: error, type: 'webhost', measurement: 'unknown_error' });
         }
 
         finish();
