@@ -1,6 +1,10 @@
-import { Card, CardDescription, CardHeader } from '@/components/ui/card';
+import HHIIndicator from '@/components/HHIIndicator';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import db from '@/lib/database';
-import { groups } from 'd3-array';
+import { getGroupForCategory, getIconForGroup, getLabelForGroup } from '@/lib/groups';
+import calculateHHI from '@/lib/hhi';
+import { groups as groupArray } from 'd3-array';
 
 export interface Row {
     id: number
@@ -25,32 +29,49 @@ export default function Mail() {
             TYPE = 'mx-root'
     `).all() as Row[];
 
-    const categories = groups(result, (r: Row) => r.category);
+    const groups = groupArray(result, (r: Row) => getGroupForCategory(r.category));
 
     return (
-       <div className="grid">
-            {categories.map(([category, rows]) => {
-                const frequencies: Record<string, number> = {};
-                rows.forEach((r: Row) => frequencies[r.measurement] = (frequencies[r.measurement] || 0) + 1);
-                const modalFrequency = Math.max(...Object.values(frequencies));
-                const variationRatio = 1 - (modalFrequency / rows.length);
+        <div>
+            <Breadcrumb className="p-4">
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/">Zijn we nog afhankelijk?</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/mail">Mail</BreadcrumbLink>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
+            <div className="flex flex-wrap gap-4 p-4">
+                {groups.map(([group, rows]) => {
+                    const { inverseHHI, sortedFrequencies } = calculateHHI(rows, (r) => r.measurement);
+                    const Icon = getIconForGroup(group);
+                    const modalCategory = sortedFrequencies[0];
 
-                return (
-                    <Card key={category} className="max-w-[300px]">
-                        <CardHeader>{category}</CardHeader>
-                        <div>
-                            <div className="w-[100px] h-8 border rounded relative">
-                                <div
-                                    className="h-full bg-orange-400"
-                                    style={{ width: (variationRatio * 100).toFixed(0) + '%' }}
-                                />
-                                <span className="absolute inset-0 text-center">{variationRatio.toFixed(2)}</span>
-                            </div>
-                        </div>
-                        <CardDescription>{JSON.stringify(frequencies)}</CardDescription>
-                    </Card>
-                )
-            })}
-       </div>
+                    return (
+                        <Card key={group} className="max-w-[300px] font-heading hover:border-blue-200">
+                            <a href={`/mail/${group}`}>
+                                <CardHeader>
+                                    <CardTitle>
+                                        <div className="flex gap-2 items-center">
+                                            <Icon />
+                                            {getLabelForGroup(group)}
+                                        </div>
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <HHIIndicator index={inverseHHI} />
+                                    <div className="mt-4">
+                                        {(modalCategory.ratio * 100).toFixed(0)}% of organisations in {getLabelForGroup(group)} use {modalCategory.category}
+                                    </div>
+                                </CardContent>
+                            </a>
+                        </Card>
+                    )
+                })}
+            </div>
+        </div>
     );
 }

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Inter } from 'next/font/google'
+import { Familjen_Grotesk, Inter } from 'next/font/google'
+import { cn } from '@/lib/utils';
  
 // If loading a variable font, you don't need to specify the font weight
 const inter = Inter({ subsets: ['latin'] })
+const familjen = Familjen_Grotesk({ subsets: ['latin'], weight: 'variable' })
 
 export const metadata: Metadata = {
     title: "Create Next App",
@@ -17,7 +19,8 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={inter.className}>
+            <body className={cn(inter.className, familjen.className, 'bg-blue-100')}>
+                <div className="ml-4 mt-4 text-blue-700 font-semibold">Zijn we nog afhankelijk?</div>
                 {children}
             </body>
         </html>
