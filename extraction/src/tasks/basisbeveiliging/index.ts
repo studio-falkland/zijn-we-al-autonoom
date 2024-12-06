@@ -1,6 +1,6 @@
-import { Task } from '../lib/Task';
+import { Task } from '../../lib/Task/index.jsx';
 import { BasisBeveiligingConfig, Organization, URL } from '../lib/Basisbeveiliging';
-import db, { insertOrganisation, insertUrl } from '../db';
+import db, { insertOrganisation, insertUrl } from '../../db.js';
 import psl from 'psl';
 
 /**

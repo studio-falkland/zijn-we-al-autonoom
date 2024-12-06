@@ -7,7 +7,7 @@ import psl from 'psl';
  * @param url - The URL to parse.
  * @returns The hostname in the form hostname.tld or null if invalid.
  */
-export default function parseURL(url?: string): string | null {
+export default function parseURL(url?: string | null): string | null {
     if (!url) {
         return null;
     }

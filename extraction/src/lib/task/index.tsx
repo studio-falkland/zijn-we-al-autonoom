@@ -1,36 +1,84 @@
 import { Box, Spacer, Text } from 'ink';
 import { Dispatch, ReactNode, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Loader from '../components/Loader';
+import Loader from '@/components/Loader.js';
 import React from 'react';
-import convertMsToHumanTime from './time';
-import { insertOrganisation } from '../db';
+import convertMsToHumanTime from '@/lib/time.js';
 
 export interface TaskExecutorProps {
     onFinish: () => void;
-    task: Task;
+    task: typeof Task;
     active: boolean;
 }
 
-export interface TaskHandlerProps {
-    finish: (message?: string) => void;
-    updateTotal: Dispatch<SetStateAction<number>>;
-    updateProgress: Dispatch<SetStateAction<number>>;
-}
-
 export interface TaskRenderProps {
-    name: string;
-    description: string;
+    active: boolean;
+    hasFinished: boolean;
+    finishMessage: string | null;
     total: number | null;
     progress: number | null;
     progressPercentage: string | null;
+    expectedRemainder: number | null;
 }
 
-export interface Task {
+export interface TaskHandlers {
+    finish: (message?: string) => void;
+    updateTotal: Dispatch<SetStateAction<number>>;
+    updateProgress: Dispatch<SetStateAction<number>>;
+    log: (...args: any[]) => void;
+}
+
+// export interface Task {
+//     name: string;
+//     description: string;
+//     onStart(props: TaskHandlerProps): void | Promise<void>;
+//     onFinish?(): void;
+//     onRender?(props: TaskRenderProps): ReactNode;
+// }
+
+export class Task {
     name: string;
     description: string;
-    onStart(props: TaskHandlerProps): void | Promise<void>;
-    onFinish?(): void;
-    onRender?(props: TaskRenderProps): ReactNode;
+
+    constructor(
+        protected finish: (message?: string) => void,
+        protected updateTotal: Dispatch<SetStateAction<number>>,
+        protected updateProgress: Dispatch<SetStateAction<number>>,
+        protected log: (...args: any[]) => void,
+    ) { }
+
+    onStart(): void | Promise<void> {
+        // EMPTY
+    }
+
+    onFinish(): void {
+        // EMPTY
+    }
+
+    onRender({
+        total,
+        progress,
+        progressPercentage,
+        active,
+        hasFinished,
+        finishMessage,
+        expectedRemainder
+    }: TaskRenderProps): ReactNode {
+        return (
+            <Box gap={2}>
+                {!active ? <Text>⏳</Text> : hasFinished ? <Text>✅</Text> : <Loader />}
+                <Text>{this.description}</Text>
+                {(progress !== null && total !== null && !finishMessage) ? (
+                    <Text>: {progress} / {total} [{progressPercentage}]</Text>
+                ) : null}
+                {expectedRemainder ? (
+                    <Text>(Remaining expected time: {convertMsToHumanTime(expectedRemainder)})</Text>
+                ) : null}
+                {finishMessage ? (
+                    <Text>{finishMessage}</Text>
+                ) : null}
+            </Box>
+        );
+    }
 }
 
 export function TaskExecutor({ task, onFinish, active }: TaskExecutorProps) {
@@ -40,6 +88,7 @@ export function TaskExecutor({ task, onFinish, active }: TaskExecutorProps) {
     const [progress, updateProgress] = useState<number | null>(null);
     const [finishMessage, setFinishMessage] = useState<string | null>(null);
     const [expectedRemainder, setExpectedRemainder] = useState<number | null>(null);
+    const log = useMemo(() => (...args: any[]) => console.log(`[${task.name}]`, ...args), [task.name]);
 
     // Maintain a ref to progress so we can update it in useEffect without causing an infinite loop
     const progressRef = useRef<{ progress: number | null, total: number | null }>({ progress: null, total: null });
@@ -55,10 +104,20 @@ export function TaskExecutor({ task, onFinish, active }: TaskExecutorProps) {
             setFinishMessage(message);
         }
 
+        log('Finished task');
+
         setFinished(true);
-        task.onFinish?.();
         onFinish();
     }, []);
+
+    const taskInstance = useMemo(() => (
+        new task(
+            finish,
+            updateTotal as Dispatch<SetStateAction<number>>,
+            updateProgress as Dispatch<SetStateAction<number>>,
+            log
+        )
+    ), [task]);
 
     // Effect hook which runs on mount and starts the task by calling onStart function of task with necessary props
     useEffect(() => {
@@ -66,11 +125,9 @@ export function TaskExecutor({ task, onFinish, active }: TaskExecutorProps) {
             return () => { };
         }
 
-        task.onStart({
-            finish,
-            updateProgress: updateProgress as Dispatch<SetStateAction<number>>,
-            updateTotal: updateTotal as Dispatch<SetStateAction<number>>,
-        });
+        log(`Starting task`);
+
+        taskInstance.onStart();
 
         const start = new Date().getTime();
 
@@ -97,30 +154,13 @@ export function TaskExecutor({ task, onFinish, active }: TaskExecutorProps) {
     }, [total, progress])
 
     // If the task has an onRender function, call it with necessary props and return its result
-    if (task.onRender) {
-        return task.onRender({
-            description: task.description,
-            name: task.name,
-            progress,
-            total,
-            progressPercentage,
-        });
-    }
-
-    // If the task does not have an onRender function, render a Text component with task details and progress information
-    return (
-        <Box gap={2}>
-            {!active ? <Text>⏳</Text> : hasFinished ? <Text>✅</Text> : <Loader />}
-            <Text>{task.description}</Text>
-            {(progress !== null && total !== null && !finishMessage) ? (
-                <Text>: {progress} / {total} [{progressPercentage}]</Text>
-            ) : null}
-            {expectedRemainder ? (
-                <Text>(Remaining expected time: {convertMsToHumanTime(expectedRemainder)})</Text>
-            ) : null}
-            {finishMessage ? (
-                <Text>{finishMessage}</Text>
-            ) : null}
-        </Box>
-    );
+    return taskInstance.onRender({
+        progress,
+        total,
+        progressPercentage,
+        active,
+        expectedRemainder,
+        finishMessage,
+        hasFinished,
+    });
 }

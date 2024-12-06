@@ -1,10 +1,10 @@
 import { PromisePool } from '@supercharge/promise-pool'
-import db, { insertError, insertMeasurement, Measurement, URL } from '../db';
-import { Task } from '../lib/Task';
+import db, { insertError, insertMeasurement, Measurement, URL } from '../../db.js';
+import { Task } from '../../lib/Task/index.jsx';
 import { Resolver } from 'dns/promises';
 import { cluster, objectify } from 'radash';
-import IPToASN from '../lib/IPToAsn';
-import parseURL from '../lib/ParseURL';
+import IPToASN from '../../lib/IPToAsn.js';
+import parseURL from '../../lib/ParseURL.js';
 
 const ASN_LOOKUP_CHUNK = 2_000;
 
