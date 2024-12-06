@@ -1,0 +1,34 @@
+export interface DUORow {
+    'PROVINCIE': string;
+    'BEVOEGD GEZAG NUMMER': string;
+    'INSTELLINGSCODE': string;
+    'INSTELLINGSNAAM'?: string;
+    'VESTIGINGSCODE'?: string;
+    'VESTIGINGSNAAM'?: string;
+    'STRAATNAAM': string;
+    'HUISNUMMER-TOEVOEGING': string;
+    'POSTCODE': string;
+    'PLAATSNAAM': string;
+    'GEMEENTENUMMER': string;
+    'GEMEENTENAAM': string;
+    'DENOMINATIE': string;
+    'TELEFOONNUMMER': string;
+    'INTERNETADRES': string;
+    'ONDERWIJSSTRUCTUUR': string;
+    'STRAATNAAM CORRESPONDENTIEADRES': string;
+    'HUISNUMMER-TOEVOEGING CORRESPONDENTIEADRES': string;
+    'POSTCODE CORRESPONDENTIEADRES': string;
+    'PLAATSNAAM CORRESPONDENTIEADRES': string;
+    'NODAAL GEBIED CODE': string;
+    'NODAAL GEBIED NAAM': string;
+    'RPA-GEBIED CODE': string;
+    'RPA-GEBIED NAAM': string;
+    'WGR-GEBIED CODE': string;
+    'WGR-GEBIED NAAM': string;
+    'COROPGEBIED CODE': string;
+    'COROPGEBIED NAAM': string;
+    'ONDERWIJSGEBIED CODE': string;
+    'ONDERWIJSGEBIED NAAM': string;
+    'RMC-REGIO CODE': string;
+    'RMC-REGIO NAAM': string;
+}

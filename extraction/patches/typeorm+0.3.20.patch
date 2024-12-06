@@ -1,0 +1,27 @@
+diff --git a/node_modules/typeorm/driver/better-sqlite3/BetterSqlite3Driver.js b/node_modules/typeorm/driver/better-sqlite3/BetterSqlite3Driver.js
+index 6621e1b..067a3a1 100644
+--- a/node_modules/typeorm/driver/better-sqlite3/BetterSqlite3Driver.js
++++ b/node_modules/typeorm/driver/better-sqlite3/BetterSqlite3Driver.js
+@@ -147,6 +147,10 @@ class BetterSqlite3Driver extends AbstractSqliteDriver_1.AbstractSqliteDriver {
+             ? optionsDb
+             : path_1.default.join(this.options.baseDirectory, optionsDb));
+     }
++    
++    isReturningSqlSupported() {
++        return true;
++    }
+ }
+ exports.BetterSqlite3Driver = BetterSqlite3Driver;
+ 
+diff --git a/node_modules/typeorm/query-builder/InsertQueryBuilder.js b/node_modules/typeorm/query-builder/InsertQueryBuilder.js
+index bc3fae4..a8167ea 100644
+--- a/node_modules/typeorm/query-builder/InsertQueryBuilder.js
++++ b/node_modules/typeorm/query-builder/InsertQueryBuilder.js
+@@ -394,6 +394,7 @@ class InsertQueryBuilder extends QueryBuilder_1.QueryBuilder {
+             (DriverUtils_1.DriverUtils.isPostgresFamily(this.connection.driver) ||
+                 this.connection.driver.options.type === "oracle" ||
+                 this.connection.driver.options.type === "cockroachdb" ||
++                this.connection.driver.options.type === "better-sqlite3" ||
+                 DriverUtils_1.DriverUtils.isMySQLFamily(this.connection.driver))) {
+             query += ` RETURNING ${returningExpression}`;
+         }

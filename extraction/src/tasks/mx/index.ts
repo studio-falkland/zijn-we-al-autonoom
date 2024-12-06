@@ -1,7 +1,7 @@
 import { PromisePool } from '@supercharge/promise-pool'
 import { Resolver } from 'dns/promises';
-import db, { insertError, insertMeasurement, URL } from '../db';
-import { Task } from '../lib/Task';
+import db, { insertError, insertMeasurement, URL } from '@/db.js';
+import { Task } from '../lib/Task.jsx';
 import psl from 'psl';
 
 const resolver = new Resolver()

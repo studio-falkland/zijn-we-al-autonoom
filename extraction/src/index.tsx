@@ -1,21 +1,25 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { render, Text } from 'ink';
-import { Task, TaskExecutor } from './lib/Task';
 
-import RetrieveBasisbeveiligingURLs from './tasks/RetrieveBasisbeveiligingURLs';
-import RetrieveMX from './tasks/RetrieveMX';
-import RetrieveElsevier500URLs from './tasks/RetrieveElsevier500URLs';
-import RetrieveWebhost from './tasks/RetrieveWebhost';
-import RetrieveRijksoverheidURLs from './tasks/RetrieveRijksoverheidURLs';
-import RetrieveSchoolURLs from './tasks/RetrieveSchoolURLs';
+import RetrieveBasisbeveiligingURLs from '@/tasks/basisbeveiliging/index.js';
+import RetrieveMX from '@/tasks/mx/index.js';
+import RetrieveElsevier500URLs from '@/tasks/elsevier/index.js';
+import RetrieveWebhost from '@/tasks/webhost/index.js';
+import RetrieveRijksoverheidURLs from '@/tasks/rio/index.js';
+import RetrieveSchoolURLs from '@/tasks/duo/index.js';
+import db from './db.js';
+import { Task, TaskExecutor } from './lib/task/index.jsx';
 
-const tasks: Task[] = [
+await db.initialize();
+await db.runMigrations();
+
+const tasks: (typeof Task)[] = [
     RetrieveRijksoverheidURLs,
     RetrieveSchoolURLs,
     RetrieveElsevier500URLs,
-    RetrieveBasisbeveiligingURLs,
-    RetrieveMX,
-    RetrieveWebhost,
+    // RetrieveBasisbeveiligingURLs,
+    // RetrieveMX,
+    // RetrieveWebhost,
 ];
 
 function App() {
