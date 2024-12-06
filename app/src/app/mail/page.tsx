@@ -5,6 +5,7 @@ import db from '@/lib/database';
 import { getGroupForCategory, getIconForGroup, getLabelForGroup } from '@/lib/groups';
 import calculateHHI from '@/lib/hhi';
 import { groups as groupArray } from 'd3-array';
+import Link from 'next/link';
 
 export interface Row {
     id: number
@@ -52,7 +53,7 @@ export default function Mail() {
 
                     return (
                         <Card key={group} className="max-w-[300px] font-heading hover:border-blue-200">
-                            <a href={`/mail/${group}`}>
+                            <Link href={`/mail/${group}`}>
                                 <CardHeader>
                                     <CardTitle>
                                         <div className="flex gap-2 items-center">
@@ -67,7 +68,7 @@ export default function Mail() {
                                         {(modalCategory.ratio * 100).toFixed(0)}% of organisations in {getLabelForGroup(group)} use {modalCategory.category}
                                     </div>
                                 </CardContent>
-                            </a>
+                            </Link>
                         </Card>
                     )
                 })}
