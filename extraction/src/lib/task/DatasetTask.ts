@@ -67,8 +67,17 @@ export default class DatasetTask extends Task {
             this.log('No dataset found, creating a new one.');
             dataset = new Dataset()
             dataset.name = name;
-            dataset.cacheKey = currentCacheKey;
             dataset.source = location;
+            dataset.cacheKey = 'initial_load';
+
+            // Already save the dataset, but don't set the cache key yet. This
+            // means we can already insert organisations that point to this dataset.
+            await db.manager.insert(Dataset, dataset);
+            dataset = await db.manager.findOne(Dataset, { where: { name } });
+            if (!dataset) throw new Error('Could not retrieve dataset that was just created.');
+
+            // We'll update the cache key as soon as the update is done
+            dataset.cacheKey = currentCacheKey;
         // GUARD: If the dataset exists, but has a separate key, we'll update it
         } else {
             this.log('Dataset exists but has a different cache key.');
@@ -118,7 +127,8 @@ export default class DatasetTask extends Task {
         });
 
         // Lastly, update the dataset, just in case
-        await db.manager.save(Dataset, dataset);
+        this.log('DATASET', { dataset });
+        await db.manager.update(Dataset, dataset.id, { cacheKey: dataset.cacheKey });
 
         // Clean up after any leftover organsiations
         await this.cleanupOrganisationsMap(map);
@@ -142,7 +152,7 @@ export default class DatasetTask extends Task {
             .values({
                 ...organisation,
                 slug,
-                dataset,
+                dataset: { name: dataset.name },
                 active: true,
             })
             .insert()

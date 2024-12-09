@@ -5,6 +5,7 @@
  */
 
 import net from 'net';
+import logger from './logger.js';
 
 const SERVICE_HOST = 'v4.whois.cymru.com';
 const SERVICE_PORT = 43;
@@ -33,9 +34,9 @@ class IPToASN {
 
             client.on('connect', () => {
                 const request = this._generateRequest(addresses);
+                logger.info('Requesting WHOIS information for addresses:', request);
                 client.write(request);
             });
-
 
             client.on('data', (response) => {
                 const chunks = this._handleResponse(response);
@@ -52,7 +53,7 @@ class IPToASN {
         });
     }
 
-    _generateRequest(addresses) {
+    _generateRequest(addresses: string[]) {
         let request = '';
         request += 'begin\r\n';
         request += 'verbose\r\n';

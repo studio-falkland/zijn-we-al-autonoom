@@ -1,11 +1,12 @@
 import { PromisePool } from '@supercharge/promise-pool'
-import db, { insertError, insertMeasurement, Measurement, URL } from '../../db.js';
-import { Task } from '../../lib/Task/index.jsx';
-import { Resolver } from 'dns/promises';
-import { cluster, objectify } from 'radash';
-import IPToASN from '../../lib/IPToAsn.js';
-import parseURL from '../../lib/ParseURL.js';
 
+import { Resolver } from 'dns/promises';
+import { cluster, objectify, unique } from 'radash';
+import IPToASN from '@/lib/IPToAsn.js';
+import parseURL from '@/lib/ParseURL.js';
+import MeasurementTask from '@/lib/task/MeasurementTask.jsx';
+
+/** The number of IP addresses that are processed in one batch */
 const ASN_LOOKUP_CHUNK = 2_000;
 
 const resolver = new Resolver()
@@ -14,15 +15,14 @@ resolver.setServers([
     '8.8.4.4',
 ]);
 
-const RetrieveWebhost: Task = {
-    name: 'retrieve-webhost',
-    description: 'Retrieving webhosts',
-    async onStart({ finish, updateProgress, updateTotal }) {
-        // Retrieve all URLs
-        const urls = db.prepare('SELECT * FROM urls').all() as URL[];
-        updateTotal(urls.length);
+export default class RetrieveWebhost extends MeasurementTask {
+    name = 'retrieve-webhost';
+    description = 'Retrieving webhosts';
 
-        const errors: string[] = [];
+    async onStart() {
+        // Retrieve all URLs and update total
+        const urls = await this.getAllURLs();
+        this.updateTotal(urls.length * 2);
 
         const { results } = await PromisePool
             .withConcurrency(25)
@@ -31,58 +31,58 @@ const RetrieveWebhost: Task = {
             .for(urls.map((u) => u.url))
             .process(async (url, index) => {
                 try {
+                    // Retrieve IPv4 address
                     const [ip] = await resolver.resolve4(url);
-                    updateProgress((p) => p + 1);
+                    this.updateProgress((p) => p + 1);
+
+                    // Return an IP to URL mapping
                     return { ip, url };
                 } catch (e) {
-                    updateProgress((p) => p + 1);
-                    insertError.run({
-                        url,
-                        error: e.message,
-                        stack: e.stack,
-                        type: 'webhost',
-                    });
-                    errors.push(url);
+                    this.updateProgress((p) => p + 1);
+                    if (e instanceof Error) {
+                        await this.insertError('webhost-as', url, e)
+                    }
                 }
             });
 
-        updateProgress(0)
+        // Mark the first round done
+        this.updateProgress(urls.length);
 
-        const ips = results.filter((r) => !!r);
+        // Filter any IPs that were unsuccessfully retrieved
+        const ips = results.filter((r) => !!r)
+            // Sort them, so that overlapping IPs are more often in the same batch
+            .sort((a, b) => a.ip.localeCompare(b.ip));
 
-        const insertMeasurements = db.transaction((data: { url: string, measurement: string }[]) => {
-            for (const datum of data) {
-                insertMeasurement.run(datum);
-            }
-        });
-
+        // Retrieve ASNns for batches of IP addresses
         for await (const batch of cluster(ips, ASN_LOOKUP_CHUNK)) {
-            const ipToUrlMap = objectify(batch, (o) => o.ip, (o) => o.url);
-            const ips = batch.map((o) => o.ip)
-            const results = await new IPToASN().query(ips);
-            updateProgress((p) => p + batch.length);
-            const mergedData = results.map((result) => {
-                if (!result.address) return null;
+            // Create a list of IPs
+            const ips = unique(batch.map((o) => o.ip));
 
-                const url = parseURL(ipToUrlMap[result.address]);
-                if (!url) return null;
+            // Query the database for the AS for said batch
+            const results = (await new IPToASN().query(ips))
+                .filter((r) => !!r.address);
+            const resultMap = objectify(results, (r) => r.address!);
+
+            const inserts = batch.map(async ({ ip, url }) => {
+                const result = resultMap[ip];
                 
-                return {
-                    url,
-                    measurement: `${result.ASN}-${result.description}`,
-                    type: 'webhost',
-                } as Omit<Measurement, 'id'>
-            }).filter((o) => !!o);
+                try {
+                    await this.insertMeasurement(
+                        'webhost-as',
+                        url, 
+                        `${result.ASN}-${result.description}`
+                    );
+                    this.updateProgress((p) => p + 1);
+                } catch(e) {
+                    if (e instanceof Error) {
+                        await this.insertError('webhost-as', url, e);
+                    }
+                }
+            });
 
-            insertMeasurements(mergedData);
+            await Promise.all(inserts);
         }
 
-        for (const error in errors) {
-            insertMeasurement.run({ url: error, type: 'webhost', measurement: 'unknown_error' });
-        }
-
-        finish();
-    },
-};
-
-export default RetrieveWebhost;
+        this.finish();
+    }
+}
