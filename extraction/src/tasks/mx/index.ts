@@ -1,8 +1,8 @@
+import MeasurementTask from '@/lib/task/MeasurementTask.jsx';
 import { PromisePool } from '@supercharge/promise-pool'
 import { Resolver } from 'dns/promises';
-import db, { insertError, insertMeasurement, URL } from '@/db.js';
-import { Task } from '../lib/Task.jsx';
 import psl from 'psl';
+import URL from '@/models/URL.js';
 
 const resolver = new Resolver()
 resolver.setServers([
@@ -10,44 +10,56 @@ resolver.setServers([
     '8.8.4.4',
 ]);
 
-const RetrieveMX: Task = {
-    name: 'check-mx',
-    description: 'Retrieving MX records',
-    async onStart({ finish, updateProgress, updateTotal }) {
-        // Retrieve all URLs in the database
-        const urls = db.prepare('SELECT * FROM urls').all() as URL[];
+export default class RetrieveMX extends MeasurementTask {
+    name = 'check-mx';
+    description = 'Retrieving MX records';
 
-        updateTotal(urls.length);
+    async handleError(err: Error, url: URL) {
+        await this.insertError('mx', url.url, err);
+        await this.insertError('mx-root', url.url, err);
+    }
+
+    async onStart() {
+        // Retrieve all URLs in the database
+        const urls = await this.getAllURLs();
+
+        this.updateTotal(urls.length);
 
         await PromisePool
             .withConcurrency(25)
             .withTaskTimeout(5_000)
-            .handleError((err) => console.error(err))
             .for(urls)
-            .process(async ({ url }, index) => {
+            .handleError(this.handleError)
+            .process(async (url) => {
                 try {
-                    const [mx] = await resolver.resolveMx(url);
+                    // Resolve the MX record
+                    const [mx] = await resolver.resolveMx(url.url);
+
+                    // Retrieve the IP address for the record
                     const [ip] = await resolver.resolve4(mx.exchange);
+
+                    // Retrieve the hostname for that IP (reverse DNS lookup)
                     const [hostname] = await resolver.reverse(ip);
+
+                    // Extract root from the hostname
                     const root = psl.get(hostname);
-                    insertMeasurement.run({ url, measurement: hostname, type: 'mx' });
-                    insertMeasurement.run({ url, measurement: root, type: 'mx-root' });
+
+                    if (!root) {
+                        throw new Error(`Could not resolve root from URL "${hostname}"`);
+                    }
+
+                    // Insert measurements
+                    await this.insertMeasurement('mx', url.url, hostname);
+                    await this.insertMeasurement('mx-root', url.url, root);
                 } catch (e) {
-                    insertError.run({
-                        url,
-                        error: e.message,
-                        stack: e.stack,
-                        type: 'mx',
-                    });
-                    insertMeasurement.run({ url, measurement: 'unknown_error', type: 'mx' });
-                    insertMeasurement.run({ url, measurement: 'unknown_error', type: 'mx-root' });
+                    if (e instanceof Error) {
+                        this.handleError(e, url);
+                    }
                 }
 
-                updateProgress((p) => p + 1);
+                this.updateProgress((p) => p + 1);
             });
 
-        finish();
+        this.finish();
     }
 }
-
-export default RetrieveMX;

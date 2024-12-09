@@ -18,7 +18,7 @@ const tasks: (typeof Task)[] = [
     RetrieveSchoolURLs,
     RetrieveElsevier500URLs,
     // RetrieveBasisbeveiligingURLs,
-    // RetrieveMX,
+    RetrieveMX,
     // RetrieveWebhost,
 ];
 
