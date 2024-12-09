@@ -30,6 +30,8 @@
         "github-slugger": "^2.0.0",
         "ink": "^5.0.1",
         "patch-package": "^8.0.0",
+        "pino": "^9.5.0",
+        "pino-pretty": "^13.0.0",
         "psl": "^1.10.0",
         "radash": "^12.1.0",
         "react": "^18.3.1",
