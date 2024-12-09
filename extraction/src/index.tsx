@@ -19,7 +19,7 @@ const tasks: (typeof Task)[] = [
     RetrieveElsevier500URLs,
     // RetrieveBasisbeveiligingURLs,
     RetrieveMX,
-    // RetrieveWebhost,
+    RetrieveWebhost,
 ];
 
 function App() {

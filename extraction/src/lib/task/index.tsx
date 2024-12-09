@@ -26,7 +26,7 @@ export interface TaskHandlers {
     finish: (message?: string) => void;
     updateTotal: Dispatch<SetStateAction<number>>;
     updateProgress: Dispatch<SetStateAction<number>>;
-    log: (message: string, data: unknown[]) => void;
+    log: (message: string, data: unknown) => void;
 }
 
 // export interface Task {
@@ -45,7 +45,7 @@ export class Task {
         protected finish: (message?: string) => void,
         protected updateTotal: Dispatch<SetStateAction<number>>,
         protected updateProgress: Dispatch<SetStateAction<number>>,
-        protected log: (...args: any[]) => void,
+        protected log: (message: string, data?: unknown) => void,
     ) { }
 
     onStart(): void | Promise<void> {
