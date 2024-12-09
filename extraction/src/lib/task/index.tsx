@@ -3,6 +3,7 @@ import { Dispatch, ReactNode, SetStateAction, useCallback, useEffect, useMemo, u
 import Loader from '@/components/Loader.js';
 import React from 'react';
 import convertMsToHumanTime from '@/lib/time.js';
+import logger from '../logger.js';
 
 export interface TaskExecutorProps {
     onFinish: () => void;
@@ -13,6 +14,7 @@ export interface TaskExecutorProps {
 export interface TaskRenderProps {
     active: boolean;
     hasFinished: boolean;
+    hasError: boolean;
     finishMessage: string | null;
     total: number | null;
     progress: number | null;
@@ -24,7 +26,7 @@ export interface TaskHandlers {
     finish: (message?: string) => void;
     updateTotal: Dispatch<SetStateAction<number>>;
     updateProgress: Dispatch<SetStateAction<number>>;
-    log: (...args: any[]) => void;
+    log: (message: string, data: unknown[]) => void;
 }
 
 // export interface Task {
@@ -60,12 +62,19 @@ export class Task {
         progressPercentage,
         active,
         hasFinished,
+        hasError,
         finishMessage,
         expectedRemainder
     }: TaskRenderProps): ReactNode {
         return (
             <Box gap={2}>
-                {!active ? <Text>⏳</Text> : hasFinished ? <Text>✅</Text> : <Loader />}
+                {hasError ? <Text>❌</Text> : (
+                    !active ? <Text>⏳</Text> : (
+                        hasFinished ? <Text>✅</Text> : (
+                            <Loader />
+                        )
+                    )
+                )}
                 <Text>{this.description}</Text>
                 {(progress !== null && total !== null && !finishMessage) ? (
                     <Text>: {progress} / {total} [{progressPercentage}]</Text>
@@ -84,11 +93,16 @@ export class Task {
 export function TaskExecutor({ task, onFinish, active }: TaskExecutorProps) {
     // State variables to keep track of task completion, total and progress
     const [hasFinished, setFinished] = useState(false);
+    const [hasError, setError] = useState(false);
     const [total, updateTotal] = useState<number | null>(null);
     const [progress, updateProgress] = useState<number | null>(null);
     const [finishMessage, setFinishMessage] = useState<string | null>(null);
     const [expectedRemainder, setExpectedRemainder] = useState<number | null>(null);
-    const log = useMemo(() => (...args: any[]) => console.log(`[${task.name}]`, ...args), [task.name]);
+    const log = useMemo(() => (message: string, data?: unknown) => (
+        logger
+            .child({ name: task.name, data })
+            .info(message)
+    ), [task.name]);
 
     // Maintain a ref to progress so we can update it in useEffect without causing an infinite loop
     const progressRef = useRef<{ progress: number | null, total: number | null }>({ progress: null, total: null });
@@ -127,7 +141,13 @@ export function TaskExecutor({ task, onFinish, active }: TaskExecutorProps) {
 
         log(`Starting task`);
 
-        taskInstance.onStart();
+        try {
+            taskInstance.onStart();
+        } catch (err) {
+            logger.child({ name: task.name, err });
+            setError(true);
+            finish();
+        }
 
         const start = new Date().getTime();
 
@@ -147,7 +167,7 @@ export function TaskExecutor({ task, onFinish, active }: TaskExecutorProps) {
         const interval = setInterval(calculateRemainder, 1_000);
 
         return () => clearInterval(interval);
-    }, [active]);
+    }, [active, task.name]);
 
     useEffect(() => {
         progressRef.current = { progress, total };
@@ -162,5 +182,6 @@ export function TaskExecutor({ task, onFinish, active }: TaskExecutorProps) {
         expectedRemainder,
         finishMessage,
         hasFinished,
+        hasError,
     });
 }
