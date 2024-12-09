@@ -1,10 +1,10 @@
 import MeasurementTask from '@/lib/task/MeasurementTask.jsx';
-import { PromisePool } from '@supercharge/promise-pool'
+import { PromisePool } from '@supercharge/promise-pool';
 import { Resolver } from 'dns/promises';
 import psl from 'psl';
-import URL from '@/models/URL.js';
+import { URL } from '@are-we-dependent/data';
 
-const resolver = new Resolver()
+const resolver = new Resolver();
 resolver.setServers([
     '8.8.8.8',
     '8.8.4.4',
@@ -51,7 +51,8 @@ export default class RetrieveMX extends MeasurementTask {
                     // Insert measurements
                     await this.insertMeasurement('mx', url.url, hostname);
                     await this.insertMeasurement('mx-root', url.url, root);
-                } catch (e) {
+                }
+                catch (e) {
                     if (e instanceof Error) {
                         this.handleError(e, url);
                     }

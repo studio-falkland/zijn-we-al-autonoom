@@ -1,11 +1,11 @@
+import { Dataset } from '@are-we-dependent/data';
 import { DatasetDatum, MinimumClassification, MinimumOrganisation } from './DatasetTask.js';
 import { RemoteDatasetTask } from './RemoteDatasetTask.js';
-import Dataset from '@/models/Dataset.js';
 import { parseString } from 'fast-csv';
 
 export interface BaseCSVDatasetConfig<T> {
     name: string;
-    classification: MinimumClassification,
+    classification: MinimumClassification;
     getUrl: (row: T) => string | null;
     getOrganisation: (row: T) => MinimumOrganisation | null;
     delimiter?: string;
@@ -21,7 +21,7 @@ export default class CSVTask extends RemoteDatasetTask {
      */
     public async importCSVFromURL<T>(
         url: string,
-        config: BaseCSVDatasetConfig<T>
+        config: BaseCSVDatasetConfig<T>,
     ) {
         const result = await this.retrieveDatasetFromURL(config.name, url);
         return this.importCSV(result?.dataset, result?.data, config);
@@ -42,9 +42,9 @@ export default class CSVTask extends RemoteDatasetTask {
     async importCSV<T>(
         dataset: Dataset | undefined,
         buffer: ArrayBuffer | undefined,
-        { 
+        {
             headers, classification, getOrganisation, getUrl, name, delimiter,
-        }: BaseCSVDatasetConfig<T>
+        }: BaseCSVDatasetConfig<T>,
     ) {
         // GUARD: Check that the dataset isn't updated already
         if (!dataset || !buffer) {
@@ -75,10 +75,10 @@ export default class CSVTask extends RemoteDatasetTask {
                 data.push({ organisation, url });
 
                 // Update the total of the task
-                this.updateTotal((n) => n + 1)
+                this.updateTotal((n) => n + 1);
             }).on('error', reject)
                 .on('end', () => {
-                    resolve(data)
+                    resolve(data);
                 });
         });
 

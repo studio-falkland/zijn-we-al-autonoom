@@ -1,8 +1,5 @@
-import db from '@/db.js';
+import db, { Measurement, MeasurementError, URL } from '@are-we-dependent/data';
 import { Task } from './index.jsx';
-import URL from '@/models/URL.js';
-import Measurement from '@/models/Measurement.js';
-import MeasurementError from '@/models/MeasurementError.js';
 
 export default class MeasurementTask extends Task {
     async insertMeasurement(
@@ -27,7 +24,7 @@ export default class MeasurementTask extends Task {
         type: string,
         url: string,
         error: Error,
-    ) { 
+    ) {
         // First, insert the error
         const result = await db.createQueryBuilder()
             .insert()
@@ -50,7 +47,7 @@ export default class MeasurementTask extends Task {
 
     async getAllURLs() {
         const urls = await db.manager
-            .createQueryBuilder(URL,'url')
+            .createQueryBuilder(URL, 'url')
             .getMany();
 
         this.log(`Retrieved ${urls.length} URLs.`);

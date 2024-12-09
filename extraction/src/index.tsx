@@ -1,14 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { render, Text } from 'ink';
 
-import RetrieveBasisbeveiligingURLs from '@/tasks/basisbeveiliging/index.js';
+// import RetrieveBasisbeveiligingURLs from '@/tasks/basisbeveiliging/index.js';
 import RetrieveMX from '@/tasks/mx/index.js';
 import RetrieveElsevier500URLs from '@/tasks/elsevier/index.js';
 import RetrieveWebhost from '@/tasks/webhost/index.js';
 import RetrieveRijksoverheidURLs from '@/tasks/rio/index.js';
 import RetrieveSchoolURLs from '@/tasks/duo/index.js';
-import db from './db.js';
-import { Task, TaskExecutor } from './lib/task/index.jsx';
+import { Task } from './lib/task/index.jsx';
+import db from '@are-we-dependent/data';
+import TaskExecutor from './lib/task/executor.jsx';
 
 await db.initialize();
 await db.runMigrations();
@@ -31,7 +32,7 @@ function App() {
         if (state >= tasks.length) {
             process.exit();
         }
-    }, [state])
+    }, [state]);
 
     return (
         <>

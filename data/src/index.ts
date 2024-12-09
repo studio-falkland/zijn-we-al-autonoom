@@ -1,6 +1,7 @@
 import { DB_FOLDER, DB_PATH } from './const.js';
 import fs from 'fs/promises';
 import { DataSource } from 'typeorm';
+
 import Organisation from './models/Organisation.js';
 import URL from './models/URL.js';
 import Measurement from './models/Measurement.js';
@@ -25,5 +26,8 @@ const db = new DataSource({
     ],
     migrationsTransactionMode: 'each',
 });
+
+export { Organisation, URL, Measurement, MeasurementError, Dataset, OrganisationClassification };
+export * from './hierarchy.js';
 
 export default db;

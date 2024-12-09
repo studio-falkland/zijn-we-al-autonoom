@@ -3,7 +3,7 @@ import psl from 'psl';
 /**
  * Parse any form of URL (with potentially a path, subdomain, protocol,
  * whitespace) into the form hostname.tld using the PSL-list.
- * 
+ *
  * @param url - The URL to parse.
  * @returns The hostname in the form hostname.tld or null if invalid.
  */
@@ -36,7 +36,8 @@ export default function parseURL(url?: string | null): string | null {
         }
 
         return null; // Return null if no valid domain could be extracted
-    } catch (err) {
+    }
+    catch (err) {
         // Return null for invalid URLs
         return null;
     }

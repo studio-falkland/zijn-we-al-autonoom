@@ -1,8 +1,8 @@
-import { BusinessSector, OrganisationCategory, Region } from '@/hierarchy.js';
 import CSVTask from '@/lib/task/CSVTask.jsx';
 import { ElsevierOrganisation } from '@/tasks/elsevier/types.js';
+import { Region, OrganisationCategory, BusinessSector } from '@are-we-dependent/data';
 
-const DATASET_LOCATION = '../sources/elsevier-500.csv';
+const DATASET_LOCATION = '../data/sources/elsevier-500.csv';
 
 class RetrieveElsevier500URLs extends CSVTask {
     name = 'retrieve-elsevier-500-urls';
@@ -22,7 +22,7 @@ class RetrieveElsevier500URLs extends CSVTask {
                 }),
                 getUrl: (r) => r.Domeinnaam,
                 delimiter: ';',
-            }
+            },
         );
 
         this.finish();

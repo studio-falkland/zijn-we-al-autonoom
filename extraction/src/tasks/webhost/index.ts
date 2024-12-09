@@ -1,15 +1,14 @@
-import { PromisePool } from '@supercharge/promise-pool'
+import { PromisePool } from '@supercharge/promise-pool';
 
 import { Resolver } from 'dns/promises';
 import { cluster, objectify, unique } from 'radash';
 import IPToASN from '@/lib/IPToAsn.js';
-import parseURL from '@/lib/ParseURL.js';
 import MeasurementTask from '@/lib/task/MeasurementTask.jsx';
 
 /** The number of IP addresses that are processed in one batch */
 const ASN_LOOKUP_CHUNK = 2_000;
 
-const resolver = new Resolver()
+const resolver = new Resolver();
 resolver.setServers([
     '8.8.8.8',
     '8.8.4.4',
@@ -37,10 +36,11 @@ export default class RetrieveWebhost extends MeasurementTask {
 
                     // Return an IP to URL mapping
                     return { ip, url };
-                } catch (e) {
+                }
+                catch (e) {
                     this.updateProgress((p) => p + 1);
                     if (e instanceof Error) {
-                        await this.insertError('webhost-as', url, e)
+                        await this.insertError('webhost-as', url, e);
                     }
                 }
             });
@@ -65,15 +65,16 @@ export default class RetrieveWebhost extends MeasurementTask {
 
             const inserts = batch.map(async ({ ip, url }) => {
                 const result = resultMap[ip];
-                
+
                 try {
                     await this.insertMeasurement(
                         'webhost-as',
-                        url, 
-                        `${result.ASN}-${result.description}`
+                        url,
+                        `${result.ASN}-${result.description}`,
                     );
                     this.updateProgress((p) => p + 1);
-                } catch(e) {
+                }
+                catch (e) {
                     if (e instanceof Error) {
                         await this.insertError('webhost-as', url, e);
                     }

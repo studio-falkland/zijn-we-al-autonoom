@@ -1,4 +1,4 @@
-import { OrganisationCategory, Region, sectors, Sectors } from '@/hierarchy.js';
+import { OrganisationCategory, Region, sectors, Sectors } from '../hierarchy.js';
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import Organisation from './Organisation.js';
 

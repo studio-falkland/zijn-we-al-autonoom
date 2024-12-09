@@ -2,14 +2,16 @@ import BananaSlug from 'github-slugger';
 import { EntityManager } from 'typeorm';
 import { Task } from './index.jsx';
 
-import Organisation from '@/models/Organisation.js';
-import Dataset from '@/models/Dataset.js';
-import URL from '@/models/URL.js'
-import OrganisationClassification from '@/models/Classification.js';
-
-import db from '@/db.js';
 import parseURL from '@/lib/ParseURL.js';
-import { OrganisationCategory, Region, Sectors } from '@/hierarchy.js';
+import db, {
+    Dataset,
+    Organisation,
+    OrganisationCategory,
+    OrganisationClassification,
+    Region,
+    Sectors,
+    URL
+} from '@are-we-dependent/data';
 
 export interface MinimumOrganisation {
     name: string;
@@ -21,9 +23,9 @@ export interface MinimumOrganisation {
 }
 
 export interface MinimumClassification {
-    region: Region,
-    category: OrganisationCategory,
-    sector: Sectors,
+    region: Region;
+    category: OrganisationCategory;
+    sector: Sectors;
 }
 
 export interface DatasetDatum {
@@ -44,28 +46,29 @@ export default class DatasetTask extends Task {
         currentCacheKey: string,
         location: string,
     ) {
-        if (alreadyProcessedDatasets.has(name))  {
+        if (alreadyProcessedDatasets.has(name)) {
             throw new Error(`A dataset with the name "${name}" has already been processed. Are you sure you've set a unique name for the dataset?`);
         }
         alreadyProcessedDatasets.add(name);
 
         // Retrieve the right dataset from the database
-        let dataset = await db.manager.findOne(Dataset, { 
+        let dataset = await db.manager.findOne(Dataset, {
             where: { name },
             // Also, retrieve the organsiation currently associated with this dataset
-            relations: ['organisations']}
+            relations: ['organisations'] },
         );
 
-        this.log(`Expected cache key: "${dataset?.cacheKey}", current: "${currentCacheKey}"`)
+        this.log(`Expected cache key: "${dataset?.cacheKey}", current: "${currentCacheKey}"`);
         // GUARD: If the dataset exists and the cache key is still the same, we
         // can assume the dataset hasn't changed and stop updating the dataset
         if (dataset && currentCacheKey === dataset.cacheKey) {
             this.log('Cache key matches, no updates necessary.');
             return null;
             // GUARD: If the dataset doesn't exist yet, we'll need to create it.
-        } else if (!dataset) {
+        }
+        else if (!dataset) {
             this.log('No dataset found, creating a new one.');
-            dataset = new Dataset()
+            dataset = new Dataset();
             dataset.name = name;
             dataset.source = location;
             dataset.cacheKey = 'initial_load';
@@ -79,7 +82,8 @@ export default class DatasetTask extends Task {
             // We'll update the cache key as soon as the update is done
             dataset.cacheKey = currentCacheKey;
         // GUARD: If the dataset exists, but has a separate key, we'll update it
-        } else {
+        }
+        else {
             this.log('Dataset exists but has a different cache key.');
             dataset.cacheKey = currentCacheKey;
         }

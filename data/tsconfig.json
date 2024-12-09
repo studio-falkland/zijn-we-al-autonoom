@@ -1,0 +1,28 @@
+{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "_version": "22.0.0",
+    "compilerOptions": {
+        "lib": [
+            "es2023"
+        ],
+        "module": "nodenext",
+        "target": "es2022",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "moduleResolution": "node16",
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "strictPropertyInitialization": false,
+        "outDir": "./dist",
+        "sourceMap": true,
+        "declaration": true
+    },
+    "include": [
+        "**/*.ts",
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+    ],
+}

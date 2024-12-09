@@ -1,10 +1,10 @@
 import CSVTask, { BaseCSVDatasetConfig } from '@/lib/task/CSVTask.jsx';
-import { EducationSector, OrganisationCategory, Region } from '@/hierarchy.js';
+import { EducationSector, OrganisationCategory, Region } from '@are-we-dependent/data';
 import { DUORow } from './types.js';
 
 function getDuoConfig(
     name: string,
-    sector: EducationSector
+    sector: EducationSector,
 ): BaseCSVDatasetConfig<DUORow> {
     return {
         name,
@@ -19,14 +19,14 @@ function getDuoConfig(
                 address: `${row.STRAATNAAM} ${row['HUISNUMMER-TOEVOEGING']}`,
                 city: row.PLAATSNAAM,
                 postcode: row.POSTCODE,
-            }
+            };
         },
         getUrl(row) {
-            return row.INTERNETADRES
+            return row.INTERNETADRES;
         },
         delimiter: ';',
         headers: true,
-    }
+    };
 }
 
 export default class RetrieveSchoolURLs extends CSVTask {

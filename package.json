@@ -1,0 +1,29 @@
+{
+  "name": "are-we-dependent",
+  "private": "true",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Deze repository bevat code die gebruikt wordt om het Internet in Beeld project over digitale autonomie te ontwikkelen.",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint",
+    "postinstall": "patch-package"
+  },
+  "author": "Lei Nelissen",
+  "workspaces": [
+    "app",
+    "data",
+    "extraction"
+  ],
+  "devDependencies": {
+    "@stylistic/eslint-plugin": "^2.12.0",
+    "@types/node": "^22.10.1",
+    "@typescript-eslint/parser": "^8.18.0",
+    "eslint": "^9.16.0",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "eslint-plugin-unused-imports": "^4.1.4",
+    "patch-package": "^8.0.0"
+  }
+}

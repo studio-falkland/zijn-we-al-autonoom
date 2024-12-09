@@ -1,0 +1,23 @@
+{
+  "name": "@are-we-dependent/data",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "typeorm": "tsx ../node_modules/.bin/typeorm",
+    "migrations:generate": "npm run typeorm -- migration:generate -d src/dindexb.ts src/migrations/m",
+    "migrations:up": "npm run typeorm -- migration:run -d src/index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "better-sqlite3": "^11.7.0",
+    "typeorm": "^0.3.20"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

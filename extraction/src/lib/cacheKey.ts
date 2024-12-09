@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import fs from 'fs/promises';
 
-type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export interface CacheKeyWithStream {
     buffer: ArrayBuffer;
@@ -9,13 +9,13 @@ export interface CacheKeyWithStream {
 }
 
 export async function getCacheKeyFromUrl(
-    url: string
-): Promise<PartialBy<CacheKeyWithStream, 'buffer'>>  {
+    url: string,
+): Promise<PartialBy<CacheKeyWithStream, 'buffer'>> {
     // Perform a HEAD request on the file
     const response = await fetch(url, { method: 'HEAD' });
 
     // GUARD: Check if the file has an ETag
-    if (response.headers.has('ETag')) 
+    if (response.headers.has('ETag'))
         return { cacheKey: response.headers.get('etag')! };
 
     // GUARD: Check if the file has a last modified date
@@ -33,7 +33,7 @@ export async function getCacheKeyFromUrl(
  * Calculate the SHA-256 hash for a given file
  */
 export async function getCacheKeyFromFile(
-    file: string | ArrayBuffer
+    file: string | ArrayBuffer,
 ): Promise<CacheKeyWithStream> {
     // Optionally create a read stream for the file
     const buffer = typeof file === 'string'

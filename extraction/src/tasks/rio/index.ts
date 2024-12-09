@@ -1,11 +1,9 @@
-import { parseString } from '@fast-csv/parse';
-import db from '../../db.js';
 import { XMLParser } from 'fast-xml-parser';
 import CSVTask, { BaseCSVDatasetConfig } from '@/lib/task/CSVTask.jsx';
-import { GovernmentSector, OrganisationCategory, Region } from '@/hierarchy.js';
 import { RIOXML, RIORow } from './types.js';
 import parseAddress from './parse.js';
 import { DatasetDatum } from '@/lib/task/DatasetTask.js';
+import { GovernmentSector, Region, OrganisationCategory } from '@are-we-dependent/data';
 
 /**
  * Attempt to parse similar looking organisation datasets from the central government.
@@ -40,16 +38,16 @@ function getRioConfig(
                 lon: visitingAddress?.centroideLongitude
                     ? parseFloat(visitingAddress.centroideLongitude)
                     : undefined,
-            }
+            };
         },
         getUrl(row) {
             return row['Internetpagina\'s']
                 .replace(', label: algemeen', '')
-                .trim()
+                .trim();
         },
         delimiter: ';',
         headers: true,
-    }
+    };
 }
 
 export default class RetrieveRijksoverheidURLs extends CSVTask {
@@ -70,7 +68,7 @@ export default class RetrieveRijksoverheidURLs extends CSVTask {
                 'https://organisaties.overheid.nl/export/Waterschappen.csv',
                 getRioConfig('rio-water-boards', GovernmentSector.WaterBoard),
             ),
-            this.importCSVFromPath<{ name: string, url: string }>('../sources/ministeries.csv', {
+            this.importCSVFromPath<{ name: string; url: string }>('../data/sources/ministeries.csv', {
                 name: 'custom-ministries',
                 classification: {
                     region: Region.National,
@@ -108,8 +106,8 @@ export default class RetrieveRijksoverheidURLs extends CSVTask {
                 organisation: {
                     name: o['p:naam'],
                 },
-                url: o['p:contact']['p:url']
-            }
+                url: o['p:contact']['p:url'],
+            };
         });
 
         this.insertOrUpdate(
@@ -119,8 +117,8 @@ export default class RetrieveRijksoverheidURLs extends CSVTask {
                 region: Region.National,
                 category: OrganisationCategory.Government,
                 sector: GovernmentSector.Other,
-            }
-        )
+            },
+        );
 
         this.finish();
     }
