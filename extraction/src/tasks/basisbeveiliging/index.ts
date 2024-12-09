@@ -1,7 +1,7 @@
-import { Task } from '../../lib/Task/index.jsx';
-import { BasisBeveiligingConfig, Organization, URL } from '../lib/Basisbeveiliging';
-import db, { insertOrganisation, insertUrl } from '../../db.js';
+import CSVTask from '@/lib/task/CSVTask.jsx';
 import psl from 'psl';
+import { BasisBeveiligingConfig } from './types.js';
+import DatasetTask from '@/lib/task/DatasetTask.js';
 
 /**
  * We retain organisations from other datasets. Since we attempt to collect a
@@ -51,94 +51,77 @@ const LAYER_BLACKLIST = new Set([
     // "vital_finance_bank_eer_dutch_market"
 ]);
 
-/**
- * Convert a CSV-formatted JSON array (first row header, proceeding rows data)
- * into an array of objects.
- */
-function parseCSVJSON<T>(input: unknown[][]): T[] {
-    const headers = input.shift() as string[];
+export default class RetrieveBasisbeveiligingURLs extends DatasetTask {
+    name = 'retrieve_basisbeveiliging_urls';
+    description = 'Retrieving URLs from basisbeveiliging.nl';
 
-    const rows = input.map((row) => {
-        return headers.reduce((obj, header, i) => {
-            obj[header] = row[i];
-            return obj;
-        }, {}) as T;
-    });
-
-    return rows;
-}
-
-const RetrieveBasisbeveiligingURLs: Task = {
-    name: 'retrieve_basisbeveiliging_urls',
-    description: 'Retrieving URLs from basisbeveiliging.nl',
-    async onStart({ finish, updateProgress, updateTotal }) {
+    async onStart() {
         // Retrieve the available config from basisbeveiliging
         const configResponse = await fetch('https://basisbeveiliging.nl/data/config/');
-        const config: BasisBeveiligingConfig = await configResponse.json();
+        const config = await configResponse.json() as BasisBeveiligingConfig;
         const layers = config.country_and_layers.NL.layers
             .filter((layer) => !LAYER_BLACKLIST.has(layer));
 
-        // Update the progress
-        updateTotal(layers.length);
+        // const inserts = layers.map((layer) => {
+        //     this.
+        // });
 
         // Loop through all layers, pulling all organisations and urls in the process
-        const results = await Promise.all(layers.map(async (layer) => {
-            // Retrieve the organisations for this layer
-            const orgRequest = await fetch(`https://basisbeveiliging.nl/data/export/organizations/NL/${layer}/json/`);
-            const orgData = (await orgRequest.json()).data
-            const organisations = parseCSVJSON<Organization>(orgData);
+        // const results = await Promise.all(layers.map(async (layer) => {
+        //     // Retrieve the organisations for this layer
+        //     const orgRequest = await fetch(`https://basisbeveiliging.nl/data/export/organizations/NL/${layer}/json/`);
+        //     const orgData = (await orgRequest.json()).data
+        //     const organisations = parseCSVJSON<Organization>(orgData);
 
-            // Insert all organisations into the database
-            const insertAllOrgs = db.transaction((orgs: Organization[]) => {
-                for (const org of orgs) 
-                    insertOrganisation.run({ 
-                        ...org,
-                        source: 'basisbeveiliging',
-                        category: `bb_${layer}`
-                    });
-            });
-            insertAllOrgs(organisations);
+        //     // Insert all organisations into the database
+        //     const insertAllOrgs = db.transaction((orgs: Organization[]) => {
+        //         for (const org of orgs) 
+        //             insertOrganisation.run({ 
+        //                 ...org,
+        //                 source: 'basisbeveiliging',
+        //                 category: `bb_${layer}`
+        //             });
+        //     });
+        //     insertAllOrgs(organisations);
 
-            // Retrieve all URLs for this layer
-            const urlRequest = await fetch(`https://basisbeveiliging.nl/data/export/urls_only/NL/${layer}/json/`);
-            const urlData = (await urlRequest.json()).data;
-            const urls = parseCSVJSON<URL>(urlData);
+        //     // Retrieve all URLs for this layer
+        //     const urlRequest = await fetch(`https://basisbeveiliging.nl/data/export/urls_only/NL/${layer}/json/`);
+        //     const urlData = (await urlRequest.json()).data;
+        //     const urls = parseCSVJSON<URL>(urlData);
 
-            const roots = new Set<string>();
+        //     const roots = new Set<string>();
 
-            urls.forEach((d) => {
-                const root = psl.get(d.url);
-                if (root) roots.add(root);
-            });
+        //     urls.forEach((d) => {
+        //         const root = psl.get(d.url);
+        //         if (root) roots.add(root);
+        //     });
 
-            // Insert URLs into database
-            const insertAllURLs = db.transaction((urls: URL[]) => {
-                for (const url of roots) 
-                    insertUrl.run({ 
-                        url: url,
-                        category: `bb_${layer}`,
-                        organisation_id: null,
-                    });
-            });
-            insertAllURLs(urls);
+        //     // Insert URLs into database
+        //     const insertAllURLs = db.transaction((urls: URL[]) => {
+        //         for (const url of roots) 
+        //             insertUrl.run({ 
+        //                 url: url,
+        //                 category: `bb_${layer}`,
+        //                 organisation_id: null,
+        //             });
+        //     });
+        //     insertAllURLs(urls);
 
-            // Update progress
-            updateProgress((p) => p + 1);
+        //     // Update progress
+        //     updateProgress((p) => p + 1);
 
-            return [organisations.length, urls.length];
-        }));
+        //     return [organisations.length, urls.length];
+        // }));
 
-        // Calculate the total sum of organisations and URLs retrieved
-        const sumResults = results.reduce((sum, subresult) => {
-            subresult.forEach((subtotal, i) => {
-                sum[i] += subtotal;
-            });
+        // // Calculate the total sum of organisations and URLs retrieved
+        // const sumResults = results.reduce((sum, subresult) => {
+        //     subresult.forEach((subtotal, i) => {
+        //         sum[i] += subtotal;
+        //     });
 
-            return sum;
-        });
+        //     return sum;
+        // });
 
-        finish(`Retrieved ${sumResults[0]} organisations and ${sumResults[1]} URLs`);
+        // finish(`Retrieved ${sumResults[0]} organisations and ${sumResults[1]} URLs`);
     },
 };
-
-export default RetrieveBasisbeveiligingURLs;

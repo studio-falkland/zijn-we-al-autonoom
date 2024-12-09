@@ -20,7 +20,6 @@ export class M1733492735586 implements MigrationInterface {
                 "created_at" datetime NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ')),
                 "url" text NOT NULL,
                 "error" integer,
-                CONSTRAINT "REL_ad3aa937441fb7305a7e2516cd" UNIQUE ("url"),
                 CONSTRAINT "REL_63489fe2ac12ebe464b4ec7098" UNIQUE ("error")
             )
         `);
