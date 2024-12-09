@@ -1,5 +1,4 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
-import URL from './URL.js';
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import Measurement from './Measurement.js';
 
 @Entity()
@@ -14,8 +13,8 @@ export default class MeasurementError {
     stack: string;
 
     @OneToOne(() => Measurement, (measurement) => measurement.error)
-    measurement: Measurement;
-        
+    measurement: Relation<Measurement>;
+
     @Column({ type: 'datetime', default: () => 'datetime(\'now\')' })
     created_at: Date;
 }

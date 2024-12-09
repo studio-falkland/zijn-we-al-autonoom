@@ -1,5 +1,5 @@
 {
-  "name": "poc_app",
+  "name": "@are-we-dependent/app",
   "version": "0.1.0",
   "private": true,
   "scripts": {

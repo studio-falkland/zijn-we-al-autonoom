@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class Pragma1733487496374 implements MigrationInterface {
     transaction = false;
@@ -10,5 +10,4 @@ export class Pragma1733487496374 implements MigrationInterface {
 
     public async down(queryRunner: QueryRunner): Promise<void> {
     }
-
 }

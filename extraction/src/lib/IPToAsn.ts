@@ -23,13 +23,13 @@ export type IPToASNResponse = {
 class IPToASN {
     serviceOptions = {
         host: SERVICE_HOST,
-        port: SERVICE_PORT
+        port: SERVICE_PORT,
     };
 
     query(addresses: string[]) {
         return new Promise<IPToASNResponse[]>((resolve, reject) => {
             const client = net.connect(this.serviceOptions);
-            const results: IPToASNResponse[] = []; 
+            const results: IPToASNResponse[] = [];
             client.setEncoding('utf8');
 
             client.on('connect', () => {
@@ -80,9 +80,9 @@ class IPToASN {
         const commentResponseLine = 'Bulk mode;';
         const fieldDelimiter = '|';
 
-        if (line.length === 0) { return; }
-        if (line.indexOf(errorLineMessage) === 0) { return; }
-        if (line.indexOf(commentResponseLine) === 0) { return; }
+        if (line.length === 0) return;
+        if (line.indexOf(errorLineMessage) === 0) return;
+        if (line.indexOf(commentResponseLine) === 0) return;
 
         const resultChunks = line.split(fieldDelimiter)
             .map((field) => field.trim());
@@ -102,7 +102,7 @@ class IPToASN {
             countryCode: countryCode,
             registrar: registrar,
             dateString: dateString,
-            description: description
+            description: description,
         };
     }
 }

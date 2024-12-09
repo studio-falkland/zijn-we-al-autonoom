@@ -30,7 +30,7 @@ export enum FinancialSector {
     Bank = 'financial_bank',
     PaymentProvider = 'financial_payment_provider',
     Insurance = 'financial_insurance',
-    Other  = 'financial_other',
+    Other = 'financial_other',
 }
 
 export enum BusinessSector {
@@ -40,7 +40,7 @@ export enum BusinessSector {
 
 export enum HealthcareSector {
     Hospital = 'healthcare_hospital',
-    HealthcareProvider  = 'healthcare_provider',
+    HealthcareProvider = 'healthcare_provider',
     Pharmacy = 'healthcare_pharmacy',
 }
 
@@ -55,18 +55,18 @@ export const sectors = [GovernmentSector, FinancialSector, BusinessSector, Healt
 export type Sectors = GovernmentSector | FinancialSector | BusinessSector | HealthcareSector | EducationSector;
 
 export type Hierarchy = {
-    type: Region,
+    type: Region;
     children: {
-        type: OrganisationCategory,
+        type: OrganisationCategory;
         children: {
             type: GovernmentSector
                 | FinancialSector
                 | BusinessSector
                 | HealthcareSector
-                | EducationSector,
-        }[]
-    }[]
-}[]
+                | EducationSector;
+        }[];
+    }[];
+}[];
 
 /** This hierarchy describes the full set of organisations that are tracked in
  * the index. */
@@ -77,35 +77,35 @@ const hierarchy: Hierarchy = [
             {
                 type: OrganisationCategory.Government,
                 children: [
-                    { type: GovernmentSector.Province,},
-                    { type: GovernmentSector.Municipality,},
-                    { type: GovernmentSector.Other,}
-                ]
+                    { type: GovernmentSector.Province },
+                    { type: GovernmentSector.Municipality },
+                    { type: GovernmentSector.Other },
+                ],
             },
             {
                 type: OrganisationCategory.Business,
                 children: [
-                    { type: BusinessSector.Other,}
-                ]
+                    { type: BusinessSector.Other },
+                ],
             },
             {
                 type: OrganisationCategory.Healthcare,
                 children: [
-                    { type: HealthcareSector.Hospital,},
-                    { type: HealthcareSector.HealthcareProvider,},
-                    { type: HealthcareSector.Pharmacy,}
-                ]
+                    { type: HealthcareSector.Hospital },
+                    { type: HealthcareSector.HealthcareProvider },
+                    { type: HealthcareSector.Pharmacy },
+                ],
             },
             {
                 type: OrganisationCategory.Education,
                 children: [
-                    { type: EducationSector.Daycare,},
-                    { type: EducationSector.Primary,},
-                    { type: EducationSector.Secondary,},
-                    { type: EducationSector.Higher,}
-                ]
-            }
-        ]
+                    { type: EducationSector.Daycare },
+                    { type: EducationSector.Primary },
+                    { type: EducationSector.Secondary },
+                    { type: EducationSector.Higher },
+                ],
+            },
+        ],
     },
     {
         type: Region.National,
@@ -113,26 +113,26 @@ const hierarchy: Hierarchy = [
             {
                 type: OrganisationCategory.Government,
                 children: [
-                    { type: GovernmentSector.Ministry,},
-                ]
+                    { type: GovernmentSector.Ministry },
+                ],
             },
             {
                 type: OrganisationCategory.Financial,
                 children: [
-                    { type: FinancialSector.Bank,},
-                    { type: FinancialSector.PaymentProvider,},
-                    { type: FinancialSector.Insurance,},
-                    { type: FinancialSector.Other,}
-                ]
+                    { type: FinancialSector.Bank },
+                    { type: FinancialSector.PaymentProvider },
+                    { type: FinancialSector.Insurance },
+                    { type: FinancialSector.Other },
+                ],
             },
             {
                 type: OrganisationCategory.Business,
                 children: [
-                    { type: BusinessSector.Largest,},
-                    { type: BusinessSector.Other,}
-                ]
+                    { type: BusinessSector.Largest },
+                    { type: BusinessSector.Other },
+                ],
             },
-        ]
+        ],
     },
 ];
 
@@ -144,7 +144,7 @@ export const flatHierarchy = hierarchy.flatMap((region) => {
                 sector: sector.type,
                 category: category.type,
                 region: region.type,
-            }; 
+            };
         });
     });
 });

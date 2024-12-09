@@ -1,7 +1,7 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class M1733492735586 implements MigrationInterface {
-    name = 'M1733492735586'
+    name = 'M1733492735586';
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
@@ -29,5 +29,4 @@ export class M1733492735586 implements MigrationInterface {
         await queryRunner.query(`DROP TABLE "measurement"`);
         await queryRunner.query(`DROP TABLE "measurement_error"`);
     }
-
 }

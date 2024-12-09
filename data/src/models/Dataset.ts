@@ -14,10 +14,10 @@ export default class Dataset {
 
     @Column('text')
     cacheKey: string;
-    
+
     @Column({ type: 'datetime', default: () => 'datetime(\'now\')' })
     created_at: Date;
-    
+
     @Column({ type: 'datetime', default: () => 'datetime(\'now\')' })
     updated_at: Date;
 

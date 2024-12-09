@@ -1,5 +1,3 @@
-import CSVTask from '@/lib/task/CSVTask.jsx';
-import psl from 'psl';
 import { BasisBeveiligingConfig } from './types.js';
 import DatasetTask from '@/lib/task/DatasetTask.js';
 
@@ -9,39 +7,39 @@ import DatasetTask from '@/lib/task/DatasetTask.js';
  * basisbeveiliging dataset. Hence, we'll filter them here.
  */
 const LAYER_BLACKLIST = new Set([
-    "municipality",
+    'municipality',
     // "cyber",
     // "healthcare",
-    "province",
-    "waterschappen",
-    "safety_region",
+    'province',
+    'waterschappen',
+    'safety_region',
     // "political_parties",
-    "government",
-    "education_university",
-    "education_hbo",
-    "education_junior_college",
-    "education_secondary_education",
-    "education_primary_education",
-    "central_government_general_affairs",
-    "central_government_interior_relations",
-    "central_government_foreign_affairs",
-    "central_government_defense",
-    "central_government_economy",
-    "central_government_finance",
-    "central_government_infrastructure",
-    "central_government_justice",
-    "central_government_agriculture",
-    "central_government_education",
-    "central_government_employment",
-    "central_government_health",
-    "zelfstandige-bestuursorganen",
-    "adviescolleges",
-    "agentschappen",
-    "openbare-lichamen-voor-beroep-en-bedrijf",
-    "koepelorganisaties",
-    "saba",
-    "st_eustatius",
-    "bonaire",
+    'government',
+    'education_university',
+    'education_hbo',
+    'education_junior_college',
+    'education_secondary_education',
+    'education_primary_education',
+    'central_government_general_affairs',
+    'central_government_interior_relations',
+    'central_government_foreign_affairs',
+    'central_government_defense',
+    'central_government_economy',
+    'central_government_finance',
+    'central_government_infrastructure',
+    'central_government_justice',
+    'central_government_agriculture',
+    'central_government_education',
+    'central_government_employment',
+    'central_government_health',
+    'zelfstandige-bestuursorganen',
+    'adviescolleges',
+    'agentschappen',
+    'openbare-lichamen-voor-beroep-en-bedrijf',
+    'koepelorganisaties',
+    'saba',
+    'st_eustatius',
+    'bonaire',
     // "healthcare_hospital",
     // "healthcare_ggd",
     // "healthcare_ggz",
@@ -75,8 +73,8 @@ export default class RetrieveBasisbeveiligingURLs extends DatasetTask {
 
         //     // Insert all organisations into the database
         //     const insertAllOrgs = db.transaction((orgs: Organization[]) => {
-        //         for (const org of orgs) 
-        //             insertOrganisation.run({ 
+        //         for (const org of orgs)
+        //             insertOrganisation.run({
         //                 ...org,
         //                 source: 'basisbeveiliging',
         //                 category: `bb_${layer}`
@@ -98,8 +96,8 @@ export default class RetrieveBasisbeveiligingURLs extends DatasetTask {
 
         //     // Insert URLs into database
         //     const insertAllURLs = db.transaction((urls: URL[]) => {
-        //         for (const url of roots) 
-        //             insertUrl.run({ 
+        //         for (const url of roots)
+        //             insertUrl.run({
         //                 url: url,
         //                 category: `bb_${layer}`,
         //                 organisation_id: null,
@@ -123,5 +121,5 @@ export default class RetrieveBasisbeveiligingURLs extends DatasetTask {
         // });
 
         // finish(`Retrieved ${sumResults[0]} organisations and ${sumResults[1]} URLs`);
-    },
-};
+    }
+}

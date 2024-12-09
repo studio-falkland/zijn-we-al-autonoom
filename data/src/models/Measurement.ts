@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import MeasurementError from './MeasurementError.js';
 import URL from './URL.js';
 
@@ -9,7 +9,7 @@ export default class Measurement {
 
     /** The URL that is being measured */
     @ManyToOne(() => URL, (url) => url.measurements, { nullable: false })
-    @JoinColumn({ name: 'url', referencedColumnName: 'url'  })
+    @JoinColumn({ name: 'url', referencedColumnName: 'url' })
     url: string;
 
     /** The type of measurement being carried out */
@@ -22,8 +22,8 @@ export default class Measurement {
 
     @OneToOne(() => MeasurementError, { nullable: true })
     @JoinColumn({ name: 'error', referencedColumnName: 'id' })
-    error: MeasurementError | null;
-        
+    error: Relation<MeasurementError> | null;
+
     @Column({ type: 'datetime', default: () => 'datetime(\'now\')' })
     created_at: Date;
 }

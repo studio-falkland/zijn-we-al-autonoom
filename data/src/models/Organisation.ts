@@ -13,7 +13,7 @@ export default class Organisation {
     name: string;
 
     /** A unique, navigable slug for the organisation */
-    @Column({ type: 'text', unique: true,  })
+    @Column({ type: 'text', unique: true })
     slug: string;
 
     /** The street address for the organsiation */
@@ -39,10 +39,10 @@ export default class Organisation {
     /** Whether the organisation is active or not */
     @Column({ type: 'boolean', default: true })
     active: boolean;
-    
+
     @Column({ type: 'datetime', default: () => 'datetime(\'now\')' })
     created_at: Date;
-    
+
     @Column({ type: 'datetime', default: () => 'datetime(\'now\')' })
     updated_at: Date;
 
