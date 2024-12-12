@@ -21,3 +21,6 @@ export const IPINFO_DB_LOCATION = path.join(SOURCES_FOLDER, 'ip-info-country-asn
 /** The minimum amount of time that needs to pass before a new update for a
  * dataset is attempted. */
 export const MINIMUM_DATASET_UPDATE_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+/** The max total of parallel jobs */
+export const CONCURRENCY = 50;

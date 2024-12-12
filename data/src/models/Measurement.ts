@@ -20,6 +20,21 @@ export default class Measurement {
     @Column('text')
     data: string;
 
+    @Column('text', { nullable: true })
+    ip?: string;
+    
+    @Column('text', { nullable: true })
+    domain_name?: string;
+
+    @Column('int', { nullable: true })
+    asn?: number;
+
+    @Column('text', { nullable: true })
+    as_organisation?: string;
+
+    @Column('text', { nullable: true })
+    country_code?: string;
+
     @OneToOne(() => MeasurementError, { nullable: true })
     @JoinColumn({ name: 'error', referencedColumnName: 'id' })
     error: Relation<MeasurementError> | null;

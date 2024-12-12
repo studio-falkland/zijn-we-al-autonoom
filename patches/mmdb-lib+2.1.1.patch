@@ -1,0 +1,13 @@
+diff --git a/node_modules/mmdb-lib/lib/index.d.ts b/node_modules/mmdb-lib/lib/index.d.ts
+index ad83aa7..a5f9d7c 100644
+--- a/node_modules/mmdb-lib/lib/index.d.ts
++++ b/node_modules/mmdb-lib/lib/index.d.ts
+@@ -2,7 +2,7 @@
+ import { Metadata } from './metadata';
+ import { Response } from './reader/response';
+ import { ReaderOptions } from './types';
+-export declare class Reader<T extends Response> {
++export declare class Reader<T> {
+     metadata: Metadata;
+     private decoder;
+     private db;
