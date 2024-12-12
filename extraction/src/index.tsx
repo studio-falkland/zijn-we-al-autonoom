@@ -10,17 +10,19 @@ import RetrieveSchoolURLs from '@/tasks/duo/index.js';
 import { Task } from './lib/task/index.jsx';
 import db from '@are-we-dependent/data';
 import TaskExecutor from './lib/task/executor.jsx';
+import RetrieveIPInfoDatabase from './tasks/ipinfo/index.js';
 
 await db.initialize();
 await db.runMigrations();
 
 const tasks: (typeof Task)[] = [
+    RetrieveIPInfoDatabase,
     RetrieveRijksoverheidURLs,
     RetrieveSchoolURLs,
     RetrieveElsevier500URLs,
     // RetrieveBasisbeveiligingURLs,
-    RetrieveMX,
-    RetrieveWebhost,
+    // RetrieveMX,
+    // RetrieveWebhost,
 ];
 
 function App() {

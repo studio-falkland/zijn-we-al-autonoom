@@ -12,6 +12,8 @@ import db, {
     Sectors,
     URL
 } from '@are-we-dependent/data';
+import { CacheKeyWithOptionalStream } from '../cacheKey.js';
+import { MINIMUM_DATASET_UPDATE_INTERVAL_MS } from '@/const.js';
 
 export interface MinimumOrganisation {
     name: string;
@@ -43,8 +45,8 @@ const alreadyProcessedDatasets = new Set();
 export default class DatasetTask extends Task {
     async retrieveAndMatchDataset(
         name: string,
-        currentCacheKey: string,
         location: string,
+        getCacheKey: () => Promise<CacheKeyWithOptionalStream>,
     ) {
         if (alreadyProcessedDatasets.has(name)) {
             throw new Error(`A dataset with the name "${name}" has already been processed. Are you sure you've set a unique name for the dataset?`);
@@ -57,6 +59,17 @@ export default class DatasetTask extends Task {
             // Also, retrieve the organsiation currently associated with this dataset
             relations: ['organisations'] },
         );
+
+        // Calculate the amount of time that has passed since last update
+        const timeSinceLastUpdate = new Date().getTime() - (dataset?.updated_at.getTime() || 0);
+        // GUARD: If not enough time has passed since the last update, we'll
+        // skip the update
+        if (dataset && timeSinceLastUpdate < MINIMUM_DATASET_UPDATE_INTERVAL_MS) {
+            return null;
+        }
+
+        // Retrieve the current cache key
+        const { cacheKey: currentCacheKey, buffer } = await getCacheKey();
 
         this.log(`Expected cache key: "${dataset?.cacheKey}", current: "${currentCacheKey}"`);
         // GUARD: If the dataset exists and the cache key is still the same, we
@@ -88,7 +101,11 @@ export default class DatasetTask extends Task {
             dataset.cacheKey = currentCacheKey;
         }
 
-        return dataset;
+        return {
+            dataset,
+            buffer,
+            cacheKey: currentCacheKey,
+        };
     }
 
     async insertOrUpdate(
@@ -131,8 +148,7 @@ export default class DatasetTask extends Task {
         });
 
         // Lastly, update the dataset, just in case
-        this.log('DATASET', { dataset });
-        await db.manager.update(Dataset, dataset.id, { cacheKey: dataset.cacheKey });
+        await this.finishDataset(dataset);
 
         // Clean up after any leftover organsiations
         await this.cleanupOrganisationsMap(map);
@@ -260,5 +276,13 @@ export default class DatasetTask extends Task {
             // Make sure to wait for all queries to complete
             await Promise.all(queries);
         });
+    }
+
+    /**
+     * Call this at the end of a task to mark it as completed and to ensure the
+     * dataset is updated with the correct cache key.
+     */
+    public async finishDataset(dataset: Dataset) {
+        return db.manager.update(Dataset, dataset.id, { cacheKey: dataset.cacheKey });
     }
 }

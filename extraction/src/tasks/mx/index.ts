@@ -26,7 +26,7 @@ export default class RetrieveMX extends MeasurementTask {
         this.updateTotal(urls.length);
 
         await PromisePool
-            .withConcurrency(25)
+            .withConcurrency(5)
             .withTaskTimeout(5_000)
             .for(urls)
             .handleError(this.handleError)

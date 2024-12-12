@@ -1,4 +1,4 @@
-import { DB_FOLDER, DB_PATH } from './const.js';
+import { DB_FOLDER, DB_PATH, MIGRATIONS_GLOB } from './const.js';
 import fs from 'fs/promises';
 import { DataSource } from 'typeorm';
 
@@ -15,7 +15,7 @@ await fs.mkdir(DB_FOLDER, { recursive: true });
 const db = new DataSource({
     type: 'better-sqlite3',
     database: DB_PATH,
-    migrations: ['src/migrations/**/*.ts'],
+    migrations: [MIGRATIONS_GLOB],
     entities: [
         Organisation,
         URL,
