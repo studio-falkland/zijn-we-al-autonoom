@@ -3,18 +3,14 @@ import { Task } from './index.jsx';
 
 export default class MeasurementTask extends Task {
     async insertMeasurement(
-        type: string,
-        url: string,
-        data: string,
+        values: Omit<Partial<Measurement>, 'id' | 'created_at' | 'error'>,
         errorId?: number,
     ) {
         return db.createQueryBuilder()
             .insert()
             .into(Measurement)
             .values({
-                type,
-                url,
-                data,
+                ...values,
                 error: errorId ? { id: errorId } : null,
             })
             .execute();
@@ -37,12 +33,11 @@ export default class MeasurementTask extends Task {
             .execute();
 
         // Then, insert the measurement with the error
-        return this.insertMeasurement(
+        return this.insertMeasurement({
             type,
             url,
-            'error',
-            result.raw[0].id,
-        );
+            data: "error"
+        }, result.raw[0].id);
     }
 
     async getAllURLs() {

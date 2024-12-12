@@ -3,20 +3,20 @@ import { PromisePool } from '@supercharge/promise-pool';
 import { Resolver } from 'dns/promises';
 import psl from 'psl';
 import { URL } from '@are-we-dependent/data';
+import lookup from '@/lib/ipLookup.js';
+import { CONCURRENCY } from '@/const.js';
 
 const resolver = new Resolver();
 resolver.setServers([
-    '8.8.8.8',
-    '8.8.4.4',
+    '1.1.1.1'
 ]);
 
 export default class RetrieveMX extends MeasurementTask {
     name = 'check-mx';
     description = 'Retrieving MX records';
 
-    async handleError(err: Error, url: URL) {
+    handleError = async (err: Error, url: URL) => {
         await this.insertError('mx', url.url, err);
-        await this.insertError('mx-root', url.url, err);
     }
 
     async onStart() {
@@ -26,7 +26,7 @@ export default class RetrieveMX extends MeasurementTask {
         this.updateTotal(urls.length);
 
         await PromisePool
-            .withConcurrency(5)
+            .withConcurrency(CONCURRENCY)
             .withTaskTimeout(5_000)
             .for(urls)
             .handleError(this.handleError)
@@ -37,6 +37,7 @@ export default class RetrieveMX extends MeasurementTask {
 
                     // Retrieve the IP address for the record
                     const [ip] = await resolver.resolve4(mx.exchange);
+                    const { asn, as_name, country } = lookup.get(ip) || {};
 
                     // Retrieve the hostname for that IP (reverse DNS lookup)
                     const [hostname] = await resolver.reverse(ip);
@@ -49,8 +50,16 @@ export default class RetrieveMX extends MeasurementTask {
                     }
 
                     // Insert measurements
-                    await this.insertMeasurement('mx', url.url, hostname);
-                    await this.insertMeasurement('mx-root', url.url, root);
+                    await this.insertMeasurement({ 
+                        type: 'mx',
+                        url: url.url,
+                        domain_name: root,
+                        ip,
+                        data: root,
+                        asn: asn ? Number.parseInt(asn.replace(/AS/, '')) : undefined,
+                        as_organisation: as_name,
+                        country_code: country,
+                    });
                 }
                 catch (e) {
                     if (e instanceof Error) {

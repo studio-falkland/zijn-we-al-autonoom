@@ -1,12 +1,10 @@
 import { PromisePool } from '@supercharge/promise-pool';
 
 import { Resolver } from 'dns/promises';
-import { cluster, objectify, unique } from 'radash';
-import IPToASN from '@/lib/IPToAsn.js';
 import MeasurementTask from '@/lib/task/MeasurementTask.jsx';
-
-/** The number of IP addresses that are processed in one batch */
-const ASN_LOOKUP_CHUNK = 2_000;
+import { CONCURRENCY } from '@/const.js';
+import lookup from '@/lib/ipLookup.js';
+import psl from 'psl';
 
 const resolver = new Resolver();
 resolver.setServers([
@@ -21,10 +19,10 @@ export default class RetrieveWebhost extends MeasurementTask {
     async onStart() {
         // Retrieve all URLs and update total
         const urls = await this.getAllURLs();
-        this.updateTotal(urls.length * 2);
+        this.updateTotal(urls.length);
 
-        const { results } = await PromisePool
-            .withConcurrency(25)
+        await PromisePool
+            .withConcurrency(CONCURRENCY)
             .withTaskTimeout(5_000)
             .handleError((err) => console.error(err))
             .for(urls.map((u) => u.url))
@@ -32,57 +30,40 @@ export default class RetrieveWebhost extends MeasurementTask {
                 try {
                     // Retrieve IPv4 address
                     const [ip] = await resolver.resolve4(url);
-                    this.updateProgress((p) => p + 1);
 
-                    // Return an IP to URL mapping
-                    return { ip, url };
-                }
-                catch (e) {
-                    this.updateProgress((p) => p + 1);
-                    if (e instanceof Error) {
-                        await this.insertError('webhost-as', url, e);
+                    // Retrieve the geolocation and ASN
+                    const {
+                        asn, as_name, country,
+                    } = lookup.get(ip) || {};
+
+                    // Do a reverse lookup of the IP
+                    const [domain_name] = await resolver.reverse(ip);
+                    const root = psl.get(domain_name);
+
+                    // GUARD: Check that the ASN returns something
+                    if (!asn) {
+                        this.log('ASN lookup', lookup.get(ip))
+                        throw new Error('Could not retrieve ASN');
                     }
-                }
-            });
 
-        // Mark the first round done
-        this.updateProgress(urls.length);
-
-        // Filter any IPs that were unsuccessfully retrieved
-        const ips = results.filter((r) => !!r)
-            // Sort them, so that overlapping IPs are more often in the same batch
-            .sort((a, b) => a.ip.localeCompare(b.ip));
-
-        // Retrieve ASNns for batches of IP addresses
-        for await (const batch of cluster(ips, ASN_LOOKUP_CHUNK)) {
-            // Create a list of IPs
-            const ips = unique(batch.map((o) => o.ip));
-
-            // Query the database for the AS for said batch
-            const results = (await new IPToASN().query(ips))
-                .filter((r) => !!r.address);
-            const resultMap = objectify(results, (r) => r.address!);
-
-            const inserts = batch.map(async ({ ip, url }) => {
-                const result = resultMap[ip];
-
-                try {
-                    await this.insertMeasurement(
-                        'webhost-as',
+                    await this.insertMeasurement({
+                        type: 'webhost-as',
                         url,
-                        `${result.ASN}-${result.description}`,
-                    );
-                    this.updateProgress((p) => p + 1);
+                        data: asn,
+                        asn: asn ? Number.parseInt(asn.replace(/AS/, '')) : undefined,
+                        as_organisation: as_name,
+                        country_code: country,
+                        domain_name: root || undefined,
+                    });
                 }
                 catch (e) {
                     if (e instanceof Error) {
-                        await this.insertError('webhost-as', url, e);
+                        await this.insertError('webhost', url, e);
                     }
                 }
-            });
 
-            await Promise.all(inserts);
-        }
+                this.updateProgress((p) => p + 1);
+            });
 
         this.finish();
     }

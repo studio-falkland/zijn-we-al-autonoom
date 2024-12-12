@@ -21,8 +21,8 @@ const tasks: (typeof Task)[] = [
     RetrieveSchoolURLs,
     RetrieveElsevier500URLs,
     // RetrieveBasisbeveiligingURLs,
-    // RetrieveMX,
-    // RetrieveWebhost,
+    RetrieveMX,
+    RetrieveWebhost,
 ];
 
 function App() {

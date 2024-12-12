@@ -23,6 +23,7 @@
         "fast-xml-parser": "^4.5.0",
         "github-slugger": "^2.0.0",
         "ink": "^5.0.1",
+        "maxmind": "^4.3.23",
         "patch-package": "^8.0.0",
         "pino": "^9.5.0",
         "pino-pretty": "^13.0.0",
