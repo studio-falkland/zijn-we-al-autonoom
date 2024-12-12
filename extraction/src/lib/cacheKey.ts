@@ -8,11 +8,15 @@ export interface CacheKeyWithStream {
     cacheKey: string;
 }
 
+export type CacheKeyWithOptionalStream = PartialBy<CacheKeyWithStream, 'buffer'>;
+
 export async function getCacheKeyFromUrl(
     url: string,
-): Promise<PartialBy<CacheKeyWithStream, 'buffer'>> {
+): Promise<CacheKeyWithOptionalStream> {
     // Perform a HEAD request on the file
     const response = await fetch(url, { method: 'HEAD' });
+
+    if (!response.ok) throw new Error(`Failed to retrieve "${url}" (${response.statusText})`);
 
     // GUARD: Check if the file has an ETag
     if (response.headers.has('ETag'))
