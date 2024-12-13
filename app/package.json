@@ -9,10 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@are-we-dependent/data": "^1.0.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@types/d3-array": "^3.2.1",
     "@visx/scale": "^3.12.0",
-    "better-sqlite3": "^11.6.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "d3-array": "^3.2.4",

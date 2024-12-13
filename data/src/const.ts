@@ -1,6 +1,12 @@
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-export const ROOT_FOLDER = path.join(import.meta.dirname, '..');
+export const ROOT_FOLDER = path.join(
+    import.meta.dirname
+    || path.dirname(fileURLToPath(import.meta.url))
+    || __dirname,
+    '..'
+);
 
 export const SOURCES_FOLDER = path.join(ROOT_FOLDER, 'sources');
 

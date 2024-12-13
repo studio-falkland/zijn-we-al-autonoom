@@ -29,5 +29,6 @@ const db = new DataSource({
 
 export { Organisation, URL, Measurement, MeasurementError, Dataset, OrganisationClassification };
 export * from './hierarchy.js';
+export * from './const.js';
 
 export default db;

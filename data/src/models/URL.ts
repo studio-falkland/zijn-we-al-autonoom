@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import Organisation from './Organisation.js';
 import Measurement from './Measurement.js';
 
@@ -12,7 +12,7 @@ export default class URL {
 
     @OneToOne(() => Organisation)
     @JoinColumn({ name: 'organisation', referencedColumnName: 'slug' })
-    organisation: string;
+    organisation: Relation<Organisation>;
 
     /** Whether the URL is currently reachable and in use */
     @Column({ type: 'boolean', default: true })
@@ -25,5 +25,5 @@ export default class URL {
     updated_at: Date;
 
     @OneToMany(() => Measurement, (measurement) => measurement.url)
-    measurements: Measurement[];
+    measurements: Relation<Measurement>[];
 }

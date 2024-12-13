@@ -10,7 +10,7 @@ export default class Measurement {
     /** The URL that is being measured */
     @ManyToOne(() => URL, (url) => url.measurements, { nullable: false })
     @JoinColumn({ name: 'url', referencedColumnName: 'url' })
-    url: string;
+    url: Relation<URL>;
 
     /** The type of measurement being carried out */
     @Column('text')
