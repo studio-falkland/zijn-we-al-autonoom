@@ -1,5 +1,5 @@
 import { OrganisationCategory, Region, sectors, Sectors } from '../hierarchy.js';
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation, Unique } from 'typeorm';
 import Organisation from './Organisation.js';
 
 @Entity()
@@ -10,7 +10,7 @@ export default class OrganisationClassification {
 
     @ManyToOne(() => Organisation, (organisation) => organisation.classifications)
     @JoinColumn({ name: 'organisation', referencedColumnName: 'slug' })
-    organisation: string;
+    organisation: Relation<Organisation>;
 
     /** Whether the organisation addresses a national or local market */
     @Column({

@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import Organisation from './Organisation.js';
 
 @Entity()
@@ -22,5 +22,5 @@ export default class Dataset {
     updated_at: Date;
 
     @OneToMany(() => Organisation, (organisation) => organisation.dataset)
-    organisations: Organisation[];
+    organisations: Relation<Organisation>[];
 }

@@ -1,11 +1,13 @@
+'use server';
 import HHIIndicator from '@/components/HHIIndicator';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import db from '@/lib/database';
-import { getGroupForCategory, getIconForGroup, getLabelForGroup } from '@/lib/groups';
+import { getIconForCategory } from '@/lib/icons';
 import calculateHHI from '@/lib/hhi';
+import { URL } from '@are-we-dependent/data';
 import { groups as groupArray } from 'd3-array';
 import Link from 'next/link';
+import db from '@/lib/db';
 
 export interface Row {
     id: number
@@ -16,21 +18,13 @@ export interface Row {
     name: string
 }
 
-export default function Mail() {
-    const result = db.prepare(`
-        SELECT
-            measurements.*,
-            urls.category,
-            organisations.name
-        FROM
-            measurements
-            LEFT JOIN urls ON measurements.url = urls.url
-            LEFT JOIN organisations ON organisations.id = urls.organisation_id
-        WHERE
-            TYPE = 'mx-root'
-    `).all() as Row[];
+export default async function Mail() {
+    const result = await db.manager.find(URL, {
+        relations: ['measurements', 'organisation', 'organisation.classifications'],
+        where: { measurements: { type: 'mx' } },
+    });
 
-    const groups = groupArray(result, (r: Row) => getGroupForCategory(r.category));
+    const groups = groupArray(result, (r) => r.organisation.classifications[0].category);
 
     return (
         <div>
@@ -47,8 +41,8 @@ export default function Mail() {
             </Breadcrumb>
             <div className="flex flex-wrap gap-4 p-4">
                 {groups.map(([group, rows]) => {
-                    const { inverseHHI, sortedFrequencies } = calculateHHI(rows, (r) => r.measurement);
-                    const Icon = getIconForGroup(group);
+                    const { inverseHHI, sortedFrequencies } = calculateHHI(rows, (r) => r.measurements.at(-1)?.data!);
+                    const Icon = getIconForCategory(group);
                     const modalCategory = sortedFrequencies[0];
 
                     return (
@@ -58,14 +52,14 @@ export default function Mail() {
                                     <CardTitle>
                                         <div className="flex gap-2 items-center">
                                             <Icon />
-                                            {getLabelForGroup(group)}
+                                            {group}
                                         </div>
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <HHIIndicator index={inverseHHI} />
                                     <div className="mt-4">
-                                        {(modalCategory.ratio * 100).toFixed(0)}% of organisations in {getLabelForGroup(group)} use {modalCategory.category}
+                                        {(modalCategory.ratio * 100).toFixed(0)}% of organisations in {group} use {modalCategory.category}
                                     </div>
                                 </CardContent>
                             </Link>

@@ -1,15 +1,15 @@
 import FrequencyBarChart from '@/components/FrequencyBarChart';
-import HHIIndicator from '@/components/HHIIndicator';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
-import db from '@/lib/database';
-import { getGroupForCategory, getIconForGroup, getLabelForGroup, groupMap, Groups, mapGroupsToCategories } from '@/lib/groups';
+import db from '@/lib/db';
 import calculateHHI from '@/lib/hhi';
+import { getIconForCategory } from '@/lib/icons';
+import { OrganisationCategory, URL } from '@are-we-dependent/data';
 import { groups as groupArray } from 'd3-array';
 
 export async function generateStaticParams() {
-    return Object.keys(groupMap).map((group) => ({ group }));
+    return Object.values(OrganisationCategory).map((category) => ({ category }));
 }
 
 export interface Row {
@@ -21,24 +21,15 @@ export interface Row {
     name: string
 }
 
-export default async function MailGroup({ params }: { params: Promise<{ group: Groups }> }) {
-    const { group } = await params;
-    const result = db.prepare(`
-        SELECT
-            measurements.*,
-            urls.category,
-            organisations.name
-        FROM
-            measurements
-            LEFT JOIN urls ON measurements.url = urls.url
-            LEFT JOIN organisations ON organisations.id = urls.organisation_id
-        WHERE
-            type = 'mx-root'
-            AND urls.category IN (SELECT value FROM json_each(?))
-    `).all(JSON.stringify(mapGroupsToCategories[group])) as Row[];
+export default async function MailCategory({ params }: { params: Promise<{ category: OrganisationCategory }> }) {
+    const { category } = await params;
+    const result = await db.manager.find(URL, {
+        relations: ['measurements', 'organisation', 'organisation.classifications'],
+        where: { measurements: { type: 'mx' }, organisation: { classifications: { category } } },
+    });
 
-    const groups = groupArray(result, (r: Row) => r.category);
-    const GroupIcon = getIconForGroup(group);
+    const groups = groupArray(result, (r) => r.organisation.classifications[0].sector);
+    const GroupIcon = getIconForCategory(category);
 
     return (
         <div className="p-4">
@@ -53,8 +44,8 @@ export default async function MailGroup({ params }: { params: Promise<{ group: G
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                        <BreadcrumbLink href={`/mail/${group}`}>
-                            {getLabelForGroup(group)}
+                        <BreadcrumbLink href={`/mail/${category}`}>
+                            {category}
                         </BreadcrumbLink>
                     </BreadcrumbItem>
                 </BreadcrumbList>
@@ -64,13 +55,13 @@ export default async function MailGroup({ params }: { params: Promise<{ group: G
                     <CardTitle>
                         <div className="flex gap-2 items-center">
                             <GroupIcon />
-                            {getLabelForGroup(group)}
+                            {category}
                         </div>
                     </CardTitle>
                 </CardHeader>
             </Card>
             {groups.map(([group, rows]) => {
-                const { inverseHHI, sortedFrequencies } = calculateHHI(rows, (r) => r.measurement);
+                const { inverseHHI, sortedFrequencies } = calculateHHI(rows, (r) => r.measurements.at(-1)!.data);
 
                 return (
                     <details key={group}>
@@ -85,11 +76,11 @@ export default async function MailGroup({ params }: { params: Promise<{ group: G
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {rows.sort((a,b) => a.name?.localeCompare(b.name)).map((row) => (
+                                {rows.sort((a,b) => a.organisation.name.localeCompare(b.organisation.name)).map((row) => (
                                     <TableRow key={row.id}>
-                                        <TableCell>{row.name}</TableCell>
+                                        <TableCell>{row.organisation.name}</TableCell>
                                         <TableCell>{row.url}</TableCell>
-                                        <TableCell>{row.measurement}</TableCell>
+                                        <TableCell>{row.measurements.at(-1)!.data}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
