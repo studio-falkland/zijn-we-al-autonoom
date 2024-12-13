@@ -37,7 +37,8 @@ export default class RetrieveWebhost extends MeasurementTask {
                     } = lookup.get(ip) || {};
 
                     // Do a reverse lookup of the IP
-                    const [domain_name] = await resolver.reverse(ip);
+                    const [domain_name] = await resolver.reverse(ip)
+                        .catch(() => ([]));
                     const root = psl.get(domain_name);
 
                     // GUARD: Check that the ASN returns something
