@@ -1,13 +1,16 @@
 'use client';
 import { Frequency } from '@/lib/hhi';
 import useMeasure from '@/lib/useMeasure';
-import { scaleLinear, scaleOrdinal } from '@visx/scale';
-import { useMemo } from 'react';
+import { scaleLinear } from '@visx/scale';
+import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
+import { MouseEvent, useCallback, useMemo } from 'react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { localPoint } from '@visx/event';
 
 const DEFAULT_WIDTH = 150;
 const HEIGHT = 60;
 const MIN_GROUPS = 3;
-const MIN_GROUP_FRACTION = 0.2;
+const MIN_GROUP_FRACTION = 0.05;
 
 const COLORS = [
     '#0000ff',
@@ -21,6 +24,14 @@ const COLORS = [
 
 export default function FrequencyBarChart({ frequencies }: { frequencies: Frequency[] }) {
     const [ref, { width }] = useMeasure<HTMLDivElement>();
+
+    const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, showTooltip, hideTooltip } = useTooltip<string>();
+    const { containerRef, TooltipInPortal } = useTooltipInPortal({ detectBounds: true, scroll: true });
+
+    const handleMouseOver = useCallback((event: MouseEvent<SVGGElement>, datum: string) => {
+        const coords = localPoint(event.currentTarget.ownerSVGElement!, event);
+        showTooltip({ tooltipLeft: coords?.x, tooltipTop: coords?.y, tooltipData: datum });
+    }, []);
 
     const total = useMemo(() => frequencies.reduce((acc, { frequency }) => acc + frequency, 0), []);
 
@@ -50,19 +61,22 @@ export default function FrequencyBarChart({ frequencies }: { frequencies: Freque
         return filteredFrequencies;
     }, [frequencies]);
 
+    console.log({ tooltipData, tooltipLeft, tooltipOpen });
+
     return (
         <div ref={ref}>
             <svg
                 width={width || DEFAULT_WIDTH}
                 height={HEIGHT}
                 className="border rounded"
+                ref={containerRef}
             >
                 {(() => {
                     let pos = 0;
                     return data.map(({ frequency, category, ratio }, i) => {
                         pos += scale(frequency);
                         return (
-                            <g key={category}>
+                            <g onMouseOver={(e) => handleMouseOver(e, category)} onMouseOut={hideTooltip}>
                                 <rect
                                     fill={COLORS[i]}
                                     x={pos - scale(frequency)}
@@ -74,16 +88,31 @@ export default function FrequencyBarChart({ frequencies }: { frequencies: Freque
                                     className="fill-white font-heading text-xl"
                                     x={pos - (scale(frequency) / 2)}
                                     y="50%"
+                                    width={scale(frequency)}
+                                    height={HEIGHT}
                                     textAnchor="middle"
                                     dominantBaseline="middle"
                                 >
-                                    {category} ({(ratio * 100).toFixed(1)}%)
+                                    <tspan className="text-ellipsis">{category.slice(0, Math.exp(scale(frequency) / 112))}…</tspan>
+                                    <tspan> ({(ratio * 100).toFixed(1)}%)</tspan>
                                 </text>
+                                <title>{category}</title>
                             </g>
                         )
                     })
                 })()}
             </svg>
+            {tooltipOpen && (
+                <TooltipInPortal
+                    key={Math.random()}
+                    top={tooltipTop}
+                    left={tooltipLeft}
+                >
+                    <div className="text-xl bg-white border rounded">
+                        {tooltipData}
+                    </div>
+                </TooltipInPortal>
+            )}
         </div>
     );
 }
