@@ -11,11 +11,13 @@ import { Task } from './lib/task/index.jsx';
 import db from '@are-we-dependent/data';
 import TaskExecutor from './lib/task/executor.jsx';
 import RetrieveIPInfoDatabase from './tasks/ipinfo/index.js';
+import RetrieveCaidaASNDataset from './tasks/caida/index.js';
 
 await db.initialize();
 await db.runMigrations();
 
 const tasks: (typeof Task)[] = [
+    RetrieveCaidaASNDataset,
     RetrieveIPInfoDatabase,
     RetrieveRijksoverheidURLs,
     RetrieveSchoolURLs,
