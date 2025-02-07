@@ -13,7 +13,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "better-sqlite3": "^11.7.0",
+    "better-sqlite3": "^11.8.1",
     "typeorm": "^0.3.20"
   },
   "devDependencies": {

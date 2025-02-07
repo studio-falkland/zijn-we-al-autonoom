@@ -24,3 +24,5 @@ export const MINIMUM_DATASET_UPDATE_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hou
 
 /** The max total of parallel jobs */
 export const CONCURRENCY = 50;
+
+export const CAIDA_DB_LOCATION = path.join(SOURCES_FOLDER, 'caida-asn-org.json');
