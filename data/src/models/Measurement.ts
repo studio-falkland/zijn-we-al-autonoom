@@ -31,6 +31,9 @@ export default class Measurement {
 
     @Column('text', { nullable: true })
     as_organisation?: string;
+    
+    @Column('text', { nullable: true })
+    as_country_code?: string;
 
     @Column('text', { nullable: true })
     country_code?: string;

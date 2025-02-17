@@ -14,6 +14,7 @@ import db, {
 } from '@are-we-dependent/data';
 import { CacheKeyWithOptionalStream } from '../cacheKey.js';
 import { MINIMUM_DATASET_UPDATE_INTERVAL_MS } from '@/const.js';
+import humanizeDuration from '../humanizeDuration.js';
 
 export interface MinimumOrganisation {
     name: string;
@@ -64,7 +65,11 @@ export default class DatasetTask extends Task {
         const timeSinceLastUpdate = new Date().getTime() - (dataset?.updated_at.getTime() || 0);
         // GUARD: If not enough time has passed since the last update, we'll
         // skip the update
-        if (dataset && timeSinceLastUpdate < MINIMUM_DATASET_UPDATE_INTERVAL_MS) {
+        if (dataset
+            && timeSinceLastUpdate < MINIMUM_DATASET_UPDATE_INTERVAL_MS
+            && dataset.cacheKey !== 'initial_load'
+        ) {
+            this.log(`${humanizeDuration(timeSinceLastUpdate)} passed since last update. Skipping update for "${name}" for now.`);
             return null;
         }
 

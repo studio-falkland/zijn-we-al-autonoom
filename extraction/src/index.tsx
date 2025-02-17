@@ -12,6 +12,7 @@ import db from '@are-we-dependent/data';
 import TaskExecutor from './lib/task/executor.jsx';
 import RetrieveIPInfoDatabase from './tasks/ipinfo/index.js';
 import RetrieveCaidaASNDataset from './tasks/caida/index.js';
+import { RetrieveSIDNLabsNLTLDData } from './tasks/sidn-labs/index.js';
 
 await db.initialize();
 await db.runMigrations();
@@ -25,6 +26,7 @@ const tasks: (typeof Task)[] = [
     // RetrieveBasisbeveiligingURLs,
     RetrieveMX,
     RetrieveWebhost,
+    RetrieveSIDNLabsNLTLDData,
 ];
 
 function App() {

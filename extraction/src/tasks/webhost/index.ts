@@ -1,16 +1,9 @@
 import { PromisePool } from '@supercharge/promise-pool';
-
-import { Resolver } from 'dns/promises';
 import MeasurementTask from '@/lib/task/MeasurementTask.jsx';
 import { CONCURRENCY } from '@/const.js';
 import lookup from '@/lib/ipLookup.js';
 import psl from 'psl';
-
-const resolver = new Resolver();
-resolver.setServers([
-    '8.8.8.8',
-    '8.8.4.4',
-]);
+import { resolver } from '@/lib/resolver.js';
 
 export default class RetrieveWebhost extends MeasurementTask {
     name = 'retrieve-webhost';
