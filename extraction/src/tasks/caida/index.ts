@@ -1,13 +1,8 @@
 import { CAIDA_DB_LOCATION } from '@/const.js';
+import { CaidaOrganisation } from '@/lib/asnLookup.js';
 import { getCacheKeyFromUrl } from '@/lib/cacheKey.js';
 import DatasetTask from '@/lib/task/DatasetTask.js';
 import { writeFile } from 'fs/promises';
-
-export interface CaidaOrganisation {
-    name: string;
-    country: string;
-    source: string;
-}
 
 async function streamToString(stream: ReadableStream) {
     // lets have a ReadableStream as a stream variable

@@ -3,7 +3,7 @@ import { Task } from './index.jsx';
 
 export default class MeasurementTask extends Task {
     async insertMeasurement(
-        values: Omit<Partial<Measurement>, 'id' | 'created_at' | 'error'>,
+        values: Omit<Partial<Measurement>, 'id' | 'created_at' | 'error' | 'url'> & { url: URL | (() => string) },
         errorId?: number,
     ) {
         return db.createQueryBuilder()

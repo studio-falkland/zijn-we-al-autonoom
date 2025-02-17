@@ -8,6 +8,7 @@ import Measurement from './models/Measurement.js';
 import MeasurementError from './models/MeasurementError.js';
 import Dataset from './models/Dataset.js';
 import OrganisationClassification from './models/Classification.js';
+import Aggregate from './models/Aggregate.js';
 
 await fs.mkdir(DB_FOLDER, { recursive: true });
 
@@ -23,11 +24,12 @@ const db = new DataSource({
         MeasurementError,
         Dataset,
         OrganisationClassification,
+        Aggregate
     ],
     migrationsTransactionMode: 'each',
 });
 
-export { Organisation, URL, Measurement, MeasurementError, Dataset, OrganisationClassification };
+export { Organisation, URL, Measurement, MeasurementError, Dataset, OrganisationClassification, Aggregate };
 export * from './hierarchy.js';
 export * from './const.js';
 
