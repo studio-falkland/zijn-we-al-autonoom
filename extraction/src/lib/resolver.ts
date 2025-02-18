@@ -7,7 +7,7 @@ resolver.setServers([
 
 export async function recursivelyRetrieveMXRecord(url: string) {
     // Resolve the MX record
-    const mxs = (await resolver.resolveMx(actualUrl))
+    const mxs = (await resolver.resolveMx(url))
         .sort((a, b) => a.priority - b.priority);
 
     // Loop through all MX records
