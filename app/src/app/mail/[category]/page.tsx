@@ -7,6 +7,7 @@ import calculateHHI from '@/lib/hhi';
 import { getIconForCategory } from '@/lib/icons';
 import { OrganisationCategory, URL } from '@are-we-dependent/data';
 import { groups as groupArray } from 'd3-array';
+import { Not } from 'typeorm';
 
 export async function generateStaticParams() {
     return Object.values(OrganisationCategory).map((category) => ({ category }));
@@ -25,8 +26,10 @@ export default async function MailCategory({ params }: { params: Promise<{ categ
     const { category } = await params;
     const result = await db.manager.find(URL, {
         relations: ['measurements', 'organisation', 'organisation.classifications'],
-        where: { measurements: { type: 'mx' }, organisation: { classifications: { category } } },
+        where: { measurements: { type: 'mx', data: Not("error") }, organisation: { classifications: { category } } },
     });
+
+    console.log(result);
 
     const groups = groupArray(result, (r) => r.organisation.classifications[0].sector);
     const GroupIcon = getIconForCategory(category);
