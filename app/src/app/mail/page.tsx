@@ -8,6 +8,7 @@ import { URL } from '@are-we-dependent/data';
 import { groups as groupArray } from 'd3-array';
 import Link from 'next/link';
 import db from '@/lib/db';
+import { Not } from 'typeorm';
 
 export interface Row {
     id: number
@@ -21,7 +22,7 @@ export interface Row {
 export default async function Mail() {
     const result = await db.manager.find(URL, {
         relations: ['measurements', 'organisation', 'organisation.classifications'],
-        where: { measurements: { type: 'mx' } },
+        where: { measurements: { type: 'mx', data: Not('error') } },
     });
 
     const groups = groupArray(result, (r) => r.organisation.classifications[0].category);

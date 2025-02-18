@@ -4,7 +4,6 @@ import useMeasure from '@/lib/useMeasure';
 import { scaleLinear } from '@visx/scale';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { MouseEvent, useCallback, useMemo } from 'react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { localPoint } from '@visx/event';
 
 const DEFAULT_WIDTH = 150;
@@ -14,11 +13,14 @@ const MIN_GROUP_FRACTION = 0.05;
 
 const COLORS = [
     '#0000ff',
-    // '#0c0eff',
+    '#0c0eff',
     '#2f45ff',
-    // '#5676ff',
+    '#5676ff',
     '#85a8ff',
     '#b3ccff',
+    '#F1F1F8',
+    '#F1F1F8',
+    '#F1F1F8',
     '#F1F1F8',
 ];
 
@@ -60,8 +62,6 @@ export default function FrequencyBarChart({ frequencies }: { frequencies: Freque
 
         return filteredFrequencies;
     }, [frequencies]);
-
-    console.log({ tooltipData, tooltipLeft, tooltipOpen });
 
     return (
         <div ref={ref}>
