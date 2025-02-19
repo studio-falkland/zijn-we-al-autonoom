@@ -7,7 +7,6 @@ import calculateHHI from '@/lib/hhi';
 import { getIconForCategory } from '@/lib/icons';
 import { OrganisationCategory, URL } from '@are-we-dependent/data';
 import { groups as groupArray } from 'd3-array';
-import { useMemo } from 'react';
 
 export async function generateStaticParams() {
     return Object.values(OrganisationCategory).map((category) => ({ category }));

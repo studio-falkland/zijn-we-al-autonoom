@@ -1,7 +1,7 @@
 import { PromisePool } from '@supercharge/promise-pool';
 import MeasurementTask from '@/lib/task/MeasurementTask.jsx';
 import { CONCURRENCY } from '@/const.js';
-import lookup from '@/lib/ipLookup.js';
+import lookup, { getIPInfo } from '@/lib/ipLookup.js';
 import psl from 'psl';
 import { resolver } from '@/lib/resolver.js';
 
@@ -25,9 +25,7 @@ export default class RetrieveWebhost extends MeasurementTask {
                     const [ip] = await resolver.resolve4(url);
 
                     // Retrieve the geolocation and ASN
-                    const {
-                        asn, as_name, country,
-                    } = lookup.get(ip) || {};
+                    const { asn, as, country } = getIPInfo(ip);
 
                     // Do a reverse lookup of the IP
                     const [domain_name] = await resolver.reverse(ip)
@@ -43,10 +41,11 @@ export default class RetrieveWebhost extends MeasurementTask {
                     await this.insertMeasurement({
                         type: 'webhost-as',
                         url,
-                        data: asn,
-                        asn: asn ? Number.parseInt(asn.replace(/AS/, '')) : undefined,
-                        as_organisation: as_name,
+                        data: asn.toString(),
+                        asn: asn ?? undefined,
+                        as_organisation: as.name,
                         country_code: country,
+                        as_country_code: as.country,
                         domain_name: root || undefined,
                     });
                 }

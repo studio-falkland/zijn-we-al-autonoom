@@ -10,4 +10,11 @@ export interface CaidaOrganisation {
 logger.info(`Opening ASN database at ${CAIDA_DB_LOCATION}`);
 const asnLookup: Record<number | string, CaidaOrganisation> = await import(CAIDA_DB_LOCATION);
 
+/**
+ * Retrieve information about an autonomous system
+ */
+export function getASNInfo(asn: number) {
+    return asnLookup[asn];
+} 
+
 export default asnLookup;

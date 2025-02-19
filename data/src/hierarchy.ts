@@ -40,8 +40,10 @@ export enum BusinessSector {
 
 export enum HealthcareSector {
     Hospital = 'healthcare_hospital',
-    HealthcareProvider = 'healthcare_provider',
     Pharmacy = 'healthcare_pharmacy',
+    Dentist = 'healthcare_dentist',
+    Physiotherapist = 'healthcare_physiotherapist',
+    Other = 'healthcare_other',
 }
 
 export enum EducationSector {
@@ -92,8 +94,10 @@ const hierarchy: Hierarchy = [
                 type: OrganisationCategory.Healthcare,
                 children: [
                     { type: HealthcareSector.Hospital },
-                    { type: HealthcareSector.HealthcareProvider },
                     { type: HealthcareSector.Pharmacy },
+                    { type: HealthcareSector.Physiotherapist },
+                    { type: HealthcareSector.Dentist },
+                    { type: HealthcareSector.Other },
                 ],
             },
             {
