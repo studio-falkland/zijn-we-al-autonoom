@@ -12,6 +12,7 @@ export type CacheKeyWithOptionalStream = PartialBy<CacheKeyWithStream, 'buffer'>
 
 export async function getCacheKeyFromUrl(
     url: string,
+    params?: RequestInit
 ): Promise<CacheKeyWithOptionalStream> {
     // Perform a HEAD request on the file
     const response = await fetch(url, { method: 'HEAD' });
@@ -28,7 +29,7 @@ export async function getCacheKeyFromUrl(
 
     // If we can't determine a cache key from the headers, we'll just retrieve
     // the file
-    const buffer = await (await fetch(url)).arrayBuffer();
+    const buffer = await (await fetch(url, params)).arrayBuffer();
 
     return getCacheKeyFromFile(buffer);
 }

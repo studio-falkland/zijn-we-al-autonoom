@@ -13,6 +13,7 @@ import TaskExecutor from './lib/task/executor.jsx';
 import RetrieveIPInfoDatabase from './tasks/ipinfo/index.js';
 import RetrieveCaidaASNDataset from './tasks/caida/index.js';
 import { RetrieveSIDNLabsNLTLDData } from './tasks/sidn-labs/index.js';
+import RetrieveOpenStreetMapData from './tasks/open-street-map/index.js';
 
 await db.initialize();
 await db.runMigrations();
@@ -24,6 +25,7 @@ const tasks: (typeof Task)[] = [
     RetrieveSchoolURLs,
     RetrieveElsevier500URLs,
     // RetrieveBasisbeveiligingURLs,
+    RetrieveOpenStreetMapData,
     RetrieveMX,
     RetrieveWebhost,
     RetrieveSIDNLabsNLTLDData,

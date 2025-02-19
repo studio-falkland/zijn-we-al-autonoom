@@ -29,8 +29,6 @@ export default async function MailCategory({ params }: { params: Promise<{ categ
         where: { measurements: { type: 'mx', data: Not("error") }, organisation: { classifications: { category } } },
     });
 
-    console.log(result);
-
     const groups = groupArray(result, (r) => r.organisation.classifications[0].sector);
     const GroupIcon = getIconForCategory(category);
 
