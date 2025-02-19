@@ -181,9 +181,8 @@ export default class DatasetTask extends Task {
                 dataset: { name: dataset.name },
                 active: true,
             })
-            .insert()
             .orUpdate(
-                ['name', 'dataset', 'active'],
+                ['name', 'dataset', 'active', 'address', 'city', 'postcode', 'lat', 'lng'],
                 ['slug'],
             )
             .returning('slug')

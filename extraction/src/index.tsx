@@ -14,6 +14,7 @@ import RetrieveIPInfoDatabase from './tasks/ipinfo/index.js';
 import RetrieveCaidaASNDataset from './tasks/caida/index.js';
 import { RetrieveSIDNLabsNLTLDData } from './tasks/sidn-labs/index.js';
 import RetrieveOpenStreetMapData from './tasks/open-street-map/index.js';
+import GeocodeOrganisationAddresses from './tasks/kadaster/index.js';
 
 await db.initialize();
 await db.runMigrations();
@@ -29,6 +30,7 @@ const tasks: (typeof Task)[] = [
     RetrieveMX,
     RetrieveWebhost,
     RetrieveSIDNLabsNLTLDData,
+    GeocodeOrganisationAddresses,
 ];
 
 function App() {

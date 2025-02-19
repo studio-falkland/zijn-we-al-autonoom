@@ -31,7 +31,7 @@ export interface RIORow {
     'Onderdeel van': string;
     'Organisatiebeschrijving/doel': string;
     'Link naar uitgebreidere organisatiebeschrijving': string;
-    'Adressen (type, toelichting, straat, huisnummer, toevoeging, postbus, postcode, plaats, regio, provincieAfkorting, land, : string;centroideLatitude, centroideLongitude, centroideRdx, centroideRdy)': string;
+    'Adressen (type, toelichting, straat, huisnummer, toevoeging, postbus, postcode, plaats, regio, provincieAfkorting, land, centroideLatitude, centroideLongitude, centroideRdx, centroideRdy)': string;
     'Online afspraak url': string;
     'Afspraak per email': string;
     'Telefonische afspraak': string;
