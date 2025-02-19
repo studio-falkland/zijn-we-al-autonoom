@@ -24,7 +24,7 @@ function getRioConfig(
             if (row.Type === 'Organisatieonderdeel') return null;
 
             // Attempt to parse the address data
-            const addresses = parseAddress(row['Adressen (type, toelichting, straat, huisnummer, toevoeging, postbus, postcode, plaats, regio, provincieAfkorting, land, : string;centroideLatitude, centroideLongitude, centroideRdx, centroideRdy)']);
+            const addresses = parseAddress(row['Adressen (type, toelichting, straat, huisnummer, toevoeging, postbus, postcode, plaats, regio, provincieAfkorting, land, centroideLatitude, centroideLongitude, centroideRdx, centroideRdy)']);
             const visitingAddress = addresses.find((a) => a.type === 'Bezoekadres') || addresses[0];
 
             return {
