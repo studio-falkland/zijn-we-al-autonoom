@@ -43,6 +43,7 @@ export enum HealthcareSector {
     Pharmacy = 'healthcare_pharmacy',
     Dentist = 'healthcare_dentist',
     Physiotherapist = 'healthcare_physiotherapist',
+    NursingHome = 'healthcare_nursing_home',
     Other = 'healthcare_other',
 }
 

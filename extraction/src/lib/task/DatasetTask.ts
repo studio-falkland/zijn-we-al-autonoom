@@ -48,6 +48,7 @@ export default class DatasetTask extends Task {
         name: string,
         location: string,
         getCacheKey: () => Promise<CacheKeyWithOptionalStream>,
+        params?: RequestInit,
     ) {
         if (alreadyProcessedDatasets.has(name)) {
             throw new Error(`A dataset with the name "${name}" has already been processed. Are you sure you've set a unique name for the dataset?`);

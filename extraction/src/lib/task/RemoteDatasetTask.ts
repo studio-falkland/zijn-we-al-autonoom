@@ -2,7 +2,11 @@ import { getCacheKeyFromFile, getCacheKeyFromUrl } from '../cacheKey.js';
 import DatasetTask from './DatasetTask.js';
 
 export class RemoteDatasetTask extends DatasetTask {
-    async retrieveDatasetFromURL(name: string, url: string) {
+    async retrieveDatasetFromURL(
+        name: string,
+        url: string,
+        params?: RequestInit
+    ) {
         // Retrieve the cachekey from the URL
         this.log(`Retrieving dataset for URL: ${url}`);
 
@@ -10,7 +14,7 @@ export class RemoteDatasetTask extends DatasetTask {
         const { dataset, buffer } = await this.retrieveAndMatchDataset(
             name,
             url,
-            () => getCacheKeyFromUrl(url)
+            () => getCacheKeyFromUrl(url, params)
         ) || {};
 
         // GUARD: Check if the dataset is already up-to-date and doesn't need to
@@ -20,7 +24,8 @@ export class RemoteDatasetTask extends DatasetTask {
         // Make extra sure we've already retrieved the data
         const data = buffer
             ? buffer
-            : await fetch(url).then((response) => response.arrayBuffer());
+            : await fetch(url, params)
+                .then((response) => response.arrayBuffer());
 
         return {
             dataset,
