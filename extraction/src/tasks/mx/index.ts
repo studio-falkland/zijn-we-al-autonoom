@@ -2,7 +2,7 @@ import MeasurementTask from '@/lib/task/MeasurementTask.jsx';
 import { PromisePool } from '@supercharge/promise-pool';
 import psl from 'psl';
 import { URL } from '@are-we-dependent/data';
-import lookup from '@/lib/ipLookup.js';
+import { getIPInfo } from '@/lib/ipLookup.js';
 import { CONCURRENCY } from '@/const.js';
 import { recursivelyRetrieveMXRecord } from '@/lib/resolver.js';
 
@@ -30,7 +30,7 @@ export default class RetrieveMX extends MeasurementTask {
                     const { ip, hostname } = await recursivelyRetrieveMXRecord(url.url);
 
                     // Retrieve the AS and country info for the IP
-                    const { asn, as_name, country } = lookup.get(ip) || {};
+                    const { asn, country, as  } = getIPInfo(ip);
 
                     // Extract root from the hostname
                     const root = hostname ? psl.get(hostname) : null;
@@ -46,9 +46,10 @@ export default class RetrieveMX extends MeasurementTask {
                         domain_name: root,
                         ip,
                         data: root,
-                        asn: asn ? Number.parseInt(asn.replace(/AS/, '')) : undefined,
-                        as_organisation: as_name,
+                        asn: asn ?? undefined,
+                        as_organisation: as.name,
                         country_code: country,
+                        as_country_code: as.country,
                     });
                 }
                 catch (e) {
