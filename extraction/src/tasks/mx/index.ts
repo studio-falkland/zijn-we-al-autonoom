@@ -1,7 +1,7 @@
 import MeasurementTask from '@/lib/task/MeasurementTask.jsx';
 import { PromisePool } from '@supercharge/promise-pool';
 import psl from 'psl';
-import { URL } from '@are-we-dependent/data';
+import { DestinationDataset, URL } from '@are-we-dependent/data';
 import { getIPInfo } from '@/lib/ipLookup.js';
 import { CONCURRENCY } from '@/const.js';
 import { recursivelyRetrieveMXRecord } from '@/lib/resolver.js';
@@ -41,7 +41,7 @@ export default class RetrieveMX extends MeasurementTask {
 
                     // Insert measurements
                     await this.insertMeasurement({
-                        type: 'mx',
+                        type: DestinationDataset.EmailAS,
                         url,
                         domain_name: root,
                         ip,

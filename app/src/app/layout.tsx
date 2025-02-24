@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Familjen_Grotesk, Inter } from 'next/font/google'
 import { cn } from '@/lib/utils';
- 
+import Link from 'next/link';
+import { ChevronDown } from 'lucide-react';
+import { TooltipProvider } from '@/components/ui/tooltip';
+
 // If loading a variable font, you don't need to specify the font weight
 const inter = Inter({ subsets: ['latin'] })
 const familjen = Familjen_Grotesk({ subsets: ['latin'], weight: 'variable' })
@@ -19,9 +22,35 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={cn(inter.className, familjen.className, 'bg-blue-100')}>
-                <div className="ml-4 mt-4 text-blue-700 font-semibold">Zijn we nog afhankelijk?</div>
-                {children}
+            <head>
+                <title>Zijn we al autonoom?</title>
+            </head>
+            <body className={cn(inter.className, familjen.className, 'bg-blue-50 text-blue-900')}>
+                <nav className="sticky w-full">
+                    <div className="max-w-[1280px] mx-auto py-8 max-xl:pr-4 flex justify-between">
+                        <Link href="/">
+                            <img src="/logo.svg" className="h-[24px] xl:-ml-[10.31%] -ml-[1%]" />
+                        </Link>
+                        <div className="flex gap-8">
+                            <a href="#" className="flex items-center gap-1 text-blue-500">
+                                <span>Nationaal</span>
+                                <ChevronDown className="h-5" />
+                            </a>
+                            <a href="#" className="flex items-center gap-1 text-blue-500">
+                                <span>Regionaal</span>
+                                <ChevronDown className="h-5" />
+                            </a>
+                            <a href="#" className="text-blue-500">
+                                Autonomer worden
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+                <main className="max-w-[1280px] mx-auto xl:px-0 p-8">
+                    <TooltipProvider>
+                        {children}
+                    </TooltipProvider>
+                </main>
             </body>
         </html>
     );

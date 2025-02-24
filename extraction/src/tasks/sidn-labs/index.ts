@@ -3,7 +3,7 @@ import asnLookup from '@/lib/asnLookup.js';
 import lookup from '@/lib/ipLookup.js';
 import { resolver } from '@/lib/resolver.js';
 import CSVTask from '@/lib/task/CSVTask.jsx';
-import db, { Aggregate } from '@are-we-dependent/data';
+import db, { Aggregate, DestinationDataset } from '@are-we-dependent/data';
 import { PromisePool } from '@supercharge/promise-pool';
 import { parseString } from 'fast-csv';
 
@@ -58,6 +58,7 @@ export class RetrieveSIDNLabsNLTLDData extends CSVTask {
                 WEBHOST_DATASET_LOCATION,
                 {
                     name: 'dotnl-webhost',
+                    type: DestinationDataset.WebhostingAS,
                     parse(row) {
                         // Retrieve organisation by ASN
                         const organisation = asnLookup[row.asn];
@@ -78,6 +79,7 @@ export class RetrieveSIDNLabsNLTLDData extends CSVTask {
                 MX_DATASET_LOCATION,
                 {
                     name: 'dotnl-mx',
+                    type: DestinationDataset.EmailAS,
                     async parse(row) {
                         // Apply any MX overrides
                         const hostname = row.mx_second_level in MX_OVERRIDES
@@ -106,6 +108,7 @@ export class RetrieveSIDNLabsNLTLDData extends CSVTask {
                 SOCIALS_DATASET_LOCATION,
                 {
                     name: 'dotnl-socials',
+                    type: DestinationDataset.WebhostingAS,
                     async parse(row) {
                         return {
                             label: row.social,
@@ -122,7 +125,8 @@ export class RetrieveSIDNLabsNLTLDData extends CSVTask {
         path: string,
         config: {
             name: string;
-            parse: (row: T) => QueryPartialEntity<Aggregate> | Promise<QueryPartialEntity<Aggregate>>
+            parse: (row: T) => QueryPartialEntity<Aggregate> | Promise<QueryPartialEntity<Aggregate>>,
+            type: DestinationDataset,
         }
     ): Promise<void> {
         const { dataset, data: buffer } = await this.retrieveDatasetFromPath(config.name, path) || {};
@@ -174,7 +178,7 @@ export class RetrieveSIDNLabsNLTLDData extends CSVTask {
                     date: new Date(Number.parseInt(row.year), Number.parseInt(row.month)),
                     fraction: Number.parseFloat(row.perc_domains) / 100,
                     quantity: Number.parseInt(row.n_domains),
-                    type: config.name,
+                    type: config.type,
                 };
             });
 

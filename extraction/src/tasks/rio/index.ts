@@ -3,7 +3,7 @@ import CSVTask, { BaseCSVDatasetConfig } from '@/lib/task/CSVTask.jsx';
 import { RIOXML, RIORow } from './types.js';
 import parseAddress from './parse.js';
 import { DatasetDatum } from '@/lib/task/DatasetTask.js';
-import { GovernmentSector, Region, OrganisationCategory } from '@are-we-dependent/data';
+import { GovernmentSector, Region, Category } from '@are-we-dependent/data';
 
 /**
  * Attempt to parse similar looking organisation datasets from the central government.
@@ -16,7 +16,7 @@ function getRioConfig(
         name,
         classification: {
             region: Region.Local,
-            category: OrganisationCategory.Government,
+            category: Category.Government,
             sector,
         },
         getOrganisation(row) {
@@ -72,7 +72,7 @@ export default class RetrieveRijksoverheidURLs extends CSVTask {
                 name: 'custom-ministries',
                 classification: {
                     region: Region.National,
-                    category: OrganisationCategory.Government,
+                    category: Category.Government,
                     sector: GovernmentSector.Ministry,
                 },
                 getOrganisation(row) {
@@ -115,7 +115,7 @@ export default class RetrieveRijksoverheidURLs extends CSVTask {
             data,
             {
                 region: Region.National,
-                category: OrganisationCategory.Government,
+                category: Category.Government,
                 sector: GovernmentSector.Other,
             },
         );

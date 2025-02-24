@@ -12,10 +12,12 @@ export interface Dimensions {
  * @author uidotdev
  * @license MIT
  */
-export default function useMeasure<T extends Element>(): [LegacyRef<T>, Dimensions] {
+export default function useMeasure<T extends Element>(
+    defaults?: [number, number]
+): [LegacyRef<T>, Dimensions] {
     const [dimensions, setDimensions] = useState<Dimensions>({
-        width: null,
-        height: null,
+        width: defaults ? defaults[0] : null,
+        height: defaults ? defaults[1] : null,
     });
 
     const previousObserver = useRef<ResizeObserver | null>(null);

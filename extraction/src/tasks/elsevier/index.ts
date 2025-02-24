@@ -1,6 +1,6 @@
 import CSVTask from '@/lib/task/CSVTask.jsx';
 import { ElsevierOrganisation } from '@/tasks/elsevier/types.js';
-import { Region, OrganisationCategory, BusinessSector } from '@are-we-dependent/data';
+import { Region, Category, BusinessSector } from '@are-we-dependent/data';
 
 const DATASET_LOCATION = '../data/sources/elsevier-500.csv';
 
@@ -14,7 +14,7 @@ class RetrieveElsevier500URLs extends CSVTask {
                 name: 'elsevier-500',
                 classification: {
                     region: Region.National,
-                    category: OrganisationCategory.Business,
+                    category: Category.Business,
                     sector: BusinessSector.Largest,
                 },
                 getOrganisation: (r) => ({
