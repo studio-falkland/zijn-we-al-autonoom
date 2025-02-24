@@ -1,4 +1,4 @@
-import { OrganisationCategory, Region, sectors, Sectors } from '../hierarchy.js';
+import { Category, Region, sectors, Sectors } from '../hierarchy.js';
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation, Unique } from 'typeorm';
 import Organisation from './Organisation.js';
 
@@ -22,9 +22,9 @@ export default class OrganisationClassification {
     /** A category for this organisation */
     @Column({
         type: 'simple-enum',
-        enum: OrganisationCategory,
+        enum: Category,
     })
-    category: OrganisationCategory;
+    category: Category;
 
     /** A subcategory for the organisation */
     @Column({

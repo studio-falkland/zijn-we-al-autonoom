@@ -8,14 +8,22 @@ export enum Region {
     National = 'national',
 }
 
+/** A dataset that is gathered for a combination of a region and sector */
+export enum DestinationDataset {
+    EmailAS = 'email-as',
+    WebhostingAS = 'webhosting-as',
+    WebhostingIP = 'webhosting-ip',
+}
+
 /** A category for a single organisation */
-export enum OrganisationCategory {
+export enum Category {
     Government = 'government',
     Financial = 'financial',
     Business = 'business',
     Defense = 'defense',
     Healthcare = 'healthcare',
     Education = 'education',
+    DotNL = 'dot-nl',
 }
 
 export enum GovernmentSector {
@@ -60,8 +68,8 @@ export type Sectors = GovernmentSector | FinancialSector | BusinessSector | Heal
 export type Hierarchy = {
     type: Region;
     children: {
-        type: OrganisationCategory;
-        children: {
+        type: Category;
+        children?: {
             type: GovernmentSector
                 | FinancialSector
                 | BusinessSector
@@ -78,7 +86,7 @@ const hierarchy: Hierarchy = [
         type: Region.Local,
         children: [
             {
-                type: OrganisationCategory.Government,
+                type: Category.Government,
                 children: [
                     { type: GovernmentSector.Province },
                     { type: GovernmentSector.Municipality },
@@ -86,13 +94,13 @@ const hierarchy: Hierarchy = [
                 ],
             },
             {
-                type: OrganisationCategory.Business,
+                type: Category.Business,
                 children: [
                     { type: BusinessSector.Other },
                 ],
             },
             {
-                type: OrganisationCategory.Healthcare,
+                type: Category.Healthcare,
                 children: [
                     { type: HealthcareSector.Hospital },
                     { type: HealthcareSector.Pharmacy },
@@ -102,7 +110,7 @@ const hierarchy: Hierarchy = [
                 ],
             },
             {
-                type: OrganisationCategory.Education,
+                type: Category.Education,
                 children: [
                     { type: EducationSector.Daycare },
                     { type: EducationSector.Primary },
@@ -116,13 +124,13 @@ const hierarchy: Hierarchy = [
         type: Region.National,
         children: [
             {
-                type: OrganisationCategory.Government,
+                type: Category.Government,
                 children: [
                     { type: GovernmentSector.Ministry },
                 ],
             },
             {
-                type: OrganisationCategory.Financial,
+                type: Category.Financial,
                 children: [
                     { type: FinancialSector.Bank },
                     { type: FinancialSector.PaymentProvider },
@@ -131,12 +139,15 @@ const hierarchy: Hierarchy = [
                 ],
             },
             {
-                type: OrganisationCategory.Business,
+                type: Category.Business,
                 children: [
                     { type: BusinessSector.Largest },
                     { type: BusinessSector.Other },
                 ],
             },
+            {
+                type: Category.DotNL,
+            }
         ],
     },
 ];
@@ -144,7 +155,7 @@ const hierarchy: Hierarchy = [
 /** A flat variant of the hierarchy, where all leaves of the hierarchy are made available as an array */
 export const flatHierarchy = hierarchy.flatMap((region) => {
     return region.children.flatMap((category) => {
-        return category.children.flatMap((sector) => {
+        return category.children?.flatMap((sector) => {
             return {
                 sector: sector.type,
                 category: category.type,

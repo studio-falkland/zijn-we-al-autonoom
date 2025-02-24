@@ -51,3 +51,9 @@ export default function calculateHHI<T>(data: T[], accessor: (row: T) => string 
         inverseHHI
     }
 }
+
+export function calculateHHIFromFrequencies(data: Frequency[]) {
+    return data.reduce((sum, { ratio }) => (
+        sum + Math.pow(ratio, 2)
+    ), 0);
+}

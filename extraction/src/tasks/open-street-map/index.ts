@@ -1,6 +1,6 @@
 import { RemoteDatasetTask } from '@/lib/task/RemoteDatasetTask.js';
 import { OSMAmenity, OverpassResponse } from './types.js';
-import { HealthcareSector, OrganisationCategory, Region, Sectors } from '@are-we-dependent/data';
+import { HealthcareSector, Category, Region, Sectors } from '@are-we-dependent/data';
 import { DatasetDatum } from '@/lib/task/DatasetTask.js';
 import { groups } from 'd3';
 
@@ -73,7 +73,7 @@ export default class RetrieveOpenStreetMapData extends RemoteDatasetTask {
                 {
                     sector,
                     region: Region.Local,
-                    category: OrganisationCategory.Healthcare
+                    category: Category.Healthcare
                 }
             );
 

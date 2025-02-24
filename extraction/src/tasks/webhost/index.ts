@@ -4,6 +4,7 @@ import { CONCURRENCY } from '@/const.js';
 import lookup, { getIPInfo } from '@/lib/ipLookup.js';
 import psl from 'psl';
 import { resolver } from '@/lib/resolver.js';
+import { DestinationDataset } from '@are-we-dependent/data';
 
 export default class RetrieveWebhost extends MeasurementTask {
     name = 'retrieve-webhost';
@@ -39,7 +40,7 @@ export default class RetrieveWebhost extends MeasurementTask {
                     }
 
                     await this.insertMeasurement({
-                        type: 'webhost-as',
+                        type: DestinationDataset.WebhostingAS,
                         url,
                         data: asn.toString(),
                         asn: asn ?? undefined,

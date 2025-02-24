@@ -5,12 +5,12 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components
 import db from '@/lib/db';
 import calculateHHI from '@/lib/hhi';
 import { getIconForCategory } from '@/lib/icons';
-import { OrganisationCategory, URL } from '@are-we-dependent/data';
+import { Category, URL } from '@are-we-dependent/data';
 import { groups as groupArray } from 'd3-array';
 import { Not } from 'typeorm';
 
 export async function generateStaticParams() {
-    return Object.values(OrganisationCategory).map((category) => ({ category }));
+    return Object.values(Category).map((category) => ({ category }));
 }
 
 export interface Row {
@@ -22,7 +22,7 @@ export interface Row {
     name: string
 }
 
-export default async function MailCategory({ params }: { params: Promise<{ category: OrganisationCategory }> }) {
+export default async function MailCategory({ params }: { params: Promise<{ category: Category }> }) {
     const { category } = await params;
     const result = await db.manager.find(URL, {
         relations: ['measurements', 'organisation', 'organisation.classifications'],

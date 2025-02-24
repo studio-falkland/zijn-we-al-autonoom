@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import MeasurementError from './MeasurementError.js';
 import URL from './URL.js';
+import { DestinationDataset } from '../hierarchy.js';
 
 @Entity()
 export default class Measurement {
@@ -14,7 +15,7 @@ export default class Measurement {
 
     /** The type of measurement being carried out */
     @Column('text')
-    type: string;
+    type: DestinationDataset;
 
     /** The actual data that is measured */
     @Column('text')
@@ -27,7 +28,7 @@ export default class Measurement {
     domain_name?: string;
 
     @Column('int', { nullable: true })
-    asn?: number;
+    asn?: number | null;
 
     @Column('text', { nullable: true })
     as_organisation?: string;

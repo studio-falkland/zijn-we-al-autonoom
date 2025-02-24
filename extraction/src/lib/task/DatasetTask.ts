@@ -6,7 +6,7 @@ import parseURL from '@/lib/ParseURL.js';
 import db, {
     Dataset,
     Organisation,
-    OrganisationCategory,
+    Category,
     OrganisationClassification,
     Region,
     Sectors,
@@ -27,7 +27,7 @@ export interface MinimumOrganisation {
 
 export interface MinimumClassification {
     region: Region;
-    category: OrganisationCategory;
+    category: Category;
     sector: Sectors;
 }
 

@@ -1,5 +1,5 @@
 import CSVTask, { BaseCSVDatasetConfig } from '@/lib/task/CSVTask.jsx';
-import { EducationSector, OrganisationCategory, Region } from '@are-we-dependent/data';
+import { EducationSector, Category, Region } from '@are-we-dependent/data';
 import { DUORow } from './types.js';
 
 function getDuoConfig(
@@ -10,7 +10,7 @@ function getDuoConfig(
         name,
         classification: {
             region: Region.Local,
-            category: OrganisationCategory.Education,
+            category: Category.Education,
             sector,
         },
         getOrganisation(row) {

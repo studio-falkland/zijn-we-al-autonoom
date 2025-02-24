@@ -11,3 +11,11 @@ body {
     --radius: 0.5rem;
   }
 }
+
+.box-shadow-zwaa {
+  box-shadow: 1px 1px 0px #0000A1, 2px 2px 0px #0000A1, 3px 3px 0px #0000A1, 4px 4px 0px #0000A1;
+}
+
+.box-shadow-zwaa-small {
+  box-shadow: 1px 1px 0px #0000A1, 2px 2px 0px #0000A1;
+}

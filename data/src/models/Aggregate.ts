@@ -1,4 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { DestinationDataset } from '../hierarchy.js';
 
 @Entity()
 @Unique("aggregate_unique", ["type", "label", "date"])
@@ -7,7 +8,7 @@ export default class Aggregate {
     id: number;
 
     @Column('text')
-    type: string;
+    type: DestinationDataset;
 
     @Column('text')
     label: string;

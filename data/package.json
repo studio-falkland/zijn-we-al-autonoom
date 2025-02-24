@@ -19,5 +19,15 @@
   "devDependencies": {
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./hierarchy": {
+      "import": "./dist/hierarchy.js",
+      "types": "./dist/hierarchy.d.ts"
+    }
   }
 }
