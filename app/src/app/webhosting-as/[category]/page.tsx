@@ -1,11 +1,12 @@
 import FrequencyBarChart from '@/components/FrequencyBarChart';
+import Concentration from '@/components/RatioCard/Concentration';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import db from '@/lib/db';
 import calculateHHI from '@/lib/hhi';
 import { getIconForCategory } from '@/lib/icons';
-import { Category, URL } from '@are-we-dependent/data';
+import { Category, DestinationDataset, URL } from '@are-we-dependent/data';
 import { groups as groupArray } from 'd3-array';
 
 export async function generateStaticParams() {
@@ -25,7 +26,7 @@ export default async function WebserverCategory({ params }: { params: Promise<{ 
     const { category } = await params;
     const result = await db.manager.find(URL, {
         relations: ['measurements', 'organisation', 'organisation.classifications'],
-        where: { measurements: { type: 'webhost-as' }, organisation: { classifications: { category } } },
+        where: { measurements: { type: DestinationDataset.WebhostingAS }, organisation: { classifications: { category } } },
     });
 
     const totalFrequencies = calculateHHI(result, (r) => r.measurements.at(-1)!.as_organisation!).sortedFrequencies;
@@ -37,7 +38,7 @@ export default async function WebserverCategory({ params }: { params: Promise<{ 
             <Breadcrumb>
                 <BreadcrumbList>
                     <BreadcrumbItem>
-                        <BreadcrumbLink href="/">Zijn we nog afhankelijk?</BreadcrumbLink>
+                        <BreadcrumbLink href="/">Zijn we al autonoom?</BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
@@ -69,7 +70,10 @@ export default async function WebserverCategory({ params }: { params: Promise<{ 
 
                 return (
                     <details key={group}>
-                        <summary>{group} {inverseHHI.toFixed(1)}</summary>
+                        <summary className="flex gap-4 items-center">
+                            {group} {inverseHHI.toFixed(1)}
+                            <Concentration frequencies={sortedFrequencies} />
+                        </summary>
                         <FrequencyBarChart frequencies={sortedFrequencies} />
                         <Table className="mt-4">
                             <TableHeader>

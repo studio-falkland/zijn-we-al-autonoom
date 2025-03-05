@@ -94,12 +94,6 @@ const hierarchy: Hierarchy = [
                 ],
             },
             {
-                type: Category.Business,
-                children: [
-                    { type: BusinessSector.Other },
-                ],
-            },
-            {
                 type: Category.Healthcare,
                 children: [
                     { type: HealthcareSector.Hospital },

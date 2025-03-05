@@ -9,7 +9,10 @@ export interface Frequency {
   * @param {Array} data - The data to be analyzed.
   * @param {(row: T) => string | number} accessor - A function that returns the value to be used in the calculation.
  */
-export default function calculateHHI<T>(data: T[], accessor: (row: T) => string | number) {
+export default function calculateHHI<T>(
+    data: T[],
+    accessor: (row: T) => string | number
+) {
     // Prepare an object to receive the frequencies
     const frequencies: Record<string, number> = {};
 
@@ -53,7 +56,8 @@ export default function calculateHHI<T>(data: T[], accessor: (row: T) => string 
 }
 
 export function calculateHHIFromFrequencies(data: Frequency[]) {
-    return data.reduce((sum, { ratio }) => (
-        sum + Math.pow(ratio, 2)
-    ), 0);
+    return data.reduce((sum, { ratio, category }) => {
+        if (category === 'other') return sum;
+        return sum + Math.pow(ratio, 2);
+    }, 0);
 }

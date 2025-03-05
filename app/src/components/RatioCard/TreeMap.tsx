@@ -72,9 +72,10 @@ export default function Treemap({ frequencies }: { frequencies: MeasurementFrequ
                             width={leaf.x1 - leaf.x0}
                             y={leaf.y0}
                             height={leaf.y1 - leaf.y0}
+                            overflow="visible"
                         >
                             <Tooltip>
-                                <TooltipTrigger>
+                                <TooltipTrigger className="w-full h-full overflow-hidden hover:overflow-visible inline-block z-20">
                                     <div className="p-4 h-full">
                                         <span className="truncate inline-block box-shadow-zwaa-small border rounded border-blue-900 p-2 bg-white">
                                             {getEmojiForCountryCode(leaf.data.as_country_code)}

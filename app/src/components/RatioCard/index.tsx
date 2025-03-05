@@ -5,6 +5,7 @@ import { getAggregateFrequency, getFrequencySet, getMeasurementFrequency } from 
 import Treemap from './TreeMap';
 import calculateHHI from '@/lib/hhi';
 import Concentration from './Concentration';
+import Link from 'next/link';
 
 export interface RatioCardProps {
     region: Region,
@@ -18,7 +19,10 @@ export default async function RatioCard({
     const frequencies = await getFrequencySet({ region, category, type: dataset });
     
     return (
-        <div className="bg-white p-4 rounded-xl border border-blue-800 box-shadow-zwaa">
+        <Link
+            className="bg-white p-4 rounded-xl border border-blue-800 box-shadow-zwaa hover:-translate-y-1 transition-transform"
+            href={`/${dataset}/${category}`}
+        >
             <div className="flex justify-between">
                 <div className="flex items-center gap-3">
                     <div>
@@ -36,6 +40,6 @@ export default async function RatioCard({
                 <Concentration frequencies={frequencies} />
             </div>
             <Treemap frequencies={frequencies} />
-        </div>
+        </Link>
     );
 }

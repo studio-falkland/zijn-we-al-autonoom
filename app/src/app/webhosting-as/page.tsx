@@ -31,7 +31,7 @@ export default async function Webserver() {
             <Breadcrumb className="p-4">
                 <BreadcrumbList>
                     <BreadcrumbItem>
-                        <BreadcrumbLink href="/">Zijn we nog afhankelijk?</BreadcrumbLink>
+                        <BreadcrumbLink href="/">Zijn we al autonoom?</BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
