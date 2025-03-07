@@ -1,8 +1,9 @@
 import { HierarchyRectangularNode } from 'd3';
 import { MeasurementFrequency } from './queries';
-import { ComponentPropsWithRef, CSSProperties, HTMLAttributes, MouseEvent, PropsWithRef, Ref, useCallback } from 'react';
+import { ComponentPropsWithRef, CSSProperties, HTMLAttributes, MouseEvent, PropsWithRef, Ref, useCallback, useMemo } from 'react';
 import { getEmojiForCountryCode } from '@/lib/icons';
 import { cn } from '@/lib/utils';
+import { PatternMatcher } from './patterns';
 
 const PATTERNS = [
     '/Pattern=Amazon.svg',
@@ -45,6 +46,8 @@ export default function TreemapLeaf({ leaf, onHover, onHoverOut }: TreemapLeafPr
         onHover({ data: leaf.data, rect: e.currentTarget.getBoundingClientRect() });
     }, [leaf, onHover]);
 
+    const pattern = useMemo(() => PatternMatcher(leaf.data), [leaf]);
+
     return (
         <g
             key={leaf.data.category}
@@ -56,7 +59,16 @@ export default function TreemapLeaf({ leaf, onHover, onHoverOut }: TreemapLeafPr
                 width={leaf.x1 - leaf.x0}
                 y={leaf.y0}
                 height={leaf.y1 - leaf.y0}
-                fill={Math.random() > 2 ? "url(#zwaa-p1)" : "url(#zwaa-p2)"}
+                fill="#F6F6FF"
+                rx={4}
+            />
+            <rect
+                x={leaf.x0}
+                width={leaf.x1 - leaf.x0}
+                y={leaf.y0}
+                height={leaf.y1 - leaf.y0}
+                fill={pattern}
+                rx={4}
             />
             <foreignObject
                 x={leaf.x0}
