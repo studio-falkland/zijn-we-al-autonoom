@@ -24,6 +24,6 @@ export default class URL {
     @Column({ type: 'datetime', default: () => 'datetime(\'now\')' })
     updated_at: Date;
 
-    @OneToMany(() => Measurement, (measurement) => measurement.url)
+    @OneToMany(() => Measurement, (measurement) => measurement.url, { nullable: true })
     measurements: Relation<Measurement>[];
 }

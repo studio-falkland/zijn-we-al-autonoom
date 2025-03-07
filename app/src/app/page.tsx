@@ -1,7 +1,8 @@
 import RatioCard from '@/components/RatioCard';
-import { Category, DestinationDataset, Region } from '@are-we-dependent/data';
+import { DestinationDataset } from '@are-we-dependent/data';
 import hierarchy from '@are-we-dependent/data/hierarchy';
 import { Cloud } from 'lucide-react';
+import { Fragment } from 'react';
 
 export default function Home() {
     return (
@@ -17,7 +18,7 @@ export default function Home() {
             <div className="grid gap-4 md:grid-cols-2 grid-cols-1">
                 {hierarchy.flatMap((region) => (
                     region.children.flatMap((category) => (
-                        <>
+                        <Fragment key={`${region.type}_${category.type}`}>
                             <RatioCard
                                 region={region.type}
                                 category={category.type}
@@ -28,13 +29,9 @@ export default function Home() {
                                 category={category.type}
                                 dataset={DestinationDataset.WebhostingAS}
                             />
-                        </>
+                        </Fragment>
                     ))
                 ))}
-                {/* <RatioCard region={Region.Local} category={Category.DotNL} dataset={DestinationDataset.EmailAS} />
-                <RatioCard region={Region.Local} category={Category.DotNL} dataset={DestinationDataset.WebhostingAS} />
-                <RatioCard region={Region.Local} category={Category.Education} dataset={DestinationDataset.EmailAS} />
-                <RatioCard region={Region.Local} category={Category.Education} dataset={DestinationDataset.WebhostingAS} /> */}
             </div>
         </>
     );

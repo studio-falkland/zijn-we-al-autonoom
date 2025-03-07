@@ -58,6 +58,6 @@ export default function calculateHHI<T>(
 export function calculateHHIFromFrequencies(data: Frequency[]) {
     return data.reduce((sum, { ratio, category }) => {
         if (category === 'other') return sum;
-        return sum + Math.pow(ratio, 2);
+        return sum + Math.pow(100 * ratio, 2);
     }, 0);
 }

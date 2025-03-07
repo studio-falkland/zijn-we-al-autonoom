@@ -33,9 +33,9 @@ export default function FrequencyBarChart({ frequencies }: { frequencies: Freque
     const handleMouseOver = useCallback((event: MouseEvent<SVGGElement>, datum: string) => {
         const coords = localPoint(event.currentTarget.ownerSVGElement!, event);
         showTooltip({ tooltipLeft: coords?.x, tooltipTop: coords?.y, tooltipData: datum });
-    }, []);
+    }, [showTooltip]);
 
-    const total = useMemo(() => frequencies.reduce((acc, { frequency }) => acc + frequency, 0), []);
+    const total = useMemo(() => frequencies.reduce((acc, { frequency }) => acc + frequency, 0), [frequencies]);
 
     const scale = useMemo(() => (
         scaleLinear({
@@ -76,7 +76,7 @@ export default function FrequencyBarChart({ frequencies }: { frequencies: Freque
                     return data.map(({ frequency, category, ratio }, i) => {
                         pos += scale(frequency);
                         return (
-                            <g onMouseOver={(e) => handleMouseOver(e, category)} onMouseOut={hideTooltip}>
+                            <g onMouseOver={(e) => handleMouseOver(e, category)} onMouseOut={hideTooltip} key={i}>
                                 <rect
                                     fill={COLORS[i]}
                                     x={pos - scale(frequency)}

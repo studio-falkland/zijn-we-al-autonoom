@@ -1,5 +1,5 @@
 import { Category } from '@are-we-dependent/data/hierarchy';
-import { Building2, CircleHelp, GraduationCap, Hospital, Landmark, LucideIcon, PiggyBank, Shield } from 'lucide-react';
+import { Building2, CircleHelp, Flag, GraduationCap, Hospital, Landmark, LucideIcon, PiggyBank, Shield } from 'lucide-react';
 
 export const categoryIcons: Record<Category, LucideIcon> = {
     [Category.Business]: Building2,
@@ -8,6 +8,7 @@ export const categoryIcons: Record<Category, LucideIcon> = {
     [Category.Financial]: PiggyBank,
     [Category.Government]: Landmark,
     [Category.Healthcare]: Hospital,
+    [Category.DotNL]: Flag,
 };
 
 export function getIconForCategory(category: Category): LucideIcon {

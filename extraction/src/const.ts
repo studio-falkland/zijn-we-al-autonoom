@@ -1,4 +1,4 @@
-import { DB_FOLDER, SOURCES_FOLDER } from '@are-we-dependent/data/src/const.js';
+import { DB_FOLDER, SOURCES_FOLDER } from '@are-we-dependent/data/const';
 import path from 'path';
 
 /** The current date as an ISO string */
