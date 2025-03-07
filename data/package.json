@@ -7,7 +7,8 @@
     "build": "tsc",
     "typeorm": "tsx ../node_modules/.bin/typeorm",
     "migrations:generate": "npm run typeorm -- migration:generate -d src/dindexb.ts src/migrations/m",
-    "migrations:up": "npm run typeorm -- migration:run -d src/index.ts"
+    "migrations:up": "npm run typeorm -- migration:run -d src/index.ts",
+    "preinstall": "npx only-allow pnpm"
   },
   "author": "",
   "license": "ISC",
@@ -24,6 +25,10 @@
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./const": {
+      "import": "./dist/const.js",
+      "types": "./dist/const.d.ts"
     },
     "./hierarchy": {
       "import": "./dist/hierarchy.js",

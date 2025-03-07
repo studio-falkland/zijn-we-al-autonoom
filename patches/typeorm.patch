@@ -1,22 +1,22 @@
-diff --git a/node_modules/typeorm/driver/better-sqlite3/BetterSqlite3Driver.js b/node_modules/typeorm/driver/better-sqlite3/BetterSqlite3Driver.js
-index 6621e1b..067a3a1 100644
---- a/node_modules/typeorm/driver/better-sqlite3/BetterSqlite3Driver.js
-+++ b/node_modules/typeorm/driver/better-sqlite3/BetterSqlite3Driver.js
+diff --git a/driver/better-sqlite3/BetterSqlite3Driver.js b/driver/better-sqlite3/BetterSqlite3Driver.js
+index 2efa405f1d1e4fb89a6a1f781b41dc96b6c993d0..c8f5c23d6d16d306e5b7457fefae629d99f6d76e 100644
+--- a/driver/better-sqlite3/BetterSqlite3Driver.js
++++ b/driver/better-sqlite3/BetterSqlite3Driver.js
 @@ -147,6 +147,10 @@ class BetterSqlite3Driver extends AbstractSqliteDriver_1.AbstractSqliteDriver {
              ? optionsDb
              : path_1.default.join(this.options.baseDirectory, optionsDb));
      }
-+    
++
 +    isReturningSqlSupported() {
 +        return true;
 +    }
  }
  exports.BetterSqlite3Driver = BetterSqlite3Driver;
  
-diff --git a/node_modules/typeorm/query-builder/InsertQueryBuilder.js b/node_modules/typeorm/query-builder/InsertQueryBuilder.js
-index bc3fae4..a8167ea 100644
---- a/node_modules/typeorm/query-builder/InsertQueryBuilder.js
-+++ b/node_modules/typeorm/query-builder/InsertQueryBuilder.js
+diff --git a/query-builder/InsertQueryBuilder.js b/query-builder/InsertQueryBuilder.js
+index bc3fae43bfb9f5be5abb9b9b2924cbbfcbdcbb69..a8167ea7a871143f1dc77868cf5fe31b4972e500 100644
+--- a/query-builder/InsertQueryBuilder.js
++++ b/query-builder/InsertQueryBuilder.js
 @@ -394,6 +394,7 @@ class InsertQueryBuilder extends QueryBuilder_1.QueryBuilder {
              (DriverUtils_1.DriverUtils.isPostgresFamily(this.connection.driver) ||
                  this.connection.driver.options.type === "oracle" ||

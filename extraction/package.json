@@ -5,7 +5,8 @@
     "type": "module",
     "scripts": {
         "start": "tsx --env-file .env src/index.tsx",
-        "lint": "tsc --noEmit"
+        "lint": "tsc --noEmit",
+        "preinstall": "npx only-allow pnpm"
     },
     "author": "Lei Nelissen",
     "description": "",
@@ -18,7 +19,7 @@
         "typescript": "^5.7.2"
     },
     "dependencies": {
-        "@are-we-dependent/data": "^1.0.0",
+        "@are-we-dependent/data": "workspace:*",
         "@fast-csv/parse": "^5.0.2",
         "@supercharge/promise-pool": "^3.2.0",
         "d3": "^7.9.0",
