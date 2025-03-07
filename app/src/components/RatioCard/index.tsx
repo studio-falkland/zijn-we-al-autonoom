@@ -1,7 +1,7 @@
 import { Category, DestinationDataset, Region } from '@are-we-dependent/data';
 import { ArrowRight } from 'lucide-react';
-import { getFrequencySet } from './queries';
-import Treemap from './TreeMap';
+import { getFrequencySet } from './Treemap/queries';
+import Treemap from './Treemap';
 import Concentration from './Concentration';
 import Link from 'next/link';
 
