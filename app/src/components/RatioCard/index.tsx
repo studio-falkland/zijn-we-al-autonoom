@@ -1,4 +1,3 @@
-'use server'
 import { Category, DestinationDataset, Region } from '@are-we-dependent/data';
 import { ArrowRight } from 'lucide-react';
 import { getFrequencySet } from './queries';
