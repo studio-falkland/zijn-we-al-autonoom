@@ -4,7 +4,6 @@ import { useMemo } from 'react';
 import { hierarchy, treemap, treemapBinary } from 'd3';
 import { MeasurementFrequency } from './queries';
 import { getEmojiForCountryCode } from '@/lib/icons';
-import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 const PATTERNS = [
     '/Pattern=Amazon.svg',
@@ -15,11 +14,42 @@ const PATTERNS = [
     '/Pattern=USA.svg',
 ];
 
+const MIN_PERCENTAGE = 0.5; // New constant for the minimum percentage threshold
+
 export default function Treemap({ frequencies }: { frequencies: MeasurementFrequency[] }) {
     const [ref, dimensions] = useMeasure<HTMLDivElement>([598, 500]);
 
     const root = useMemo(() => {
-        const root = { category: 'root', children: frequencies, frequency: 0, ratio: 0 };
+        // Group small frequencies into "Other" category using an accumulator object
+        const { mainCategories, other } = frequencies.reduce((acc, curr) => {
+            const ratio = curr.ratio * 100;
+            if (ratio >= MIN_PERCENTAGE) {
+                acc.mainCategories.push(curr);
+            } else {
+                acc.other.frequency += curr.frequency;
+                acc.other.ratio += curr.ratio;
+            }
+            return acc;
+        }, {
+            mainCategories: [] as MeasurementFrequency[],
+            other: {
+                category: 'Others',
+                frequency: 0,
+                ratio: 0,
+            }
+        });
+
+        // Only add "Other" category if it has any items
+        const processedFrequencies = other.frequency > 0 
+            ? [...mainCategories, other]
+            : mainCategories;
+
+        const root = { 
+            category: 'root', 
+            children: processedFrequencies, 
+            frequency: 0, 
+            ratio: 0 
+        };
 
         const data = hierarchy<MeasurementFrequency | { category: 'root', frequency: 0, ratio: 0, children: MeasurementFrequency[] }>(root)
             .sum((d) => d.frequency || 0)
@@ -71,28 +101,16 @@ export default function Treemap({ frequencies }: { frequencies: MeasurementFrequ
                             width={leaf.x1 - leaf.x0}
                             y={leaf.y0}
                             height={leaf.y1 - leaf.y0}
-                            overflow="visible"
                         >
-                            <Tooltip>
-                                <TooltipTrigger className="w-full h-full text-left overflow-hidden hover:overflow-visible inline-block z-20">
-                                    <div className="p-4 h-full">
-                                        <span className="truncate inline-block box-shadow-zwaa-small border rounded border-blue-900 p-2 bg-white">
-                                            {getEmojiForCountryCode(leaf.data.as_country_code)}
-                                            {' '}
-                                            {leaf.data.category}
-                                            {' '}
-                                            ({(leaf.data.ratio * 100).toFixed(1)}%)
-                                        </span>
-                                    </div>
-                                </TooltipTrigger>
-                                <TooltipContent>
+                            <div className="p-4 h-full">
+                                <span className="truncate inline-block box-shadow-zwaa-small border rounded border-blue-900 p-2 bg-white">
                                     {getEmojiForCountryCode(leaf.data.as_country_code)}
                                     {' '}
                                     {leaf.data.category}
                                     {' '}
                                     ({(leaf.data.ratio * 100).toFixed(1)}%)
-                                </TooltipContent>
-                            </Tooltip>
+                                </span>
+                            </div>
                         </foreignObject>
                     </g>
                 ))}
