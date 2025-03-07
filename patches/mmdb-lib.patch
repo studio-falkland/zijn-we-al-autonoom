@@ -1,7 +1,7 @@
-diff --git a/node_modules/mmdb-lib/lib/index.d.ts b/node_modules/mmdb-lib/lib/index.d.ts
-index ad83aa7..a5f9d7c 100644
---- a/node_modules/mmdb-lib/lib/index.d.ts
-+++ b/node_modules/mmdb-lib/lib/index.d.ts
+diff --git a/lib/index.d.ts b/lib/index.d.ts
+index ad83aa7253d53652f944f0441eac004a99442cdf..a5f9d7c852aa6eb0339d6e7c3a3233587d13a2a5 100644
+--- a/lib/index.d.ts
++++ b/lib/index.d.ts
 @@ -2,7 +2,7 @@
  import { Metadata } from './metadata';
  import { Response } from './reader/response';

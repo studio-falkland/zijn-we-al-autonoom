@@ -6,8 +6,7 @@
   "description": "Deze repository bevat code die gebruikt wordt om het Internet in Beeld project over digitale autonomie te ontwikkelen.",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint",
-    "postinstall": "patch-package"
+    "lint": "eslint"
   },
   "author": "Lei Nelissen",
   "workspaces": [
@@ -25,5 +24,11 @@
   "dependencies": {
     "eslint-plugin-unused-imports": "^4.1.4",
     "patch-package": "^8.0.0"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "typeorm": "patches/typeorm.patch",
+      "mmdb-lib": "patches/mmdb-lib.patch"
+    }
   }
 }
