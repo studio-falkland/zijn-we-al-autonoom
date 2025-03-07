@@ -4,7 +4,6 @@ import { useMemo } from 'react';
 import { hierarchy, treemap, treemapBinary } from 'd3';
 import { MeasurementFrequency } from './queries';
 import { getEmojiForCountryCode } from '@/lib/icons';
-import calculateHHI from '@/lib/hhi';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 const PATTERNS = [
@@ -75,7 +74,7 @@ export default function Treemap({ frequencies }: { frequencies: MeasurementFrequ
                             overflow="visible"
                         >
                             <Tooltip>
-                                <TooltipTrigger className="w-full h-full overflow-hidden hover:overflow-visible inline-block z-20">
+                                <TooltipTrigger className="w-full h-full text-left overflow-hidden hover:overflow-visible inline-block z-20">
                                     <div className="p-4 h-full">
                                         <span className="truncate inline-block box-shadow-zwaa-small border rounded border-blue-900 p-2 bg-white">
                                             {getEmojiForCountryCode(leaf.data.as_country_code)}

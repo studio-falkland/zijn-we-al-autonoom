@@ -1,4 +1,4 @@
-import calculateHHI, { calculateHHIFromFrequencies, Frequency } from '@/lib/hhi';
+import { calculateHHIFromFrequencies, Frequency } from '@/lib/hhi';
 import { Droplet, Droplets } from 'lucide-react';
 
 const getIcon = (hhi: number) => {
@@ -7,8 +7,10 @@ const getIcon = (hhi: number) => {
 }
 
 const getLabel = (hhi: number) => {
-    if (hhi > 0.6) return "Monopolie";
-    if (hhi > 0.2) return "Oligopolie";
+    if (hhi >= 5000) return "Monopolie";
+    if (hhi >= 4000) return "Oligopolie";
+    if (hhi >= 2500) return "Hoge concentratie";
+    if (hhi >= 1500) return "Matige concentratie";
     return "Competetief";
 }
 
@@ -23,7 +25,7 @@ export default function Concentration({ frequencies }: { frequencies: Frequency[
         <div className="flex items-center gap-2">
             {getIcon(hhi)}
             {getLabel(hhi)}
-            ({hhi.toFixed(2)})
+            ({hhi.toFixed(0)})
         </div>
     )
 }

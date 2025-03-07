@@ -1,9 +1,8 @@
 'use server'
 import { Category, DestinationDataset, Region } from '@are-we-dependent/data';
 import { ArrowRight } from 'lucide-react';
-import { getAggregateFrequency, getFrequencySet, getMeasurementFrequency } from './queries';
+import { getFrequencySet } from './queries';
 import Treemap from './TreeMap';
-import calculateHHI from '@/lib/hhi';
 import Concentration from './Concentration';
 import Link from 'next/link';
 

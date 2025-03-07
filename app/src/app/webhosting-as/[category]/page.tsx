@@ -47,7 +47,7 @@ export default async function WebserverCategory({ params }: { params: Promise<{ 
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
                         <BreadcrumbLink href={`/webserver/${category}`}>
-                            {category}
+                            {category.toString()}
                         </BreadcrumbLink>
                     </BreadcrumbItem>
                 </BreadcrumbList>
@@ -57,7 +57,7 @@ export default async function WebserverCategory({ params }: { params: Promise<{ 
                     <CardTitle>
                         <div className="flex gap-2 items-center">
                             <GroupIcon />
-                            {category}
+                            {category.toString()}
                         </div>
                     </CardTitle>
                 </CardHeader>
