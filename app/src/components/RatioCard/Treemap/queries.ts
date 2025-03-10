@@ -12,6 +12,7 @@ export interface FrequencyConfig {
     region?: string;
     category: string;
     sector?: string;
+    groupBy?: 'as_organisation' | 'asn' | 'as_country_code';
 }
 
 export async function getFrequencySet(config: FrequencyConfig): Promise<MeasurementFrequency[]> {
@@ -24,7 +25,7 @@ export async function getFrequencySet(config: FrequencyConfig): Promise<Measurem
  * Return the frequency of occurence of a particular AS organisation among a
  * distinct dataset, potentially consisting of a type, region, category and/or sector.
  */
-export async function getMeasurementFrequency({ type, region, category, sector }: FrequencyConfig) {
+export async function getMeasurementFrequency({ type, region, category, sector, groupBy }: FrequencyConfig) {
     const latestMeasurementsQuery = db.manager
         .createQueryBuilder()
         .select([
@@ -81,7 +82,7 @@ export async function getMeasurementFrequency({ type, region, category, sector }
         .from(`(${latestMeasurementsQuery.getQuery()})`, "latestMeasurements")
         .setParameters(latestMeasurementsQuery.getParameters()) // Ensure all parameters are passed
         .where("latestMeasurements.asn IS NOT NULL")
-        .groupBy("latestMeasurements.as_organisation")
+        .groupBy(`latestMeasurements.${groupBy || 'as_organisation'}`)
         .orderBy("frequency", "DESC");
 
     // Retrieve all frequencies

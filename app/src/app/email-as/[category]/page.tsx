@@ -1,4 +1,5 @@
 import FrequencyBarChart from '@/components/FrequencyBarChart';
+import Map from '@/components/Map';
 import Concentration from '@/components/RatioCard/Concentration';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
@@ -62,6 +63,7 @@ export default async function MailCategory({ params }: { params: Promise<{ categ
                     </CardTitle>
                 </CardHeader>
             </Card>
+            <Map data={JSON.parse(JSON.stringify(result))} />
             {groups.map(([group, rows]) => {
                 const { inverseHHI, sortedFrequencies } = calculateHHI(rows, (r) => r.measurements.at(-1)!.data);
 
@@ -77,7 +79,8 @@ export default async function MailCategory({ params }: { params: Promise<{ categ
                                 <TableRow>
                                     <TableCell>Organisation</TableCell>
                                     <TableCell>URL</TableCell>
-                                    <TableCell>E-mail provider</TableCell>
+                                    <TableCell>E-mail URL</TableCell>
+                                    <TableCell>Netwerk Provider</TableCell>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -86,6 +89,7 @@ export default async function MailCategory({ params }: { params: Promise<{ categ
                                         <TableCell>{row.organisation.name}</TableCell>
                                         <TableCell>{row.url}</TableCell>
                                         <TableCell>{row.measurements.at(-1)!.data}</TableCell>
+                                        <TableCell>{row.measurements.at(-1)!.as_organisation}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>

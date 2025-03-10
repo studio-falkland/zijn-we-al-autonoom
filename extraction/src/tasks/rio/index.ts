@@ -35,7 +35,7 @@ function getRioConfig(
                 lat: visitingAddress?.centroideLatitude
                     ? parseFloat(visitingAddress.centroideLatitude)
                     : undefined,
-                lon: visitingAddress?.centroideLongitude
+                lng: visitingAddress?.centroideLongitude
                     ? parseFloat(visitingAddress.centroideLongitude)
                     : undefined,
             };
