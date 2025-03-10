@@ -95,8 +95,8 @@ export default class GeocodeOrganisationAddresses extends DatasetTask {
                     throw new Error('Failed to match coordinates');
                 }
 
-                organisation.lat = Number.parseFloat(coords[1]);
-                organisation.lng = Number.parseFloat(coords[2]);
+                organisation.lng = Number.parseFloat(coords[1]);
+                organisation.lat = Number.parseFloat(coords[2]);
                 await db.manager.save(organisation);
             });
 
