@@ -14,7 +14,7 @@ export default function Home() {
                 </div>
                 <Cloud fill="white" stroke="none" size={240} className="max-w-[240px] w-full" />
             </div>
-            <h2 className="text-3xl text-blue-800 mb-8">Nationale statistieken</h2>
+            <h2 className="text-3xl text-blue-800 mb-8 tracking-tight">Nationale statistieken</h2>
             <div className="grid gap-4 md:grid-cols-2 grid-cols-1">
                 {hierarchy.flatMap((region) => (
                     region.children.flatMap((category) => (

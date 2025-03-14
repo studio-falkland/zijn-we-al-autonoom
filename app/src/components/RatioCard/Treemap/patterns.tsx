@@ -24,6 +24,7 @@ export function PatternMatcher(frequency: MeasurementFrequency) {
         case 16550:
             return 'url(#zwaa-google)';
         default:
+            if (frequency.as_country_code === 'US') return 'url(#zwaa-us)';
             return (frequency.asn || frequency.category.length) % 2 === 0
                 ? 'url(#zwaa-p1)'
                 : 'url(#zwaa-p2)'
@@ -43,6 +44,12 @@ export default function TreemapPatterns() {
                 <path
                     d="M 3 -1 l 2 2 M -0 0 l 4 4 M -1 3 l 2 2"
                     stroke="#0000FF"
+                />
+            </pattern>
+            <pattern id="zwaa-us" patternUnits="userSpaceOnUse" width="4" height="4">
+                <path
+                    d="M 3 -1 l 2 2 M -0 0 l 4 4 M -1 3 l 2 2"
+                    stroke="#000099"
                 />
             </pattern>
             <pattern id="zwaa-amazon" patternUnits="userSpaceOnUse" width="12" height="24">
