@@ -2,8 +2,9 @@
 import { URL } from '@are-we-dependent/data';
 import { Map as BaseMap, Marker } from '@vis.gl/react-maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { PropsWithChildren } from 'react';
 
-export default function Map({ data }: { data: URL[]}) {
+export default function Map({ data, children }: PropsWithChildren<{ data?: URL[]}>) {
     return (
         <BaseMap
             initialViewState={{
@@ -14,7 +15,7 @@ export default function Map({ data }: { data: URL[]}) {
             style={{width: '100%', height: 400}}
             mapStyle="https://tiles.versatiles.org/assets/styles/colorful/style.json"
         >
-            {data.map((url) => (
+            {data?.map((url) => url.organisation.lat && url.organisation.lng && (
                 <Marker
                     key={url.id}
                     anchor="center"
@@ -26,6 +27,7 @@ export default function Map({ data }: { data: URL[]}) {
                     </svg>
                 </Marker>
             ))}
+            {children}
         </BaseMap>
     );
 }
