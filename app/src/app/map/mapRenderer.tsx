@@ -15,9 +15,9 @@ export default function MapRenderer({ us, other }: MapRendererProps) {
             initialViewState={{
                 latitude: 52.1009,
                 longitude: 5.6462,
-                zoom: 6.8,
+                zoom: 7.2,
             }}
-            style={{ width: '100%', height: 800, borderRadius: 16 }}
+            style={{ width: '100%', height: 'calc(100vh - 200px)', borderRadius: 16 }}
             mapStyle="https://tiles.versatiles.org/assets/styles/colorful/style.json"
         >
             <Source type="geojson" data={other}>
