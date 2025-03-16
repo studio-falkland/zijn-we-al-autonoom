@@ -6,13 +6,10 @@ import { Power } from 'lucide-react';
 
 export default function RedButton() {
     const [isActive, setIsActive] = useRedButton();
-    // const [isActive, setIsActive] = useState(false);
 
     const handleClick = useCallback(() => {
         setIsActive((current) => !current);
     }, []);
-
-    console.log({ isActive, setIsActive });
 
     return (
         <button

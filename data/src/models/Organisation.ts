@@ -30,11 +30,11 @@ export default class Organisation {
 
     /** The latitude for the organisation */
     @Column({ nullable: true, type: 'float' })
-    lat: number;
+    lat: number | null;
 
     /** The longitude for the organsiation */
     @Column({ nullable: true, type: 'float' })
-    lng: number;
+    lng: number | null;
 
     /** Whether the organisation is active or not */
     @Column({ type: 'boolean', default: true })

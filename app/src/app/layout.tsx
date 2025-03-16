@@ -51,7 +51,7 @@ export default function RootLayout({
                                                         return (
                                                             <NavigationMenuLink
                                                                 key={category.type}
-                                                                className="flex p-2 gap-4 items-center group hover:bg-blue-50 rounded-lg"
+                                                                className="flex p-2 gap-4 items-center group hover:bg-blue-50/50 rounded-lg"
                                                                 href={`/email-as/${category.type}`}
                                                             >
                                                                 <div className="p-4 bg-blue-50 rounded">

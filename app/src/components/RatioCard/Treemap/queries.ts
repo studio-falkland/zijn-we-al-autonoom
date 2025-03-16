@@ -10,7 +10,7 @@ export type MeasurementFrequency = Pick<
 export interface FrequencyConfig {
     type?: string;
     region?: string;
-    category: string;
+    category?: string;
     sector?: string;
     groupBy?: 'as_organisation' | 'asn' | 'as_country_code';
 }
