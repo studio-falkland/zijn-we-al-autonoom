@@ -5,28 +5,28 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
 
-  --color-blue-50: #f1f1f8;
-  --color-blue-100: #e5e5ff;
-  --color-blue-200: #9999ff;
-  --color-blue-300: #85a8ff;
-  --color-blue-400: #5676ff;
-  --color-blue-500: #0000ff;
-  --color-blue-600: #0c0eff;
-  --color-blue-700: #0000c2;
-  --color-blue-800: #0000ad;
-  --color-blue-900: #000066;
-  --color-blue-950: #0a0b5c;
+    --color-blue-50: #f1f1f8;
+    --color-blue-100: #e5e5ff;
+    --color-blue-200: #9999ff;
+    --color-blue-300: #85a8ff;
+    --color-blue-400: #5676ff;
+    --color-blue-500: #0000ff;
+    --color-blue-600: #0c0eff;
+    --color-blue-700: #0000c2;
+    --color-blue-800: #0000ad;
+    --color-blue-900: #000066;
+    --color-blue-950: #0a0b5c;
 
-  --font-heading:
-    Familjen Grotesk, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
-    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-heading:
+        Familjen Grotesk, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
 }
 
 /*
@@ -38,19 +38,20 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
-  }
+
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
 }
 
 @layer utilities {
-  body {
-    font-family: Arial, Helvetica, sans-serif;
-  }
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+    }
 }
 
 @layer base {
@@ -68,16 +69,16 @@
 }
 
 .red-button {
-    box-shadow: 0px 6px 0px var(--color-red-800);
-    transition: ease 0.2s transform, ease 0.2s box-shadow;
+    box-shadow: 0px 5px 0px var(--color-red-800);
+    transition: ease-out 0.15s transform, ease-out 0.15s box-shadow;
 
     &:hover {
-        transform: translateY(2px);
+        transform: translateY(1px);
         box-shadow: 0px 4px 0px var(--color-red-800);
     }
 
     &.active {
-        transform: translateY(5px);
+        transform: translateY(4px);
         box-shadow: 0px 1px 0px var(--color-red-800),
             0px 4px 8px var(--color-red-400);
     }
