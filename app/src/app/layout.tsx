@@ -30,56 +30,58 @@ export default function RootLayout({
                 <title>Zijn we al autonoom?</title>
             </head>
             <body className={cn(inter.className, familjen.className, 'bg-blue-50 text-blue-900')}>
+                <RedButtonProvider>
+                    <TooltipProvider>
+                        <div className="bg-blue-50/85 backdrop-blur-md sticky top-0 z-50">
+                            <div className="max-w-[1280px] mx-auto py-8 max-xl:pr-4 flex justify-between items-center ">
+                                <Link href="/">
+                                    <img src="/logo.svg" className="h-[24px] xl:-ml-[10.31%] -ml-[1%]" />
+                                </Link>
+                                <RedButton />
+                                <NavigationMenu>
+                                    <NavigationMenuList>
+                                        {hierarchy.map((region) => (
+                                            <NavigationMenuItem key={region.type}>
+                                                <NavigationMenuTrigger className="text-blue-500 hover:text-blue-600">
+                                                    {region.type}
+                                                </NavigationMenuTrigger>
+                                                <NavigationMenuContent className="p-2">
+                                                    {region.children.map((category) => {
+                                                        const Icon = getIconForCategory(category.type);
+                                                        return (
+                                                            <NavigationMenuLink
+                                                                key={category.type}
+                                                                className="flex p-2 gap-4 items-center group hover:bg-blue-50 rounded-lg"
+                                                                href={`/email-as/${category.type}`}
+                                                            >
+                                                                <div className="p-4 bg-blue-50 rounded">
+                                                                    <Icon />
+                                                                </div>
+                                                                <div>
+                                                                    <h3 className="text-lg font-medium text-blue-900">{category.type}</h3>
+                                                                    <p className="text-sm text-blue-900/50">Dolor sit amet</p>
+                                                                </div>
+                                                            </NavigationMenuLink>
+                                                        );
+                                                    })}
+                                                </NavigationMenuContent>
+                                            </NavigationMenuItem>
+                                        ))}
+                                        <NavigationMenuItem>
+                                            <a href="#" className="text-blue-500">
+                                                Autonomer worden
+                                            </a>
+                                        </NavigationMenuItem>
+                                    </NavigationMenuList>
+                                </NavigationMenu>
+                            </div>
+                        </div>
+                        <main className="max-w-[1280px] mx-auto xl:px-0 p-8">
 
-                <div className="max-w-[1280px] mx-auto py-8 max-xl:pr-4 flex justify-between items-center">
-                    <Link href="/">
-                        <img src="/logo.svg" className="h-[24px] xl:-ml-[10.31%] -ml-[1%]" />
-                    </Link>
-                    <RedButton />
-                    <NavigationMenu>
-                        <NavigationMenuList>
-                            {hierarchy.map((region) => (
-                                <NavigationMenuItem key={region.type}>
-                                    <NavigationMenuTrigger className="text-blue-500 hover:text-blue-600">
-                                        {region.type}
-                                    </NavigationMenuTrigger>
-                                    <NavigationMenuContent className="p-2">
-                                        {region.children.map((category) => {
-                                            const Icon = getIconForCategory(category.type);
-                                            return (
-                                                <NavigationMenuLink
-                                                    key={category.type}
-                                                    className="flex p-2 gap-4 items-center group hover:bg-blue-50 rounded-lg"
-                                                    href={`/email-as/${category.type}`}
-                                                >
-                                                    <div className="p-4 bg-blue-50 rounded">
-                                                        <Icon />
-                                                    </div>
-                                                    <div>
-                                                        <h3 className="text-lg font-medium text-blue-900">{category.type}</h3>
-                                                        <p className="text-sm text-blue-900/50">Dolor sit amet</p>
-                                                    </div>
-                                                </NavigationMenuLink>
-                                            );
-                                        })}
-                                    </NavigationMenuContent>
-                                </NavigationMenuItem>
-                            ))}
-                            <NavigationMenuItem>
-                                <a href="#" className="text-blue-500">
-                                    Autonomer worden
-                                </a>
-                            </NavigationMenuItem>
-                        </NavigationMenuList>
-                    </NavigationMenu>
-                </div>
-                <main className="max-w-[1280px] mx-auto xl:px-0 p-8">
-                    <RedButtonProvider>
-                        <TooltipProvider>
                             {children}
-                        </TooltipProvider>
-                    </RedButtonProvider>
-                </main>
+                        </main>
+                    </TooltipProvider>
+                </RedButtonProvider>
             </body>
         </html>
     );
