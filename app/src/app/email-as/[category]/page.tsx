@@ -7,8 +7,10 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components
 import db from '@/lib/db';
 import calculateHHI from '@/lib/hhi';
 import { getIconForCategory } from '@/lib/icons';
+import { getCategoryLabel, getSectorLabel } from '@/lib/labels';
 import { Category, DestinationDataset, URL } from '@are-we-dependent/data';
 import { groups as groupArray } from 'd3-array';
+import { Mail } from 'lucide-react';
 import { Not } from 'typeorm';
 
 export async function generateStaticParams() {
@@ -43,12 +45,16 @@ export default async function MailCategory({ params }: { params: Promise<{ categ
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                        <BreadcrumbLink href="/mail">Mail</BreadcrumbLink>
+                        <BreadcrumbLink href="/mail" className="flex items-center gap-2">
+                            <Mail className="w-3 h-3" />
+                            Mail
+                        </BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                        <BreadcrumbLink href={`/mail/${category}`}>
-                            {category}
+                        <BreadcrumbLink href={`/mail/${category}`} className="flex items-center gap-2">
+                            <GroupIcon className="w-3 h-3" />
+                            {getCategoryLabel(category)}
                         </BreadcrumbLink>
                     </BreadcrumbItem>
                 </BreadcrumbList>
@@ -58,7 +64,7 @@ export default async function MailCategory({ params }: { params: Promise<{ categ
                     <CardTitle>
                         <div className="flex gap-2 items-center">
                             <GroupIcon />
-                            {category}
+                            {getCategoryLabel(category)}
                         </div>
                     </CardTitle>
                 </CardHeader>
@@ -70,7 +76,7 @@ export default async function MailCategory({ params }: { params: Promise<{ categ
                 return (
                     <details key={group}>
                         <summary className="flex gap-4 items-center">
-                            {group} {inverseHHI.toFixed(1)}
+                            {getSectorLabel(group)} {inverseHHI.toFixed(1)}
                             <Concentration frequencies={sortedFrequencies} />
                         </summary>
                         <FrequencyBarChart frequencies={sortedFrequencies} />

@@ -6,8 +6,10 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components
 import db from '@/lib/db';
 import calculateHHI from '@/lib/hhi';
 import { getIconForCategory } from '@/lib/icons';
+import { getCategoryLabel, getSectorLabel } from '@/lib/labels';
 import { Category, DestinationDataset, URL } from '@are-we-dependent/data';
 import { groups as groupArray } from 'd3-array';
+import { Server } from 'lucide-react';
 
 export async function generateStaticParams() {
     return Object.values(Category).map((category) => ({ category }));
@@ -42,12 +44,16 @@ export default async function WebserverCategory({ params }: { params: Promise<{ 
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                        <BreadcrumbLink href="/webserver">Webserver</BreadcrumbLink>
+                        <BreadcrumbLink href="/webhosting-as" className="flex items-center gap-2">
+                            <Server className="w-3 h-3" />
+                            Webhosting
+                        </BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                        <BreadcrumbLink href={`/webserver/${category}`}>
-                            {category.toString()}
+                        <BreadcrumbLink href={`/webhosting-as/${category}`} className="flex items-center gap-2">
+                            <GroupIcon className="w-3 h-3" />
+                            {getCategoryLabel(category)}
                         </BreadcrumbLink>
                     </BreadcrumbItem>
                 </BreadcrumbList>
@@ -57,7 +63,7 @@ export default async function WebserverCategory({ params }: { params: Promise<{ 
                     <CardTitle>
                         <div className="flex gap-2 items-center">
                             <GroupIcon />
-                            {category.toString()}
+                            {getCategoryLabel(category)}
                         </div>
                     </CardTitle>
                 </CardHeader>
@@ -71,7 +77,7 @@ export default async function WebserverCategory({ params }: { params: Promise<{ 
                 return (
                     <details key={group}>
                         <summary className="flex gap-4 items-center">
-                            {group} {inverseHHI.toFixed(1)}
+                            {getSectorLabel(group)} {inverseHHI.toFixed(1)}
                             <Concentration frequencies={sortedFrequencies} />
                         </summary>
                         <FrequencyBarChart frequencies={sortedFrequencies} />
