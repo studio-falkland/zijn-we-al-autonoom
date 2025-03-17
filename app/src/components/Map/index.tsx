@@ -3,8 +3,11 @@ import { URL } from '@are-we-dependent/data';
 import { Map as BaseMap, Marker } from '@vis.gl/react-maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { PropsWithChildren } from 'react';
+import { useRedButton } from '../RedButton/context';
 
 export default function Map({ data, children }: PropsWithChildren<{ data?: URL[]}>) {
+    const [isRedButtonActive] = useRedButton();
+
     return (
         <BaseMap
             initialViewState={{
@@ -23,7 +26,12 @@ export default function Map({ data, children }: PropsWithChildren<{ data?: URL[]
                     longitude={url.organisation.lng}
                 >
                     <svg width="4" height="4">
-                        <circle fill="blue" cx={2} cy={2} r={2} />
+                        <circle
+                            fill={isRedButtonActive && url.measurements?.at(-1)?.as_country_code === 'US' ? '#ff0000' : '#0000ff'}
+                            cx={2}
+                            cy={2}
+                            r={2}
+                        />
                     </svg>
                 </Marker>
             ))}
