@@ -15,9 +15,7 @@ export function organisationArrayToGeoJSON(data: Organisation[]): GeoJSON.Featur
                 coordinates: [org.lng!, org.lat!],
             },
             properties: {
-                name: org.name,
-                asn: org.url.measurements.at(-1)?.asn,
-                cc: org.url.measurements.at(-1)?.as_country_code,
+                organisation: JSON.parse(JSON.stringify(org)),
             },
         }))
     };
