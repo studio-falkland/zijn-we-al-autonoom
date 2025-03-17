@@ -69,6 +69,7 @@ export type Hierarchy = {
     type: Region;
     children: {
         type: Category;
+        description: string;
         children?: {
             type: GovernmentSector
                 | FinancialSector
@@ -87,6 +88,7 @@ const hierarchy: Hierarchy = [
         children: [
             {
                 type: Category.Government,
+                description: 'Lokale overheden zoals provincies, gemeenten en waterschappen.',
                 children: [
                     { type: GovernmentSector.Province },
                     { type: GovernmentSector.Municipality },
@@ -95,6 +97,7 @@ const hierarchy: Hierarchy = [
             },
             {
                 type: Category.Healthcare,
+                description: 'Lokale zorgaanbieders, zoals ziekenhuizen, apotheken, tandartsen en fysiotherapeuten.',
                 children: [
                     { type: HealthcareSector.Hospital },
                     { type: HealthcareSector.Pharmacy },
@@ -105,6 +108,7 @@ const hierarchy: Hierarchy = [
             },
             {
                 type: Category.Education,
+                description: 'Aanbieders van lager, middelbaar en hoger onderwijs.',
                 children: [
                     { type: EducationSector.Daycare },
                     { type: EducationSector.Primary },
@@ -119,12 +123,14 @@ const hierarchy: Hierarchy = [
         children: [
             {
                 type: Category.Government,
+                description: 'Landelijke overheden, zoals ministeries en agentschappen.',
                 children: [
                     { type: GovernmentSector.Ministry },
                 ],
             },
             {
                 type: Category.Financial,
+                description: 'Finciële dienstverleners, zoals banken, betalingsverwerkes en verzekeraars.',
                 children: [
                     { type: FinancialSector.Bank },
                     { type: FinancialSector.PaymentProvider },
@@ -134,6 +140,7 @@ const hierarchy: Hierarchy = [
             },
             {
                 type: Category.Business,
+                description: 'De grootste bedrijven van Nederland',
                 children: [
                     { type: BusinessSector.Largest },
                     { type: BusinessSector.Other },
@@ -141,6 +148,7 @@ const hierarchy: Hierarchy = [
             },
             {
                 type: Category.DotNL,
+                description: 'Alle .nl-domeinen'
             }
         ],
     },
