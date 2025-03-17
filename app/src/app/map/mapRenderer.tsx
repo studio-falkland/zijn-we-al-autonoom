@@ -13,7 +13,7 @@ export interface MapRendererProps {
     dataset: DestinationDataset,
 }
 
-export default function MapRenderer({ us, other, dataset  }: MapRendererProps) {
+export default function MapRenderer({ us, other, dataset }: MapRendererProps) {
     const [isRedButtonActive] = useRedButton();
 
     const DatasetIcon = getIconForDataset(dataset);
@@ -49,19 +49,40 @@ export default function MapRenderer({ us, other, dataset  }: MapRendererProps) {
                 }}
                 style={{ width: '100%', height: 'calc(100vh - 240px)', borderRadius: 16 }}
                 mapStyle="https://tiles.versatiles.org/assets/styles/colorful/style.json"
+                interactiveLayerIds={['other_as', 'us_as']}
+                onClick={(e) => console.log('Click', e.features)}
             >
                 <Source type="geojson" data={other}>
-                    <Layer type="circle" paint={{
-                        "circle-color": "#0000ff",
-                        "circle-radius": 2,
-                    }} />
+                    <Layer
+                        id="other_as"
+                        type="circle"
+                        paint={{
+                            "circle-color": "#0000ff88",
+                            "circle-radius": [
+                                "interpolate",
+                                ["exponential", 1.4],
+                                ["zoom"],
+                                5, 1,
+                                20, 100,
+                            ],
+                        }}
+                    />
                 </Source>
-                <Source type="geojson" data={us}>
-                    <Layer type="circle" paint={{
-                        "circle-color": isRedButtonActive ? "#ff0000" : "#0000ff",
-                        "circle-radius": 2,
-
-                    }} />
+                <Source type="geojson" data={us} >
+                    <Layer
+                        id="us_as"
+                        type="circle"
+                        paint={{
+                            "circle-color": isRedButtonActive ? "#ff000088" : "#0000ff88",
+                            "circle-radius": [
+                                "interpolate",
+                                ["exponential", 1.4],
+                                ["zoom"],
+                                5, 1,
+                                20, 100,
+                            ],
+                        }}
+                    />
                 </Source>
             </BaseMap>
         </>
