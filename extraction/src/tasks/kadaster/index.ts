@@ -71,8 +71,15 @@ export default class GeocodeOrganisationAddresses extends DatasetTask {
                 });
 
                 // Request matching addresses
-                const data = await fetch(`${PDOK_URI}?${query.toString()}`)
-                    .then((r) => r.json() as Promise<PDOKResponse>);
+                const response = await fetch(`${PDOK_URI}?${query.toString()}`);
+
+                // GUARD: Check that response was retrieved succesfully
+                if (!response.ok) {
+                    throw new Error(`Failed to retrieve PDOK data (${response.status} ${response.statusText})`);
+                }
+
+                // Parse data into JSON
+                const data = await response.json() as PDOKResponse;
                 
                 // Attempt to find an exact match in the dataset
                 const match = data.response.docs.find((d) => (
