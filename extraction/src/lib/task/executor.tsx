@@ -5,7 +5,6 @@ import { Task } from './index.jsx';
 export interface TaskExecutorProps {
     onFinish: () => void;
     task: typeof Task;
-    active: boolean;
 }
 
 export interface TaskHandlers {
@@ -15,7 +14,7 @@ export interface TaskHandlers {
     log: (message: string, data: unknown) => void;
 }
 
-export default function TaskExecutor({ task, onFinish, active }: TaskExecutorProps) {
+export default function TaskExecutor({ task, onFinish }: TaskExecutorProps) {
     // State variables to keep track of task completion, total and progress
     const [hasFinished, setFinished] = useState(false);
     const [hasError, setError] = useState(false);
@@ -33,8 +32,9 @@ export default function TaskExecutor({ task, onFinish, active }: TaskExecutorPro
     const progressRef = useRef<{ progress: number | null; total: number | null }>({ progress: null, total: null });
 
     // Calculate the progress percentage using useMemo hook which will only re-calculate when total or progress changes
+    
     const progressPercentage = useMemo(() => (
-        progress !== null && total !== null ? `${Math.round((progress / total!) * 100)}%` : null
+        progress !== null && total !== null ? Math.round((progress / total!) * 100) : null
     ), [total, progress]);
 
     // Finish function which sets the task to finished and calls onFinish
@@ -60,10 +60,6 @@ export default function TaskExecutor({ task, onFinish, active }: TaskExecutorPro
 
     // Effect hook which runs on mount and starts the task by calling onStart function of task with necessary props
     useEffect(() => {
-        if (!active) {
-            return () => { };
-        }
-
         log(`Starting task`);
 
         try {
@@ -93,7 +89,7 @@ export default function TaskExecutor({ task, onFinish, active }: TaskExecutorPro
         const interval = setInterval(calculateRemainder, 1_000);
 
         return () => clearInterval(interval);
-    }, [active, task.name]);
+    }, [task.name]);
 
     useEffect(() => {
         progressRef.current = { progress, total };
@@ -104,7 +100,6 @@ export default function TaskExecutor({ task, onFinish, active }: TaskExecutorPro
         progress,
         total,
         progressPercentage,
-        active,
         expectedRemainder,
         finishMessage,
         hasFinished,
