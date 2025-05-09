@@ -22,10 +22,21 @@ export class RemoteDatasetTask extends DatasetTask {
         if (!dataset) return null;
 
         // Make extra sure we've already retrieved the data
-        const data = buffer
-            ? buffer
-            : await fetch(url, params)
-                .then((response) => response.arrayBuffer());
+        let data = buffer;
+
+        // GUARD: Check if a buffer is already set
+        if (!buffer) {
+            // If not, fetch it
+            const response = await fetch(url, params)
+
+            // GUARD: Check that the response is as expected
+            if (!response.ok) {
+                throw new Error(`Failed to retrieve dataset from URL ${url}. Status: ${response.status} ${response.statusText}`);
+            }
+
+            // Parse data into buffer
+            data = await response.arrayBuffer();
+        }
 
         return {
             dataset,

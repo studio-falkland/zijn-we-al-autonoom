@@ -17,6 +17,7 @@ export async function getCacheKeyFromUrl(
     // Perform a HEAD request on the file
     const response = await fetch(url, { method: 'HEAD' });
 
+    // GUARD: Check if the buffer was retrieved succesfully
     if (!response.ok) throw new Error(`Failed to retrieve "${url}" (${response.statusText})`);
 
     // GUARD: Check if the file has an ETag
@@ -29,7 +30,13 @@ export async function getCacheKeyFromUrl(
 
     // If we can't determine a cache key from the headers, we'll just retrieve
     // the file
-    const buffer = await (await fetch(url, params)).arrayBuffer();
+    const bufferResponse = await fetch(url, params)
+
+    // GUARD: Check if the buffer was retrieved succesfully
+    if (!bufferResponse.ok) throw new Error(`Failed to retrieve "${url}" (${response.statusText})`);
+
+    // Parse contents into buffer
+    const buffer = await bufferResponse.arrayBuffer();
 
     return getCacheKeyFromFile(buffer);
 }

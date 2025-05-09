@@ -4,6 +4,7 @@ import Loader from '@/components/Loader.js';
 import React from 'react';
 import convertMsToHumanTime from '@/lib/time.js';
 import { TaskRenderProps } from './types.js';
+import { ProgressBar } from '@inkjs/ui';
 
 export class Task {
     name: string;
@@ -28,57 +29,54 @@ export class Task {
         total,
         progress,
         progressPercentage,
-        active,
         hasFinished,
         hasError,
         finishMessage,
         expectedRemainder,
     }: TaskRenderProps): ReactNode {
         return (
-            <Box gap={2}>
-                {hasError
-                    ? <Text>❌</Text>
-                    : (
-                            !active
-                                ? <Text>⏳</Text>
-                                : (
-                                        hasFinished
-                                            ? <Text>✅</Text>
-                                            : (
-                                                    <Loader />
-                                                )
-                                    )
+            <Box flexDirection='column'>
+                <Box gap={2}>
+                    {hasError
+                        ? <Text>❌</Text>
+                        : (hasFinished
+                            ? <Text>✅</Text>
+                            : <Loader />
                         )}
-                <Text>{this.description}</Text>
-                {(progress !== null && total !== null && !finishMessage)
-                    ? (
-                            <Text>
-                                :
-                                {progress}
-                                {' '}
-                                /
-                                {total}
-                                {' '}
-                                [
-                                {progressPercentage}
-                                ]
-                            </Text>
-                        )
-                    : null}
-                {expectedRemainder
-                    ? (
-                            <Text>
-                                (Remaining expected time:
-                                {convertMsToHumanTime(expectedRemainder)}
-                                )
-                            </Text>
-                        )
-                    : null}
-                {finishMessage
-                    ? (
-                            <Text>{finishMessage}</Text>
-                        )
-                    : null}
+                    <Text>{this.description}</Text>
+                    {(progress !== null && total !== null && !finishMessage)
+                        ? (
+                                <Text>
+                                    :
+                                    {progress}
+                                    {' '}
+                                    /
+                                    {total}
+                                    {' '}
+                                    [
+                                    {progressPercentage}%
+                                    ]
+                                </Text>
+                            )
+                        : null}
+                    {expectedRemainder
+                        ? (
+                                <Text>
+                                    (Remaining expected time:
+                                    {convertMsToHumanTime(expectedRemainder)}
+                                    )
+                                </Text>
+                            )
+                        : null}
+                    {finishMessage
+                        ? (
+                                <Text>{finishMessage}</Text>
+                            )
+                        : null}
+                </Box>
+                <Box height={1}>
+                    <ProgressBar value={progressPercentage || 0} />
+                </Box>
             </Box>
         );
     }
