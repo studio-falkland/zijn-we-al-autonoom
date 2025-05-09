@@ -1,19 +1,18 @@
 import { HierarchyRectangularNode } from 'd3';
 import { MeasurementFrequency } from './queries';
-import { ComponentPropsWithRef, CSSProperties, HTMLAttributes, MouseEvent, PropsWithRef, Ref, useCallback, useMemo } from 'react';
+import { MouseEvent, useCallback, useMemo } from 'react';
 import { getEmojiForCountryCode } from '@/lib/icons';
-import { cn } from '@/lib/utils';
 import { PatternMatcher, US_AS } from './patterns';
 import { useRedButton } from '@/components/RedButton/context';
 
-const PATTERNS = [
-    '/Pattern=Amazon.svg',
-    '/Pattern=EU.svg',
-    '/Pattern=Google.svg',
-    '/Pattern=Microsoft.svg',
-    '/Pattern=Other.svg',
-    '/Pattern=USA.svg',
-];
+// const PATTERNS = [
+//     '/Pattern=Amazon.svg',
+//     '/Pattern=EU.svg',
+//     '/Pattern=Google.svg',
+//     '/Pattern=Microsoft.svg',
+//     '/Pattern=Other.svg',
+//     '/Pattern=USA.svg',
+// ];
 
 export type TreemapLeafHoverData = {
     data: MeasurementFrequency;

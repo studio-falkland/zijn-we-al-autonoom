@@ -2,13 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Familjen_Grotesk, Inter } from 'next/font/google'
 import { cn } from '@/lib/utils';
-import Link from 'next/link';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { RedButtonProvider } from '@/components/RedButton/context';
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from '@/components/ui/navigation-menu';
-import hierarchy from '@are-we-dependent/data/hierarchy';
-import { getIconForCategory } from '@/lib/icons';
-import RedButton from '@/components/RedButton';
 import Menu from './menu';
 
 // If loading a variable font, you don't need to specify the font weight

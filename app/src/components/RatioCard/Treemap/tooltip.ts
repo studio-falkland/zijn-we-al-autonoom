@@ -1,12 +1,12 @@
 import { offset, shift, useFloating } from '@floating-ui/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { TreemapLeafHoverData } from './TreemapLeaf';
 
 export default function useTreemapTooltip() {
     const [tooltipData, setTooltipData] = useState<TreemapLeafHoverData | null>(null);
     const resetTooltip = useCallback(() => setTooltipData(null), []);
 
-    const { refs, floatingStyles, update } = useFloating({
+    const { refs, floatingStyles } = useFloating({
         placement: 'top',
         middleware: [offset(10), shift()],
         open: !!tooltipData,
