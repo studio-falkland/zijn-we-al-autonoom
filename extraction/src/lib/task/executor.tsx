@@ -60,6 +60,14 @@ export default function TaskExecutor({ task, onFinish }: TaskExecutorProps) {
 
     // Effect hook which runs on mount and starts the task by calling onStart function of task with necessary props
     useEffect(() => {
+        // Reset all task state
+        setFinished(false);
+        setError(false);
+        setFinishMessage(null);
+        setExpectedRemainder(null);
+        updateTotal(null);
+        updateProgress(null);
+
         log(`Starting task`);
 
         try {
