@@ -28,7 +28,7 @@ export default class RetrieveOpenStreetMapData extends RemoteDatasetTask {
             OVERPASS_API_HOST,
             { 
                 method: 'POST',
-                body: new URLSearchParams({ data: OVERPASS_QUERY }),
+                body: new URLSearchParams({ data: OVERPASS_QUERY }).toString(),
             }
         );
 
