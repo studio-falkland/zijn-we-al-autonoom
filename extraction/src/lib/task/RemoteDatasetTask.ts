@@ -8,7 +8,7 @@ export class RemoteDatasetTask extends DatasetTask {
         params?: RequestInit
     ) {
         // Retrieve the cachekey from the URL
-        this.log(`Retrieving dataset for URL: ${url}`);
+        this.log(`Retrieving dataset for URL: ${url}`, { params });
 
         // Use that to retrieve the dataset
         const { dataset, buffer } = await this.retrieveAndMatchDataset(
