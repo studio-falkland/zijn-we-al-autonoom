@@ -15,8 +15,9 @@ export default function Menu() {
                 <div className={styles.blur} />
             </div>
             <div className="max-w-[1280px] mx-auto py-8 max-xl:pr-4 grid grid-cols-3 items-center z-10 relative">
-                <Link href="/">
+                <Link href="/" className="flex items-center gap-2">
                     <img src="/logo.svg" className="h-[24px] xl:-ml-[10.31%] -ml-[1%]" />
+                    <div className="rounded bg-blue-500 text-white px-2 py-1 text-xs inline-block">BETA</div>
                 </Link>
                 <div className="flex items-center justify-center">
                     <RedButton />
