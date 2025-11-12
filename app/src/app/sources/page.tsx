@@ -1,6 +1,6 @@
 import { getDatasets } from '@/lib/queries';
 
-interface Dataset {
+export interface Source {
     name: string;
     source: string;
     url: string;
@@ -11,7 +11,7 @@ interface Dataset {
     description: string;
 }
 
-const SOURCES = [
+const SOURCES: Source[] = [
     {
         name: 'CAIDA AS Organisations',
         source: 'CAIDA',
@@ -92,13 +92,13 @@ export default async function DatasetsPage() {
             <p className="mt-2">Het meten van afhankelijkh is alleen mogelijk door verder te bouwen op andere datasets. We werken zoveel mogelijk met openbare bronnen zodat andere onze werkwijze kunnen repliceren.</p>
 
             <h2 className="text-2xl font-bold mt-8">Meetmethodes</h2>
-            <p className="mt-2">Op basis van vele onderliggende bronnen houden wij een database bij met organisaties en URL's (gecategoriseerd naar sector en locatie). Periodiek (streven: elke maand) lopen we al deze URLs na om de aanbieder van e-mail en webhosting te bepalen. Dit doen we doormiddel van DNS lookups (MX en A), waarna we reverse lookups doen op de IP-adressen om de aanbieder en het eventuele ASN te bepalen. De informatie van zowel IP als ASN wordt tenslotte geagreggeerd om tot de visualisaties en kaarten te komen.</p>
+            <p className="mt-2">Op basis van vele onderliggende bronnen houden wij een database bij met organisaties en URL&apos;s (gecategoriseerd naar sector en locatie). Periodiek (streven: elke maand) lopen we al deze URLs na om de aanbieder van e-mail en webhosting te bepalen. Dit doen we doormiddel van DNS lookups (MX en A), waarna we reverse lookups doen op de IP-adressen om de aanbieder en het eventuele ASN te bepalen. De informatie van zowel IP als ASN wordt tenslotte geagreggeerd om tot de visualisaties en kaarten te komen.</p>
             <p className="mt-2">De data wordt met de grootst mogelijk zorgvuldigheid verzameld. Vanwege de grootte van die datasets is het onvermijdelijk dat de meetgegevens fouten bevatten. We proberen voornamelijk op grote schaal een beeld te geven van afhankelijkheid. Mochten je als organisatie benoemd zijn op dee website, neem dan contact op bij fouten.</p>
 
             <h2 className="text-2xl font-bold mt-8">Bronnen</h2>
             <div className="grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-4 mt-4">
                 {SOURCES.map((dataset) => (
-                    <div className="bg-white p-4 rounded-xl border border-blue-800 box-shadow-zwaa">
+                    <div className="bg-white p-4 rounded-xl border border-blue-800 box-shadow-zwaa" key={dataset.name}>
                         <p className="opacity-50 text-sm">Organisatie</p>
                         <h3 className="text-lg">{dataset.source}</h3>
                         <p className="opacity-50 text-sm mt-4">Dataset</p>
@@ -151,7 +151,7 @@ export default async function DatasetsPage() {
             </div>
 
             <h2 className="text-2xl font-bold mt-8">Hergebruik materialen en datasets</h2>
-            <p className="mt-2">De visualisaties worden onder voorwaarde van attributie vrijgegeven. Vernoem "Zijn we al autonoom?" en "Studio Falkland" als bron, en voeg waar mogelijk een link naar deze website toe. De dataset waarop de visualisatie gebaseerd is, is op dit moment niet beschikbaar voor hergebruik. We werken eraan om deze op een gestructureerde manier aan te bieden. Neem in de tussentijd contact op, mocht de onderliggende data van waarde zijn voor jouw project.</p>
+            <p className="mt-2">De visualisaties worden onder voorwaarde van attributie vrijgegeven. Vernoem &quot;Zijn we al autonoom?&quot; en &quot;Studio Falkland&quot; als bron, en voeg waar mogelijk een link naar deze website toe. De dataset waarop de visualisatie gebaseerd is, is op dit moment niet beschikbaar voor hergebruik. We werken eraan om deze op een gestructureerde manier aan te bieden. Neem in de tussentijd contact op, mocht de onderliggende data van waarde zijn voor jouw project.</p>
         </div>
     );
 }
