@@ -4,8 +4,8 @@ import { getFrequencySet } from './Treemap/queries';
 import Treemap from './Treemap';
 import Concentration from './Concentration';
 import Link from 'next/link';
-import { getCategoryLabel, getDatasetLabel, getRegionLabel, getSectorLabel } from '@/lib/labels';
-import { getIconForCategory, getIconForDataset, getIconForRegion } from '@/lib/icons';
+import { getCategoryLabel, getDatasetLabel, getSectorLabel } from '@/lib/labels';
+import { getIconForCategory, getIconForDataset } from '@/lib/icons';
 
 export interface RatioCardProps {
     region: Region,
@@ -19,7 +19,7 @@ export default async function RatioCard({
 }: RatioCardProps) {
     const frequencies = await getFrequencySet({ region, category, type: dataset, sector });
 
-    const RegionIcon = getIconForRegion(region);
+    // const RegionIcon = getIconForRegion(region);
     const CategoryIcon = getIconForCategory(category);
     const DatasetIcon = getIconForDataset(dataset);
 

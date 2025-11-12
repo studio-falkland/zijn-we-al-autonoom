@@ -69,7 +69,11 @@ export default async function Footer() {
                     <div className="w-full">
                         <p className="mt-1.5 opacity-50">E-mail</p>
                         {Object.values(Category).map((category) => (
-                            <Link href={`/email-as/${category}`} className="text-blue-800 block">
+                            <Link
+                                href={`/email-as/${category}`}
+                                className="text-blue-800 block"
+                                key={category}
+                            >
                                 {getCategoryLabel(category)}
                             </Link>
                         ))}
@@ -77,7 +81,11 @@ export default async function Footer() {
                     <div className="w-full">
                         <p className="mt-1.5 opacity-50">Webhosting</p>
                         {Object.values(Category).map((category) => (
-                            <Link href={`/webhosting-as/${category}`} className="text-blue-800 block">
+                            <Link
+                                href={`/webhosting-as/${category}`}
+                                className="text-blue-800 block"
+                                key={category}
+                            >
                                 {getCategoryLabel(category)}
                             </Link>
                         ))}
