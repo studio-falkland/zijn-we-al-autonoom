@@ -13,6 +13,7 @@ export interface FrequencyConfig {
     category?: string;
     sector?: string;
     groupBy?: 'as_organisation' | 'asn' | 'as_country_code';
+    includeUnmeasured?: boolean;
 }
 
 export async function getFrequencySet(config: FrequencyConfig): Promise<MeasurementFrequency[]> {
@@ -24,65 +25,112 @@ export async function getFrequencySet(config: FrequencyConfig): Promise<Measurem
 /**
  * Return the frequency of occurence of a particular AS organisation among a
  * distinct dataset, potentially consisting of a type, region, category and/or sector.
+ * Can optionally include unmeasured organizations.
  */
-export async function getMeasurementFrequency({ type, region, category, sector, groupBy }: FrequencyConfig) {
-    const latestMeasurementsQuery = db.manager
+export async function getMeasurementFrequency({ type, region, category, sector, groupBy, includeUnmeasured = false }: FrequencyConfig) {
+    // Always start from organizations - this is more comprehensive
+    let orgQuery = db.manager
         .createQueryBuilder()
         .select([
-            "id",
-            "asn",
-            "as_country_code",
-            "as_organisation",
+            "organisation.slug AS org_slug",
+            "organisation.name AS org_name",
+            "url.url AS url"
         ])
-        .from((qb) => {
-            let subQuery = qb
-                .select([
-                    "measurement.id AS id",
-                    "measurement.asn AS asn",
-                    "measurement.as_country_code AS as_country_code",
-                    "measurement.as_organisation AS as_organisation",
-                    "measurement.url",
-                    "ROW_NUMBER() OVER (PARTITION BY measurement.url ORDER BY measurement.created_at DESC) AS rn",
-                ])
-                .from(Measurement, "measurement")
-                .leftJoin("url", "url", "measurement.url = url.url")
-                .leftJoin("organisation", "organisation", "url.organisation = organisation.slug")
-                .leftJoin(
-                    "organisation_classification",
-                    "organisation_classification",
-                    "organisation.slug = organisation_classification.organisation"
-                );
+        .from("organisation", "organisation")
+        .leftJoin("url", "url", "organisation.slug = url.organisation")
+        .leftJoin(
+            "organisation_classification",
+            "organisation_classification",
+            "organisation.slug = organisation_classification.organisation"
+        );
 
-            if (type) {
-                subQuery = subQuery.andWhere("measurement.type = :type", { type });
-            }
-            if (region) {
-                subQuery = subQuery.andWhere("organisation_classification.region = :region", { region });
-            }
-            if (category) {
-                subQuery = subQuery.andWhere("organisation_classification.category = :category", { category });
-            }
-            if (sector) {
-                subQuery = subQuery.andWhere("organisation_classification.sector = :sector", { sector });
-            }
+    if (region) {
+        orgQuery = orgQuery.andWhere("organisation_classification.region = :region", { region });
+    }
+    if (category) {
+        orgQuery = orgQuery.andWhere("organisation_classification.category = :category", { category });
+    }
+    if (sector) {
+        orgQuery = orgQuery.andWhere("organisation_classification.sector = :sector", { sector });
+    }
 
-            return subQuery;
-        }, "t")
-        .where("t.rn = 1");
-
-    const result = db.manager
+    // Subquery for latest measurements per URL
+    let latestMeasurementsSubquery = db.manager
         .createQueryBuilder()
         .select([
-            "latestMeasurements.asn",
-            "latestMeasurements.as_country_code",
-            "latestMeasurements.as_organisation",
-            "COUNT(*) AS frequency",
+            "measurement.id AS id",
+            "measurement.asn AS asn",
+            "measurement.as_country_code AS as_country_code", 
+            "measurement.as_organisation AS as_organisation",
+            "measurement.url AS url",
+            "ROW_NUMBER() OVER (PARTITION BY measurement.url ORDER BY measurement.created_at DESC) AS rn"
         ])
-        // .addCommonTableExpression(latestMeasurementsQuery, 'latestMeasurements')
-        .from(`(${latestMeasurementsQuery.getQuery()})`, "latestMeasurements")
-        .setParameters(latestMeasurementsQuery.getParameters()) // Ensure all parameters are passed
-        .where("latestMeasurements.asn IS NOT NULL")
-        .groupBy(`latestMeasurements.${groupBy || 'as_organisation'}`)
+        .from(Measurement, "measurement");
+    
+    if (type) {
+        latestMeasurementsSubquery = latestMeasurementsSubquery.andWhere("measurement.type = :type", { type });
+    }
+
+    // Join organizations with their latest measurements
+    const orgWithMeasurementsQuery = db.manager
+        .createQueryBuilder()
+        .select([
+            "orgs.org_slug",
+            "orgs.org_name",
+            "orgs.url",
+            "latest_measurements.asn",
+            "latest_measurements.as_country_code",
+            "latest_measurements.as_organisation"
+        ])
+        .from(`(${orgQuery.getQuery()})`, "orgs")
+        .leftJoin(
+            `(${latestMeasurementsSubquery.getQuery()})`,
+            "latest_measurements",
+            "orgs.url = latest_measurements.url AND latest_measurements.rn = 1"
+        )
+        .setParameters({
+            ...orgQuery.getParameters(),
+            ...latestMeasurementsSubquery.getParameters()
+        });
+
+    // Determine the grouping field and handle unmeasured organizations
+    const groupByField = groupBy || 'as_organisation';
+    let selectField;
+    let unmeasuredLabel;
+    
+    switch(groupByField) {
+        case 'asn':
+            selectField = "org_measurements.asn";
+            unmeasuredLabel = "NULL";
+            break;
+        case 'as_country_code':
+            selectField = "org_measurements.as_country_code";
+            unmeasuredLabel = "Onbekend";
+            break;
+        default:
+            selectField = "org_measurements.as_organisation";
+            unmeasuredLabel = "Onbekend";
+    }
+
+    let result = db.manager
+        .createQueryBuilder()
+        .select([
+            `COALESCE(${selectField}, '${unmeasuredLabel}') AS ${groupByField}`,
+            `COALESCE(org_measurements.asn, NULL) AS asn`,
+            `COALESCE(org_measurements.as_country_code, NULL) AS as_country_code`,
+            `COALESCE(org_measurements.as_organisation, '${unmeasuredLabel}') AS as_organisation`,
+            "COUNT(*) AS frequency"
+        ])
+        .from(`(${orgWithMeasurementsQuery.getQuery()})`, "org_measurements")
+        .setParameters(orgWithMeasurementsQuery.getParameters());
+
+    // Filter out unmeasured organizations if not requested
+    if (!includeUnmeasured) {
+        result = result.where("org_measurements.asn IS NOT NULL");
+    }
+
+    result = result
+        .groupBy(`COALESCE(${selectField}, '${unmeasuredLabel}')`)
         .orderBy("frequency", "DESC");
 
     // Retrieve all frequencies
