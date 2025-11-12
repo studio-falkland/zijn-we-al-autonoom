@@ -88,7 +88,7 @@ export default async function DatasetsPage() {
 
     return (
         <div className="max-w-[1280px] mx-auto py-16">
-            <h1 className="text-4xl font-bold">Datasets en meetmethodes</h1>
+            <h1 className="text-4xl font-bold">Bronnen en Attributie</h1>
             <p className="mt-2">Het meten van afhankelijkh is alleen mogelijk door verder te bouwen op andere datasets. We werken zoveel mogelijk met openbare bronnen zodat andere onze werkwijze kunnen repliceren.</p>
 
             <h2 className="text-2xl font-bold mt-8">Meetmethodes</h2>
