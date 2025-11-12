@@ -6,7 +6,10 @@
   "description": "Deze repository bevat code die gebruikt wordt om het Internet in Beeld project over digitale autonomie te ontwikkelen.",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint"
+    "lint": "eslint",
+    "extract": "pnpm --filter extraction start",
+    "app:dev": "pnpm --filter app dev",
+    "app:build": "pnpm --filter app build"
   },
   "author": "Lei Nelissen",
   "workspaces": [
