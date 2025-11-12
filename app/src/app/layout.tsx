@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { RedButtonProvider } from '@/components/RedButton/context';
 import Menu from './menu';
+import Footer from './footer';
 
 // If loading a variable font, you don't need to specify the font weight
 const inter = Inter({ subsets: ['latin'] })
@@ -28,10 +29,13 @@ export default function RootLayout({
             <body className={cn(inter.className, familjen.className, 'bg-blue-50 text-blue-900')}>
                 <RedButtonProvider>
                     <TooltipProvider>
-                        <Menu />
-                        <main className="max-w-[1280px] mx-auto xl:px-0 p-8">
-                            {children}
-                        </main>
+                        <div className="flex flex-col min-h-screen">
+                            <Menu />
+                            <main className="max-w-[1280px] mx-auto xl:px-0 p-8 flex-grow-1 w-full">
+                                {children}
+                            </main>
+                            <Footer />
+                        </div>
                     </TooltipProvider>
                 </RedButtonProvider>
             </body>
