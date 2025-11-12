@@ -1,5 +1,6 @@
 import FrequencyBarChart from '@/components/FrequencyBarChart';
 import Map from '@/components/Map';
+import RatioCard from '@/components/RatioCard';
 import Concentration from '@/components/RatioCard/Concentration';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +9,7 @@ import db from '@/lib/db';
 import calculateHHI from '@/lib/hhi';
 import { getIconForCategory } from '@/lib/icons';
 import { getCategoryLabel, getSectorLabel } from '@/lib/labels';
-import { Category, DestinationDataset, URL } from '@are-we-dependent/data';
+import { Category, DestinationDataset, Region, URL } from '@are-we-dependent/data';
 import { groups as groupArray } from 'd3-array';
 import { Mail } from 'lucide-react';
 import { Not } from 'typeorm';
@@ -75,9 +76,14 @@ export default async function MailCategory({ params }: { params: Promise<{ categ
 
                 return (
                     <details key={group}>
-                        <summary className="flex gap-4 items-center">
-                            {getSectorLabel(group)} {inverseHHI.toFixed(1)}
-                            <Concentration frequencies={sortedFrequencies} />
+                        <summary>
+                            <div className="flex gap-4 items-center">
+                                {getSectorLabel(group)} {inverseHHI.toFixed(1)}
+                                <Concentration frequencies={sortedFrequencies} />
+                            </div>
+                            <div className="flex w-full my-8">
+                                <RatioCard dataset={DestinationDataset.EmailAS} region={Region.Local} category={category} sector={group} />
+                            </div>
                         </summary>
                         <FrequencyBarChart frequencies={sortedFrequencies} />
                         <Table className="mt-4">
