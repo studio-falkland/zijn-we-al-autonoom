@@ -50,13 +50,19 @@ export default function TreemapLeaf({ leaf, onHover, onHoverOut }: TreemapLeafPr
 
     const pattern = useMemo(() => PatternMatcher(leaf.data), [leaf]);
 
-    const fill = useMemo(() => (
-        isRedButtonActive && (
-            leaf.data.as_country_code === 'US' || (
-                leaf.data.asn && US_AS.includes(leaf.data.asn)
-            )
-        ) ? '#FF0000' : '#0000FF'
-    ), [isRedButtonActive, leaf.data])
+    const fill = useMemo(() => {
+        if (isRedButtonActive) {
+            if (leaf.data.as_country_code === 'US' || (leaf.data.asn && US_AS.includes(leaf.data.asn))) {
+                return '#FF0000';
+            }
+        }
+
+        // if (leaf.data.as_organisation === 'Onbekend') {
+        //     return '#bfbfff';
+        // }
+
+        return '#0000FF';
+    }, [isRedButtonActive, leaf.data])
 
 
 
