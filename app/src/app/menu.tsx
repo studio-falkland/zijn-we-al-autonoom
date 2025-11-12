@@ -5,16 +5,22 @@ import hierarchy, { DestinationDataset } from '@are-we-dependent/data/hierarchy'
 import Link from 'next/link';
 import { Mail, Server } from 'lucide-react';
 import { getCategoryLabel, getRegionLabel } from '@/lib/labels';
-
+import styles from './menu.module.css';
 export default function Menu() {
     return (
-
-        <div className="bg-blue-50/85 backdrop-blur-md sticky top-0 z-50">
-            <div className="max-w-[1280px] mx-auto py-8 max-xl:pr-4 flex justify-between items-center ">
+        <div className="sticky top-0 inset-x-0 z-50">
+            <div className={styles['progressive-blur']}>
+                <div className={styles.blur} />
+                <div className={styles.blur} /> 
+                <div className={styles.blur} />
+            </div>
+            <div className="max-w-[1280px] mx-auto py-8 max-xl:pr-4 grid grid-cols-3 items-center z-10 relative">
                 <Link href="/">
                     <img src="/logo.svg" className="h-[24px] xl:-ml-[10.31%] -ml-[1%]" />
                 </Link>
-                <RedButton />
+                <div className="flex items-center justify-center">
+                    <RedButton />
+                </div>
                 <NavigationMenu>
                     <NavigationMenuList>
                         <NavigationMenuItem>
