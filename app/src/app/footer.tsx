@@ -60,7 +60,7 @@ export default async function Footer() {
                     <div className="w-full">
                         <Link href="/" className="text-blue-800 block">Home</Link>
                         <Link href="/about" className="text-blue-800 block">Over</Link>
-                        <Link href="/datasets" className="text-blue-800 block">Datasets</Link>
+                        <Link href="/sources" className="text-blue-800 block">Bronnen & Attributie</Link>
                         <p className="opacity-25 mt-1.5">Visualisaties</p>
                         <p className="opacity-50">Kaarten</p>
                         <Link href={`/map/${DestinationDataset.EmailAS}`} className="text-blue-800 block">Email</Link>
