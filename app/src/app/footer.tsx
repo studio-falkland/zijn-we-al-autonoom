@@ -13,7 +13,7 @@ export default async function Footer() {
 
 
     return (
-        <footer className="bg-[#f6f6f6] mt-40">
+        <footer className="bg-[#f6f6f6] mt-40 px-4">
             <svg width="100%" height="12">
                 <defs>
                     <pattern id="footer-pattern" width="24" height="12" x="0" y="0" patternUnits="userSpaceOnUse">
@@ -23,7 +23,7 @@ export default async function Footer() {
                 <rect width="100%" height="12" fill="#f1f1f8" />
                 <rect width="100%" height="12" fill="url(#footer-pattern)" />
             </svg>
-            <div className="max-w-[1280px] mx-auto py-16 max-xl:pr-4 grid grid-cols-3 gap-8 relative text-[#444]">
+            <div className="max-w-[1280px] mx-auto py-16 max-xl:pr-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative text-[#444]">
                 <div>
                     <img src="/logo.svg" className="h-[24px] my-1.5 grayscale" />
                     <p className="mt-4">
