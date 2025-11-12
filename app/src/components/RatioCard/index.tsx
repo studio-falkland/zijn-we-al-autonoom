@@ -31,31 +31,31 @@ export default async function RatioCard({
             href={`/${dataset}/${category}`}
         >
             <div className="flex justify-between">
-                <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                        <RegionIcon className="w-3 h-3" />
+                <div className="flex items-center gap-4 pl-1">
+                    {/* <div className="flex items-center gap-2">
+                        <RegionIcon className="w-4 h-4" />
                         {getRegionLabel(region)}
+                    </div> */}
+                    {/* <ArrowRight className="w-4" /> */}
+                    <div className="flex items-center gap-2">
+                        <DatasetIcon className="w-4 h-4" />
+                        {getDatasetLabel(dataset)}
                     </div>
                     <ArrowRight className="w-4" />
                     <div className="flex items-center gap-2">
-                        <CategoryIcon className="w-3 h-3" />
+                        <CategoryIcon className="w-4 h-4" />
                         {getCategoryLabel(category)}
                     </div>
                     {sector && (
                         <>
                             <ArrowRight className="w-4" />
                             <div className="flex items-center gap-2">
-                                <CategoryIcon className="w-3 h-3" />
+                                <CategoryIcon className="w-4 h-4" />
                                 {getSectorLabel(sector)}
                             </div>
                         </>
                     )}
-                    <ArrowRight className="w-4" />
-                    <div className="flex items-center gap-2">
-                        <DatasetIcon className="w-3 h-3" />
-                        {getDatasetLabel(dataset)}
-                    </div>
-                    <div className="text-blue-200">
+                    <div className="text-blue-900/25 text-sm">
                         ({sum} organisaties)
                     </div>
                 </div>

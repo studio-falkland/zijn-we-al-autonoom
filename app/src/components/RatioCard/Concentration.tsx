@@ -26,7 +26,7 @@ export default function Concentration({ frequencies }: { frequencies: Frequency[
             {getIcon(hhi)}
             {getLabel(hhi)}
             {' '}
-            <span className="text-blue-900/25">
+            <span className="text-blue-900/25 text-sm">
                 ({hhi.toFixed(0)})
             </span>
         </div>
