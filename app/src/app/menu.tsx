@@ -16,7 +16,7 @@ export default function Menu() {
             </div>
             <div className="max-w-[1280px] mx-auto py-8 max-xl:pr-4 grid grid-cols-3 items-center z-10 relative">
                 <Link href="/" className="flex items-center gap-2" prefetch={false}>
-                    <img src="/logo.svg" className="h-[24px] xl:-ml-[10.31%] -ml-[1%]" />
+                    <img src="/logo.svg" className="h-[24px] xl:-ml-[10.31%] -ml-[1%]" alt="Zijn we al autonoom?" />
                     <div className="rounded bg-blue-500 text-white px-2 py-1 text-xs inline-block">BETA</div>
                 </Link>
                 <div className="flex items-center justify-center">
