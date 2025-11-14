@@ -87,9 +87,9 @@ export default async function DatasetsPage() {
     const datasets = await getDatasets();
 
     return (
-        <div className="max-w-[1280px] mx-auto py-16">
+        <div className="max-w-[1280px] mx-auto py-16 text-xl leading-relaxed">
             <h1 className="text-4xl font-bold">Bronnen en Attributie</h1>
-            <p className="mt-2">Het meten van afhankelijkh is alleen mogelijk door verder te bouwen op andere datasets. We werken zoveel mogelijk met openbare bronnen zodat andere onze werkwijze kunnen repliceren.</p>
+            <p className="mt-4">Het meten van afhankelijkheid is alleen mogelijk door verder te bouwen op andere datasets. We werken zoveel mogelijk met openbare bronnen zodat andere onze werkwijze kunnen repliceren.</p>
 
             <h2 className="text-2xl font-bold mt-8">Meetmethodes</h2>
             <p className="mt-2">Op basis van vele onderliggende bronnen houden wij een database bij met organisaties en URL&apos;s (gecategoriseerd naar sector en locatie). Periodiek (streven: elke maand) lopen we al deze URLs na om de aanbieder van e-mail en webhosting te bepalen. Dit doen we doormiddel van DNS lookups (MX en A), waarna we reverse lookups doen op de IP-adressen om de aanbieder en het eventuele ASN te bepalen. De informatie van zowel IP als ASN wordt tenslotte geagreggeerd om tot de visualisaties en kaarten te komen.</p>

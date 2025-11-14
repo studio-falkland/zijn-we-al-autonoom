@@ -10,7 +10,7 @@ export default function Home() {
             <div className="flex py-12 items-center justify-between">
                 <div className="max-w-[440px]">
                     <h2 className="text-5xl text-blue-800 font-bold tracking-tight mb-4">Zijn we al autonoom?</h2>
-                    <p>De Nederlandse maatschappij functioneert niet zonder digitale infrastructuur. Zijn we al autonoom brengt in kaart van welke organisaties het internet in Nederland het meest afhankelijk is.</p>
+                    <p className="text-xl leading-relaxed">De Nederlandse maatschappij functioneert niet zonder digitale infrastructuur. Zijn we al autonoom brengt in kaart van welke organisaties het internet in Nederland het meest afhankelijk is.</p>
                 </div>
                 <Cloud fill="white" stroke="none" size={240} className="max-w-[240px] w-full" />
             </div>
