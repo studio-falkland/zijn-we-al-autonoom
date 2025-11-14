@@ -1,11 +1,12 @@
 'use client';
 import { URL } from '@are-we-dependent/data';
+import { LatestMeasurementResult } from '@/lib/queries';
 import { Map as BaseMap, Marker } from '@vis.gl/react-maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { PropsWithChildren } from 'react';
 import { useRedButton } from '../RedButton/context';
 
-export default function Map({ data, children }: PropsWithChildren<{ data?: URL[]}>) {
+export default function Map({ data, children }: PropsWithChildren<{ data?: URL[] | LatestMeasurementResult[]}>) {
     const [isRedButtonActive] = useRedButton();
 
     return (
