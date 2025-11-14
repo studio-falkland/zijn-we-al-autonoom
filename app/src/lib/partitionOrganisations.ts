@@ -1,11 +1,17 @@
 import { US_AS } from '@/components/RatioCard/Treemap/patterns';
-import { Organisation } from '@are-we-dependent/data';
+import { Organisation, Measurement } from '@are-we-dependent/data';
 import { partition } from 'lodash';
+
+type OrganisationForGeoJSON = Pick<Organisation, 'lat' | 'lng'> & {
+    url: {
+        measurements: Pick<Measurement, 'as_country_code' | 'asn'>[];
+    };
+};
 
 /**
  * Transform an array of organisations into a GeoJSON layer with points for all locations
  */
-export function organisationArrayToGeoJSON(data: Organisation[]): GeoJSON.FeatureCollection {
+export function organisationArrayToGeoJSON(data: OrganisationForGeoJSON[]): GeoJSON.FeatureCollection {
     return {
         type: 'FeatureCollection',
         features: data.map((org): GeoJSON.Feature => ({
@@ -15,7 +21,9 @@ export function organisationArrayToGeoJSON(data: Organisation[]): GeoJSON.Featur
                 coordinates: [org.lng!, org.lat!],
             },
             properties: {
-                organisation: JSON.parse(JSON.stringify(org)),
+                // TODO: Add the organisation object to the properties if we
+                // need it for the tooltip
+                // organisation: JSON.parse(JSON.stringify(org)),
             },
         }))
     };
@@ -25,7 +33,7 @@ export function organisationArrayToGeoJSON(data: Organisation[]): GeoJSON.Featur
  * Partition an array of organisations into two GeoJSON layers, of which one is
  * US-based and the other is
  */
-export function partitionOrganisationsIntoGeoJSON(data: Organisation[]) {
+export function partitionOrganisationsIntoGeoJSON(data: OrganisationForGeoJSON[]) {
     // Filter any organisations that have no measurements for one reason or another
     const filteredData = data.filter((o) => o.url?.measurements?.length > 0);
 
