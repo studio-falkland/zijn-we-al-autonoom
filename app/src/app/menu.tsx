@@ -22,10 +22,10 @@ export default function Menu() {
                 <div className="flex items-center justify-center">
                     <RedButton />
                 </div>
-                <NavigationMenu>
+                <NavigationMenu className="ml-auto">
                     <NavigationMenuList>
                         <NavigationMenuItem>
-                            <NavigationMenuTrigger>
+                            <NavigationMenuTrigger className="text-lg">
                                 Kaart
                             </NavigationMenuTrigger>
                             <NavigationMenuContent>
@@ -62,7 +62,7 @@ export default function Menu() {
                             </NavigationMenuContent>
                         </NavigationMenuItem>
                         <NavigationMenuItem>
-                            <NavigationMenuTrigger>
+                            <NavigationMenuTrigger className="text-lg">
                                 Sectoren
                             </NavigationMenuTrigger>
                             <NavigationMenuContent className="flex gap-4">
@@ -96,11 +96,11 @@ export default function Menu() {
                                 ))}
                             </NavigationMenuContent>
                         </NavigationMenuItem>
-                        <NavigationMenuItem>
+                        {/* <NavigationMenuItem>
                             <a href="#" className="text-blue-500">
                                 Autonomer worden
                             </a>
-                        </NavigationMenuItem>
+                        </NavigationMenuItem> */}
                     </NavigationMenuList>
                 </NavigationMenu>
             </div>

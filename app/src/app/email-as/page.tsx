@@ -20,6 +20,7 @@ export interface Row {
 
 export default async function Mail() {
     const result = await db.manager.find(URL, {
+        select: ['id', 'url', 'organisation', 'measurements'],
         relations: ['measurements', 'organisation', 'organisation.classifications'],
         where: { measurements: { type: DestinationDataset.EmailAS, data: Not('error') } },
     });
