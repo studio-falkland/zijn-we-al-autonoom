@@ -1,17 +1,28 @@
-import db from '@/lib/db';
-import { DestinationDataset, Organisation } from '@are-we-dependent/data';
+import { DestinationDataset, Organisation, Measurement } from '@are-we-dependent/data';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { IsNull, Not } from 'typeorm';
 import MapRenderer from '../mapRenderer';
 import { partitionOrganisationsIntoGeoJSON } from '@/lib/partitionOrganisations';
+import { getLatestMeasurements } from '@/lib/queries';
+
+type OrganisationWithMeasurements = Pick<Organisation, 'lat' | 'lng'> & {
+    url: {
+        measurements: Pick<Measurement, 'as_country_code' | 'asn'>[];
+    };
+};
 
 export default async function EmailMap() {
-    const data = await db.manager.find(Organisation, {
-        relations: ['url.measurements'],
-        where: { lat: Not(IsNull()), lng: Not(IsNull()), url: { measurements: { type: DestinationDataset.EmailAS }} },
-    });
+    const data = await getLatestMeasurements(DestinationDataset.EmailAS, undefined, { requireCoordinates: true });
 
-    const { us, other } = partitionOrganisationsIntoGeoJSON(data);
+    // Transform our optimized query results to match Organisation structure expected by partitionOrganisationsIntoGeoJSON  
+    const transformedData: OrganisationWithMeasurements[] = data.map(url => ({
+        lat: url.organisation.lat!,
+        lng: url.organisation.lng!,
+        url: {
+            measurements: url.measurements
+        }
+    }));
+
+    const { us, other } = partitionOrganisationsIntoGeoJSON(transformedData);
 
     return (
         <MapRenderer us={us} other={other} dataset={DestinationDataset.EmailAS} />

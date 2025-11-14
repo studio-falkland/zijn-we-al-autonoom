@@ -5,7 +5,7 @@ export type LatestMeasurementResult = Pick<URL, 'id' | 'url'> & {
     organisation: Pick<Organisation, 'name' | 'lat' | 'lng'> & {
         classifications: Pick<OrganisationClassification, 'category' | 'sector'>[];
     };
-    measurements: Pick<Measurement, 'data' | 'as_organisation' | 'as_country_code'>[];
+    measurements: Pick<Measurement, 'data' | 'as_organisation' | 'as_country_code' | 'asn'>[];
 };
 
 /**
@@ -34,7 +34,8 @@ export async function getDatasets() {
  */
 export async function getLatestMeasurements(
     type: DestinationDataset, 
-    category?: Category
+    category?: Category,
+    options?: { requireCoordinates?: boolean }
 ): Promise<LatestMeasurementResult[]> {
     const subquery = db.manager
         .createQueryBuilder()
@@ -43,6 +44,7 @@ export async function getLatestMeasurements(
             'measurement.data as data',
             'measurement.as_organisation as as_organisation',
             'measurement.as_country_code as as_country_code',
+            'measurement.asn as asn',
             'measurement.id as id',
             'ROW_NUMBER() OVER (PARTITION BY measurement.url ORDER BY measurement.created_at DESC) as rn'
         ])
@@ -73,6 +75,11 @@ export async function getLatestMeasurements(
         .setParameters(subquery.getParameters())
         .where('latest_measurements.as_organisation IS NOT NULL');
 
+    if (options?.requireCoordinates) {
+        query = query.andWhere('organisation.lat IS NOT NULL')
+                    .andWhere('organisation.lng IS NOT NULL');
+    }
+
     if (category) {
         query = query.andWhere('classifications.category = :category', { category });
     }
@@ -94,7 +101,8 @@ export async function getLatestMeasurements(
         measurements: [{
             data: row.measurements_data,
             as_organisation: row.measurements_as_organisation,
-            as_country_code: row.measurements_as_country_code
+            as_country_code: row.measurements_as_country_code,
+            asn: row.measurements_asn
         }]
     })) as LatestMeasurementResult[];
 }
