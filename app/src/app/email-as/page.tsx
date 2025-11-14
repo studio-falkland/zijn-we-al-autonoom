@@ -3,28 +3,13 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbS
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getIconForCategory } from '@/lib/icons';
 import calculateHHI from '@/lib/hhi';
-import { DestinationDataset, URL } from '@are-we-dependent/data';
 import { groups as groupArray } from 'd3-array';
 import Link from 'next/link';
-import db from '@/lib/db';
-import { Not } from 'typeorm';
-
-export interface Row {
-    id: number
-    url: string
-    type: string
-    measurement: string
-    category: string
-    name: string
-}
+import { getLatestMeasurements } from '@/lib/queries';
+import { DestinationDataset } from '@are-we-dependent/data';
 
 export default async function Mail() {
-    const result = await db.manager.find(URL, {
-        select: ['id', 'url', 'organisation', 'measurements'],
-        relations: ['measurements', 'organisation', 'organisation.classifications'],
-        where: { measurements: { type: DestinationDataset.EmailAS, data: Not('error') } },
-    });
-
+    const result = await getLatestMeasurements(DestinationDataset.EmailAS);
     const groups = groupArray(result, (r) => r.organisation.classifications[0].category);
 
     return (
@@ -36,19 +21,19 @@ export default async function Mail() {
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                        <BreadcrumbLink href="/mail">Mail</BreadcrumbLink>
+                        <BreadcrumbLink href="/email-as">Mail</BreadcrumbLink>
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
             <div className="flex flex-wrap gap-4 p-4">
                 {groups.map(([group, rows]) => {
-                    const { inverseHHI, sortedFrequencies } = calculateHHI(rows, (r) => r.measurements.at(-1)?.data!);
+                    const { inverseHHI, sortedFrequencies } = calculateHHI(rows, (r) => r.measurements[0].data!);
                     const Icon = getIconForCategory(group);
                     const modalCategory = sortedFrequencies[0];
 
                     return (
                         <Card key={group} className="max-w-[300px] font-heading hover:border-blue-200">
-                            <Link href={`/mail/${group}`} prefetch={false}>
+                            <Link href={`/email-as/${group}`} prefetch={false}>
                                 <CardHeader>
                                     <CardTitle>
                                         <div className="flex gap-2 items-center">
