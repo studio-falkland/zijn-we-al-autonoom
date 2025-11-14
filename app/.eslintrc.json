@@ -1,6 +1,7 @@
 {
   "extends": ["next/core-web-vitals", "next/typescript"],
   "rules": {
-    "@typescript-eslint/no-non-null-asserted-optional-chain": 0
+    "@typescript-eslint/no-non-null-asserted-optional-chain": 0,
+    "@next/next/no-img-element": 0
   }
 }

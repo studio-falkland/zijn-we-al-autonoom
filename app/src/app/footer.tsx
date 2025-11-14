@@ -58,13 +58,43 @@ export default async function Footer() {
                 </div>
                 <div className="flex gap-2">
                     <div className="w-full">
-                        <Link href="/" className="text-blue-800 block">Home</Link>
-                        <Link href="/about" className="text-blue-800 block">Over</Link>
-                        <Link href="/sources" className="text-blue-800 block">Bronnen & Attributie</Link>
+                        <Link 
+                            href="/"
+                            className="text-blue-800 block"
+                            prefetch={false}
+                        >
+                            Home
+                        </Link>
+                        <Link 
+                            href="/about"
+                            className="text-blue-800 block"
+                            prefetch={false}
+                        >
+                            Over
+                        </Link>
+                        <Link 
+                            href="/sources"
+                            className="text-blue-800 block"
+                            prefetch={false}
+                        >
+                            Bronnen & Attributie
+                        </Link>
                         <p className="opacity-25 mt-1.5">Visualisaties</p>
                         <p className="opacity-50">Kaarten</p>
-                        <Link href={`/map/${DestinationDataset.EmailAS}`} className="text-blue-800 block">Email</Link>
-                        <Link href={`/map/${DestinationDataset.WebhostingAS}`} className="text-blue-800 block">Webhosting</Link>
+                        <Link 
+                            href={`/map/${DestinationDataset.EmailAS}`}
+                            className="text-blue-800 block"
+                            prefetch={false}
+                        >
+                            Email
+                        </Link>
+                        <Link 
+                            href={`/map/${DestinationDataset.WebhostingAS}`}
+                            className="text-blue-800 block"
+                            prefetch={false}
+                        >
+                            Webhosting
+                        </Link>
                     </div>
                     <div className="w-full">
                         <p className="mt-1.5 opacity-50">E-mail</p>
@@ -73,6 +103,7 @@ export default async function Footer() {
                                 href={`/email-as/${category}`}
                                 className="text-blue-800 block"
                                 key={category}
+                                prefetch={false}
                             >
                                 {getCategoryLabel(category)}
                             </Link>
@@ -85,6 +116,7 @@ export default async function Footer() {
                                 href={`/webhosting-as/${category}`}
                                 className="text-blue-800 block"
                                 key={category}
+                                prefetch={false}
                             >
                                 {getCategoryLabel(category)}
                             </Link>
