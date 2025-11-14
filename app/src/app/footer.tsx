@@ -25,7 +25,7 @@ export default async function Footer() {
             </svg>
             <div className="max-w-[1280px] mx-auto py-16 max-xl:pr-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative text-[#444]">
                 <div>
-                    <img src="/logo.svg" className="h-[24px] my-1.5 grayscale" />
+                    <img src="/logo.svg" className="h-[24px] my-1.5 grayscale" alt="Zijn we al autonoom?" />
                     <p className="mt-4">
                         <span className="font-bold">Zijn we al autonoom?</span>
                         {' '}
@@ -41,19 +41,19 @@ export default async function Footer() {
                 <div className="text-[#999] grid gap-4 grid-cols-2 h-fit">
                     <a href="https://falkland.studio" target="_blank" className="opacity-80 hover:opacity-100 transition-opacity">
                         <p>Ontwikkeld door</p>
-                        <img src="/falkland-logo-long.svg" className="h-[32px] mt-2" />
+                        <img src="/falkland-logo-long.svg" className="h-[32px] mt-2" alt="Studio Falkland" />
                     </a>
                     <a href="https://hoehetnetwerkt.nl" target="_blank" className="opacity-80 hover:opacity-100 transition-opacity">
                         <p>Onderdeel van de call</p>
-                        <img src="/internet-infrastructuur-in-beeld-logo.svg" className="h-[40px] mt-2" />
+                        <img src="/internet-infrastructuur-in-beeld-logo.svg" className="h-[40px] mt-2" alt="Internet Infrastructuur in Beeld" />
                     </a>
                     <a href="https://sidnfonds.nl" target="_blank" className="opacity-80 hover:opacity-100 transition-opacity">
                         <p>Gefinancierd door</p>
-                        <img src="/sidn-fonds-logo.svg" className="h-[22px] mt-2" />
+                        <img src="/sidn-fonds-logo.svg" className="h-[22px] mt-2" alt="SIDN Fonds" />
                     </a>
                     <a href="https://sidnlabs.nl" target="_blank" className="opacity-80 hover:opacity-100 transition-opacity">
                         <p>Ondersteund door</p>
-                        <img src="/sidn-labs-logo.svg" className="h-[32px] mt-2" />
+                        <img src="/sidn-labs-logo.svg" className="h-[32px] mt-2" alt="SIDN Labs" />
                     </a>
                 </div>
                 <div className="flex gap-2">
