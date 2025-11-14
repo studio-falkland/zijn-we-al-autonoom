@@ -29,6 +29,7 @@ export default async function RatioCard({
         <Link
             className="bg-white p-4 rounded-xl border border-blue-800 box-shadow-zwaa hover:-translate-y-1 transition-transform w-full"
             href={`/${dataset}/${category}`}
+            prefetch={false}
         >
             <div className="flex justify-between">
                 <div className="flex items-center gap-4 pl-1">

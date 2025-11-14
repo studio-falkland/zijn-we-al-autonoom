@@ -47,7 +47,7 @@ export default async function Mail() {
 
                     return (
                         <Card key={group} className="max-w-[300px] font-heading hover:border-blue-200">
-                            <Link href={`/mail/${group}`}>
+                            <Link href={`/mail/${group}`} prefetch={false}>
                                 <CardHeader>
                                     <CardTitle>
                                         <div className="flex gap-2 items-center">

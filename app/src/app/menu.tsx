@@ -15,7 +15,7 @@ export default function Menu() {
                 <div className={styles.blur} />
             </div>
             <div className="max-w-[1280px] mx-auto py-8 max-xl:pr-4 grid grid-cols-3 items-center z-10 relative">
-                <Link href="/" className="flex items-center gap-2">
+                <Link href="/" className="flex items-center gap-2" prefetch={false}>
                     <img src="/logo.svg" className="h-[24px] xl:-ml-[10.31%] -ml-[1%]" />
                     <div className="rounded bg-blue-500 text-white px-2 py-1 text-xs inline-block">BETA</div>
                 </Link>
@@ -33,6 +33,7 @@ export default function Menu() {
                                     <Link
                                         className="flex p-2 gap-4 group items-start hover:bg-blue-50/50 rounded-lg w-72"
                                         href={`/map/${DestinationDataset.EmailAS}`}
+                                        prefetch={false}
                                     >
                                         <div className="p-4 bg-blue-50 rounded">
                                             <Mail />
@@ -47,6 +48,7 @@ export default function Menu() {
                                     <Link
                                         className="flex p-2 gap-4 items-center group hover:bg-blue-50/50 rounded-lg w-72"
                                         href={`/map/${DestinationDataset.WebhostingAS}`}
+                                        prefetch={false}
                                     >
                                         <div className="p-4 bg-blue-50 rounded">
                                             <Server />
@@ -77,6 +79,7 @@ export default function Menu() {
                                                     <Link
                                                         className="flex p-2 gap-4 group items-start hover:bg-blue-50/50 rounded-lg w-72"
                                                         href={`/email-as/${category.type}`}
+                                                        prefetch={false}
                                                     >
                                                         <div className="p-4 bg-blue-50 rounded">
                                                             <Icon />

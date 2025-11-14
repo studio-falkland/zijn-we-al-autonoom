@@ -46,7 +46,7 @@ export default async function Webserver() {
 
                     return (
                         <Card key={group} className="max-w-[300px] font-heading hover:border-blue-200">
-                            <Link href={`/webserver/${group}`}>
+                            <Link href={`/webserver/${group}`} prefetch={false}>
                                 <CardHeader>
                                     <CardTitle>
                                         <div className="flex gap-2 items-center">
