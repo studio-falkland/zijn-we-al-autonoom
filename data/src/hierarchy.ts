@@ -18,7 +18,7 @@ export enum DestinationDataset {
 /** A category for a single organisation */
 export enum Category {
     Government = 'government',
-    Financial = 'financial',
+    // Financial = 'financial',
     Business = 'business',
     Defense = 'defense',
     Healthcare = 'healthcare',
@@ -128,16 +128,16 @@ const hierarchy: Hierarchy = [
                     { type: GovernmentSector.Ministry },
                 ],
             },
-            {
-                type: Category.Financial,
-                description: 'Finciële dienstverleners, zoals banken, betalingsverwerkes en verzekeraars.',
-                children: [
-                    { type: FinancialSector.Bank },
-                    { type: FinancialSector.PaymentProvider },
-                    { type: FinancialSector.Insurance },
-                    { type: FinancialSector.Other },
-                ],
-            },
+            // {
+            //     type: Category.Financial,
+            //     description: 'Finciële dienstverleners, zoals banken, betalingsverwerkes en verzekeraars.',
+            //     children: [
+            //         { type: FinancialSector.Bank },
+            //         { type: FinancialSector.PaymentProvider },
+            //         { type: FinancialSector.Insurance },
+            //         { type: FinancialSector.Other },
+            //     ],
+            // },
             {
                 type: Category.Business,
                 description: 'De grootste bedrijven van Nederland',
