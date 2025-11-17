@@ -3,6 +3,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { LatestMeasurementResult } from '@/lib/queries';
 import { useRedButton } from '@/components/RedButton/context';
+import { getEmojiForCountryCode } from '@/lib/icons';
 
 export interface OrganisationTableProps extends React.HTMLAttributes<HTMLTableElement> {
     type: 'email-as' | 'webhosting-as';
@@ -22,8 +23,9 @@ export default function OrganisationTable({
                 <TableRow>
                     <TableHead>Organisatie</TableHead>
                     <TableHead>URL</TableHead>
-                    {type === 'email-as' && <TableHead>E-mail URL</TableHead>}
-                    <TableHead>Netwerk Provider</TableHead>
+                    {type === 'email-as' && <TableHead>E-mail Server</TableHead>}
+                    <TableHead>Netwerkprovider</TableHead>
+                    <TableHead>Jurisdictie</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -33,6 +35,9 @@ export default function OrganisationTable({
                         <TableCell>{row.url}</TableCell>
                         {type === 'email-as' && <TableCell>{row.measurements[0].data}</TableCell>}
                         <TableCell>{row.measurements[0].as_organisation}</TableCell>
+                        <TableCell>
+                            {getEmojiForCountryCode(row.measurements[0].as_country_code)}
+                        </TableCell>
                     </TableRow>
                 ))}
             </TableBody>

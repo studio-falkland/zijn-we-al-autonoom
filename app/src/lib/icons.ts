@@ -8,7 +8,7 @@ export const categoryIcons: Record<Category, LucideIcon> = {
     [Category.Business]: Building2,
     [Category.Defense]: Shield,
     [Category.Education]: GraduationCap,
-    [Category.Financial]: PiggyBank,
+    // [Category.Financial]: PiggyBank,
     [Category.Government]: Landmark,
     [Category.Healthcare]: Hospital,
     [Category.DotNL]: Flag,
