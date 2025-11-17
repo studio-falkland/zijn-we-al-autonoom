@@ -61,6 +61,7 @@ export async function getLatestMeasurements(
             'organisation.lng as organisation_lng',
             'latest_measurements.data as measurements_data',
             'latest_measurements.as_organisation as measurements_as_organisation',
+            'latest_measurements.as_country_code as measurements_as_country_code',
             'classifications.category as classifications_category',
             'classifications.sector as classifications_sector'
         ])
