@@ -4,8 +4,8 @@ import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { getIconForCategory } from '@/lib/icons';
 import { getCategoryLabel, getSectorLabel } from '@/lib/labels';
 import { getLatestMeasurements } from '@/lib/queries';
-import { Category, DestinationDataset, sectors, Sectors } from '@are-we-dependent/data';
-import hierarchy, { flatHierarchy } from '@are-we-dependent/data/hierarchy';
+import { Category, DestinationDataset, Sectors } from '@are-we-dependent/data';
+import { flatHierarchy } from '@are-we-dependent/data/hierarchy';
 import { Mail } from 'lucide-react';
 
 export interface MailSectorProps {
