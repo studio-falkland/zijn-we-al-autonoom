@@ -3,7 +3,7 @@ import RatioCard from '@/components/RatioCard';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { getIconForCategory } from '@/lib/icons';
-import { getCategoryLabel, getSectorLabel } from '@/lib/labels';
+import { getCategoryLabel } from '@/lib/labels';
 import { Category, Region, DestinationDataset } from '@are-we-dependent/data';
 import { groups as groupArray } from 'd3-array';
 import { Mail } from 'lucide-react';
@@ -54,7 +54,7 @@ export default async function MailCategory({ params }: { params: Promise<{ categ
                 </CardHeader>
             </Card>
             <Map data={result} />
-            {groups.map(([group, rows]) => (
+            {groups.map(([group]) => (
                 <div key={group} className="flex flex-col gap-4 mt-8">
                     <RatioCard
                         dataset={DestinationDataset.EmailAS}

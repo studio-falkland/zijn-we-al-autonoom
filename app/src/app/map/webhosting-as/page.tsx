@@ -11,7 +11,7 @@ type OrganisationWithMeasurements = Pick<Organisation, 'lat' | 'lng'> & {
 };
 
 export default async function WebhostingMap() {
-    const data = await getLatestMeasurements(DestinationDataset.WebhostingAS, undefined, { requireCoordinates: true });
+    const data = await getLatestMeasurements(DestinationDataset.WebhostingAS, undefined, undefined, { requireCoordinates: true });
 
     // Transform our optimized query results to match Organisation structure expected by partitionOrganisationsIntoGeoJSON
     const transformedData: OrganisationWithMeasurements[] = data.map(url => ({

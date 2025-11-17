@@ -1,11 +1,9 @@
 import FrequencyBarChart from '@/components/FrequencyBarChart';
-import Concentration from '@/components/RatioCard/Concentration';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import calculateHHI from '@/lib/hhi';
 import { getIconForCategory } from '@/lib/icons';
-import { getCategoryLabel, getSectorLabel } from '@/lib/labels';
+import { getCategoryLabel } from '@/lib/labels';
 import { Category, DestinationDataset, Region } from '@are-we-dependent/data';
 import { groups as groupArray } from 'd3-array';
 import { Server } from 'lucide-react';
@@ -62,12 +60,13 @@ export default async function WebserverCategory({ params }: { params: Promise<{ 
                 </CardContent>
             </Card>
             <div className="flex flex-col gap-4 mt-8">
-                {groups.map(([group, rows]) => (
+                {groups.map(([group]) => (
                     <RatioCard
                         dataset={DestinationDataset.WebhostingAS}
                         region={Region.Local}
                         category={category}
                         sector={group}
+                        key={group}
                     />
                 ))}
             </div>
