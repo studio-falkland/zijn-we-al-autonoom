@@ -1,11 +1,7 @@
-import FrequencyBarChart from '@/components/FrequencyBarChart';
 import Map from '@/components/Map';
 import RatioCard from '@/components/RatioCard';
-import Concentration from '@/components/RatioCard/Concentration';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
-import calculateHHI from '@/lib/hhi';
 import { getIconForCategory } from '@/lib/icons';
 import { getCategoryLabel, getSectorLabel } from '@/lib/labels';
 import { Category, Region, DestinationDataset } from '@are-we-dependent/data';
@@ -58,44 +54,16 @@ export default async function MailCategory({ params }: { params: Promise<{ categ
                 </CardHeader>
             </Card>
             <Map data={result} />
-            {groups.map(([group, rows]) => {
-                const { inverseHHI, sortedFrequencies } = calculateHHI(rows, (r) => r.measurements[0].data!);
-
-                return (
-                    <details key={group}>
-                        <summary>
-                            <div className="flex gap-4 items-center">
-                                {getSectorLabel(group)} {inverseHHI.toFixed(1)}
-                                <Concentration frequencies={sortedFrequencies} />
-                            </div>
-                            <div className="flex w-full my-8">
-                                <RatioCard dataset={DestinationDataset.EmailAS} region={Region.Local} category={category} sector={group} />
-                            </div>
-                        </summary>
-                        <FrequencyBarChart frequencies={sortedFrequencies} />
-                        <Table className="mt-4">
-                            <TableHeader>
-                                <TableRow>
-                                    <TableCell>Organisatie</TableCell>
-                                    <TableCell>URL</TableCell>
-                                    <TableCell>E-mail URL</TableCell>
-                                    <TableCell>Netwerk Provider</TableCell>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {rows.sort((a, b) => a.organisation.name.localeCompare(b.organisation.name)).map((row) => (
-                                    <TableRow key={row.id}>
-                                        <TableCell>{row.organisation.name}</TableCell>
-                                        <TableCell>{row.url}</TableCell>
-                                        <TableCell>{row.measurements[0].data}</TableCell>
-                                        <TableCell>{row.measurements[0].as_organisation}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </details>
-                )
-            })}
+            {groups.map(([group, rows]) => (
+                <div key={group} className="flex flex-col gap-4 mt-8">
+                    <RatioCard
+                        dataset={DestinationDataset.EmailAS}
+                        region={Region.Local}
+                        category={category}
+                        sector={group}
+                    />
+                </div>
+            ))}
         </div>
     );
 }

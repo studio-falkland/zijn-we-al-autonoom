@@ -1,4 +1,4 @@
-import { Dataset, Measurement, DestinationDataset, Category, URL, Organisation, OrganisationClassification } from '@are-we-dependent/data';
+import { Dataset, Measurement, DestinationDataset, Category, URL, Organisation, OrganisationClassification, Sectors } from '@are-we-dependent/data';
 import db from '@/lib/db';
 
 export type LatestMeasurementResult = Pick<URL, 'id' | 'url'> & {
@@ -35,6 +35,7 @@ export async function getDatasets() {
 export async function getLatestMeasurements(
     type: DestinationDataset, 
     category?: Category,
+    sector?: Sectors,
     options?: { requireCoordinates?: boolean }
 ): Promise<LatestMeasurementResult[]> {
     const subquery = db.manager
@@ -74,7 +75,8 @@ export async function getLatestMeasurements(
             'url.url = latest_measurements.url AND latest_measurements.rn = 1'
         )
         .setParameters(subquery.getParameters())
-        .where('latest_measurements.as_organisation IS NOT NULL');
+        .where('latest_measurements.as_organisation IS NOT NULL')
+        .orderBy('organisation.name COLLATE NOCASE', 'ASC');
 
     if (options?.requireCoordinates) {
         query = query.andWhere('organisation.lat IS NOT NULL')
@@ -83,6 +85,10 @@ export async function getLatestMeasurements(
 
     if (category) {
         query = query.andWhere('classifications.category = :category', { category });
+    }
+
+    if (sector) {
+        query = query.andWhere('classifications.sector = :sector', { sector });
     }
 
     const rawResults = await query.getRawMany();
