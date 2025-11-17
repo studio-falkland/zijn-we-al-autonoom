@@ -6,10 +6,11 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components
 import calculateHHI from '@/lib/hhi';
 import { getIconForCategory } from '@/lib/icons';
 import { getCategoryLabel, getSectorLabel } from '@/lib/labels';
-import { Category, DestinationDataset } from '@are-we-dependent/data';
+import { Category, DestinationDataset, Region } from '@are-we-dependent/data';
 import { groups as groupArray } from 'd3-array';
 import { Server } from 'lucide-react';
 import { getLatestMeasurements } from '@/lib/queries';
+import RatioCard from '@/components/RatioCard';
 
 export async function generateStaticParams() {
     return Object.values(Category).map((category) => ({ category }));
@@ -60,38 +61,16 @@ export default async function WebserverCategory({ params }: { params: Promise<{ 
                     <FrequencyBarChart frequencies={totalFrequencies} />
                 </CardContent>
             </Card>
-            {groups.map(([group, rows]) => {
-                const { inverseHHI, sortedFrequencies } = calculateHHI(rows, (r) => r.measurements[0].as_organisation!);
-
-                return (
-                    <details key={group}>
-                        <summary className="flex gap-4 items-center">
-                            {getSectorLabel(group)} {inverseHHI.toFixed(1)}
-                            <Concentration frequencies={sortedFrequencies} />
-                        </summary>
-                        <FrequencyBarChart frequencies={sortedFrequencies} />
-                        <Table className="mt-4">
-                            <TableHeader>
-                                <TableRow>
-                                    <TableCell>Organisation</TableCell>
-                                    <TableCell>URL</TableCell>
-                                    <TableCell>Webserver provider</TableCell>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {rows.sort((a, b) => a.organisation.name.localeCompare(b.organisation.name)).map((row) => (
-                                    <TableRow key={row.id}>
-                                        <TableCell>{row.organisation.name}</TableCell>
-                                        <TableCell>{row.url}</TableCell>
-                                        <TableCell>{row.measurements[0].as_organisation}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </details>
-                )
-            })}
-
+            <div className="flex flex-col gap-4 mt-8">
+                {groups.map(([group, rows]) => (
+                    <RatioCard
+                        dataset={DestinationDataset.WebhostingAS}
+                        region={Region.Local}
+                        category={category}
+                        sector={group}
+                    />
+                ))}
+            </div>
         </div>
     );
 }

@@ -11,7 +11,7 @@ export function getRegionLabel(region: Region): string {
 
 export const categoryLabels: Record<Category, string> = {
     [Category.Government]: 'Overheid',
-    [Category.Financial]: 'Financieel',
+    // [Category.Financial]: 'Financieel',
     [Category.Business]: 'Bedrijven',
     [Category.Defense]: 'Defensie',
     [Category.Healthcare]: 'Zorg',

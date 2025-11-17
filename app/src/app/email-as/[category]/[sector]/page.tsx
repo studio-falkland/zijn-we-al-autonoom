@@ -1,23 +1,30 @@
-import Map from '@/components/Map';
-import RatioCard from '@/components/RatioCard';
+import OrganisationTable from '@/components/OrganisationTable';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { getIconForCategory } from '@/lib/icons';
 import { getCategoryLabel, getSectorLabel } from '@/lib/labels';
-import { Category, Region, DestinationDataset } from '@are-we-dependent/data';
-import { groups as groupArray } from 'd3-array';
-import { Mail } from 'lucide-react';
 import { getLatestMeasurements } from '@/lib/queries';
+import { Category, DestinationDataset, sectors, Sectors } from '@are-we-dependent/data';
+import hierarchy, { flatHierarchy } from '@are-we-dependent/data/hierarchy';
+import { Mail } from 'lucide-react';
 
-export async function generateStaticParams() {
-    return Object.values(Category).map((category) => ({ category }));
+export interface MailSectorProps {
+    params: Promise<{ category: Category, sector: Sectors }>;
 }
 
-export default async function MailCategory({ params }: { params: Promise<{ category: Category }> }) {
-    const { category } = await params;
-    const result = await getLatestMeasurements(DestinationDataset.EmailAS, category);
+export async function generateStaticParams() {
+    return flatHierarchy
+        .filter((instance) => instance !== undefined)
+        .map((instance) => ({
+            category: instance.category,
+            sector: instance.sector,
+        }));
+}   
 
-    const groups = groupArray(result, (r) => r.organisation?.classifications[0].sector!);
+export default async function MailSector({ params }: MailSectorProps) {
+    const { category, sector } = await params;
+    const result = await getLatestMeasurements(DestinationDataset.EmailAS, category, sector);
+
     const GroupIcon = getIconForCategory(category);
 
     return (
@@ -41,6 +48,13 @@ export default async function MailCategory({ params }: { params: Promise<{ categ
                             {getCategoryLabel(category)}
                         </BreadcrumbLink>
                     </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href={`/email-as/${category}/${sector}`} className="flex items-center gap-2">
+                            <GroupIcon className="w-3 h-3" />
+                            {getSectorLabel(sector)}
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
             <Card className="mt-4 mb-4">
@@ -48,22 +62,13 @@ export default async function MailCategory({ params }: { params: Promise<{ categ
                     <CardTitle>
                         <div className="flex gap-2 items-center">
                             <GroupIcon />
-                            {getCategoryLabel(category)}
+                            {getSectorLabel(sector)}
                         </div>
                     </CardTitle>
                 </CardHeader>
             </Card>
-            <Map data={result} />
-            {groups.map(([group, rows]) => (
-                <div key={group} className="flex flex-col gap-4 mt-8">
-                    <RatioCard
-                        dataset={DestinationDataset.EmailAS}
-                        region={Region.Local}
-                        category={category}
-                        sector={group}
-                    />
-                </div>
-            ))}
+            {/* <FrequencyBarChart frequencies={frequencies} /> */}
+            <OrganisationTable type={DestinationDataset.EmailAS} data={result} />
         </div>
-    );
+    )
 }
