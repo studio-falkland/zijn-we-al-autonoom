@@ -93,6 +93,7 @@ const hierarchy: Hierarchy = [
                     { type: GovernmentSector.Province },
                     { type: GovernmentSector.Municipality },
                     { type: GovernmentSector.Other },
+                    { type: GovernmentSector.WaterBoard },
                 ],
             },
             {
