@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import type { MigrationInterface, QueryRunner } from "typeorm";
 
 export class Aggregate1738963113011 implements MigrationInterface {
     name = 'Aggregate1738963113011'
