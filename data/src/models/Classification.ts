@@ -2,7 +2,7 @@ import { Category, Region, sectors, Sectors } from '../hierarchy.js';
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation, Unique } from 'typeorm';
 import Organisation from './Organisation.js';
 
-@Entity()
+@Entity('organisation_classification')
 @Unique(['organisation', 'region', 'category'])
 export default class OrganisationClassification {
     @PrimaryGeneratedColumn()
