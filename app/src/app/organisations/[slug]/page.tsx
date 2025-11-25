@@ -1,8 +1,8 @@
 import { Organisation } from '@are-we-dependent/data';
 import db from '@/lib/db';
 import { notFound } from 'next/navigation';
-import { getEmojiForCountryCode, getIconForCategory, getIconForDataset } from '@/lib/icons';
-import { getCategoryLabel, getDatasetLabel, getSectorLabel } from '@/lib/labels';
+import { getIconForCategory } from '@/lib/icons';
+import { getCategoryLabel, getSectorLabel } from '@/lib/labels';
 import { groups } from 'd3-array';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { ArrowRight, Calendar, LinkIcon, MapPinned } from 'lucide-react';
