@@ -2,7 +2,7 @@ import { Dataset, Measurement, DestinationDataset, Category, URL, Organisation, 
 import db from '@/lib/db';
 
 export type LatestMeasurementResult = Pick<URL, 'id' | 'url'> & {
-    organisation: Pick<Organisation, 'name' | 'lat' | 'lng'> & {
+    organisation: Pick<Organisation, 'name' | 'lat' | 'lng' | 'slug'> & {
         classifications: Pick<OrganisationClassification, 'category' | 'sector'>[];
     };
     measurements: Pick<Measurement, 'data' | 'as_organisation' | 'as_country_code' | 'asn'>[];
@@ -60,6 +60,7 @@ export async function getLatestMeasurements(
             'organisation.name as organisation_name',
             'organisation.lat as organisation_lat',
             'organisation.lng as organisation_lng',
+            'organisation.slug as organisation_slug',
             'latest_measurements.data as measurements_data',
             'latest_measurements.as_organisation as measurements_as_organisation',
             'latest_measurements.as_country_code as measurements_as_country_code',
@@ -103,7 +104,8 @@ export async function getLatestMeasurements(
             classifications: [{
                 category: row.classifications_category,
                 sector: row.classifications_sector
-            }]
+            }],
+            slug: row.organisation_slug
         },
         measurements: [{
             data: row.measurements_data,

@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { LatestMeasurementResult } from '@/lib/queries';
 import { useRedButton } from '@/components/RedButton/context';
 import { getEmojiForCountryCode } from '@/lib/icons';
+import Link from 'next/link';
 
 export interface OrganisationTableProps extends React.HTMLAttributes<HTMLTableElement> {
     type: 'email-as' | 'webhosting-as';
@@ -30,13 +31,56 @@ export default function OrganisationTable({
             </TableHeader>
             <TableBody>
                 {data.map((row) => (
-                    <TableRow key={row.id} className={isRedButtonActive && row.measurements[0].as_country_code === 'US' ? 'text-red-500' : ''}>
-                        <TableCell>{row.organisation.name}</TableCell>
-                        <TableCell>{row.url}</TableCell>
-                        {type === 'email-as' && <TableCell>{row.measurements[0].data}</TableCell>}
-                        <TableCell>{row.measurements[0].as_organisation}</TableCell>
-                        <TableCell>
-                            {getEmojiForCountryCode(row.measurements[0].as_country_code)}
+                    <TableRow 
+                        key={row.id}
+                        className={`hover:bg-gray-50 ${isRedButtonActive && row.measurements[0].as_country_code === 'US' ? 'text-red-500' : ''}`}
+                    >
+                        <TableCell className="p-0">
+                            <Link 
+                                href={`/organisations/${row.organisation.slug}`} 
+                                className="block w-full h-full px-4 py-2"
+                                prefetch={false}
+                            >
+                                {row.organisation.name}
+                            </Link>
+                        </TableCell>
+                        <TableCell className="p-0">
+                            <Link 
+                                href={`/organisations/${row.organisation.slug}`}
+                                className="block w-full h-full px-4 py-2"
+                                prefetch={false}
+                            >
+                                {row.url}
+                            </Link>
+                        </TableCell>
+                        {type === 'email-as' && (
+                            <TableCell className="p-0">
+                                <Link 
+                                    href={`/organisations/${row.organisation.slug}`}
+                                    className="block w-full h-full px-4 py-2"
+                                    prefetch={false}
+                                >
+                                    {row.measurements[0].data}
+                                </Link>
+                            </TableCell>
+                        )}
+                        <TableCell className="p-0">
+                            <Link 
+                                href={`/organisations/${row.organisation.slug}`}
+                                className="block w-full h-full px-4 py-2"
+                                prefetch={false}
+                            >
+                                {row.measurements[0].as_organisation}
+                            </Link>
+                        </TableCell>
+                        <TableCell className="p-0">
+                            <Link 
+                                href={`/organisations/${row.organisation.slug}`}
+                                className="block w-full h-full px-4 py-2"
+                                prefetch={false}
+                            >
+                                {getEmojiForCountryCode(row.measurements[0].as_country_code)}
+                            </Link>
                         </TableCell>
                     </TableRow>
                 ))}

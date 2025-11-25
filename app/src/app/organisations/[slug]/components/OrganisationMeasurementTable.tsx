@@ -29,8 +29,8 @@ export default function OrganisationMeasurementTable({
                 <TableHeader>
                     <TableRow>
                         <TableHead>URL</TableHead>
-                        <TableHead>Timestamp</TableHead>
-                        <TableHead>Organisation</TableHead>
+                        <TableHead>Datum</TableHead>
+                        <TableHead>Provider</TableHead>
                         <TableHead>IP</TableHead>
                         <TableHead>ASN</TableHead>
                     </TableRow>
