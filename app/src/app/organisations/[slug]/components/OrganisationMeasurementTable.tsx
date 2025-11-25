@@ -14,7 +14,7 @@ export interface OrganisationMeasurementTableProps {
 }
 
 export default function OrganisationMeasurementTable({ 
-    measurements, type, organisation
+    measurements, type,
 }: OrganisationMeasurementTableProps) {
     const DatasetIcon = getIconForDataset(type);
     const [redButtonActive] = useRedButton();
@@ -43,7 +43,7 @@ export default function OrganisationMeasurementTable({
                                 redButtonActive && getColorForMeasurement(measurement),
                             )}
                         >
-                            <TableCell>{organisation.url.url}</TableCell>
+                            <TableCell>{measurement.url?.url}</TableCell>
                             <TableCell>{new Date(measurement.created_at).toLocaleDateString('nl-NL')}</TableCell>
                             <TableCell>
                                 {measurement.as_country_code ? (

@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import URL from './URL.js';
 import Dataset from './Dataset.js';
 import OrganisationClassification from './Classification.js';
@@ -46,8 +46,8 @@ export default class Organisation {
     @Column({ type: 'datetime', default: () => 'datetime(\'now\')' })
     updated_at: Date;
 
-    @OneToOne(() => URL, (url) => url.organisation)
-    url: Relation<URL>;
+    @OneToMany(() => URL, (url) => url.organisation)
+    urls: Relation<URL>[];
 
     @ManyToOne(() => Dataset, (dataset) => dataset.organisations)
     @JoinColumn({ name: 'dataset', referencedColumnName: 'name' })

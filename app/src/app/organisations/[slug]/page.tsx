@@ -23,7 +23,15 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
 
     // Fetch the organisation from the database
     const organisationEntity = await db.manager.getRepository(Organisation)
-        .findOne({ where: { slug }, relations: ['classifications', 'url.measurements'] });
+        .findOne({ 
+            where: { slug },
+            relations: ['classifications', 'urls.measurements.url'],
+            order: {
+                urls: {
+                    created_at: 'ASC',
+                },
+            },
+        });
     
     // Convert to plain object to avoid class serialization issues
     const organisation = organisationEntity ? JSON.parse(JSON.stringify(organisationEntity)) as typeof organisationEntity : null;
@@ -34,7 +42,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
     }
 
     // Group the measurements by type so we can process them accordingly
-    const groupedMeasurements = groups(organisation.url.measurements, (m) => m.type);
+    const groupedMeasurements = groups(organisation.urls.at(0)?.measurements || [], (m) => m.type);
 
     // Get the icon for the category
     const CategoryIcon = getIconForCategory(organisation.classifications[0].category);
@@ -78,44 +86,52 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
                             <span className="text-gray-500">Geen adres bekend</span>
                         )}
                     </h2>
-                    <h2 className="text-2xl flex items-center gap-3 mb-2">
-                        <Calendar className="w-6 h-6" />
-                        <span>
-                            Voor het eerst gemeten op
-                            {' '}
-                            {new Date(organisation.url.measurements.at(-1)?.created_at || '').toLocaleDateString('nl-NL')}
-                        </span>
-                    </h2>
-                    <h2 className="text-2xl flex items-center gap-3 mb-2">
-                        <LinkIcon className="w-6 h-6" />
-                        <a href={organisation.url.url} target="_blank" className="text-blue-500 hover:text-blue-700">
-                            {organisation.url.url}
-                        </a>
-                    </h2>
+                    {organisation.urls.at(0)?.measurements?.at(-1)?.created_at && (
+                        <h2 className="text-2xl flex items-center gap-3 mb-2">
+                            <Calendar className="w-6 h-6" />
+                            <span>
+                                Voor het eerst gemeten op
+                                {' '}
+                                {new Date(organisation.urls.at(0)?.measurements?.at(-1)?.created_at!).toLocaleDateString('nl-NL')}
+                            </span>
+                        </h2>
+                    )}
+                    {organisation.urls.map((url) => (
+                        <h2 className="text-2xl flex items-center gap-3 mb-2" key={url.id}>
+                            <LinkIcon className="w-6 h-6" />
+                            <a href={url.url} target="_blank" className="text-blue-500 hover:text-blue-700">
+                                {url.url}
+                            </a>
+                        </h2>
+                    ))}
                 </div>
                 <div className="rounded-md overflow-hidden border border-blue-800 box-shadow-zwaa flex-1">
                     <Map
                         data={[{
-                            ...organisation.url,
+                            ...organisation.urls.at(0)!,
                             organisation: organisation,
                         }]}
                         height={300} 
                     />
                 </div>
             </div>
-            <h2 className="text-2xl font-bold mb-4">Huidige status</h2>
-            <div className="flex flex-wrap gap-4 w-full mb-8">
-                {groupedMeasurements.map(([type, measurements]) => (
-                    <OrganisationStatus
-                        key={type}
-                        type={type}
-                        measurement={measurements.at(0)}
-                        organisation={organisation}
-                    />
-                ))}
-            </div>
+            {groupedMeasurements.length > 0 && (
+                <>
+                    <h2 className="text-2xl font-bold mb-4">Huidige status</h2>
+                    <div className="flex flex-wrap gap-4 w-full mb-8">
+                        {groupedMeasurements.map(([type, measurements]) => (
+                            <OrganisationStatus
+                                key={type}
+                                type={type}
+                                measurement={measurements.at(0)}
+                                organisation={organisation}
+                            />
+                        ))}
+                    </div>
+                </>
+            )}
             <h2 className="text-2xl font-bold mb-4">Alle metingen</h2>
-            <p className="mb-4 text-xl">We hebben in totaal {organisation.url.measurements.length} metingen gedaan voor <span className="font-bold">{organisation.name}</span>.</p> 
+            <p className="mb-4 text-xl">We hebben in totaal {organisation.urls.reduce((acc, url) => acc + (url.measurements?.length || 0), 0)} metingen gedaan voor <span className="font-bold">{organisation.name}</span>.</p> 
             <div className="flex flex-wrap gap-4 w-full">
                 {groupedMeasurements.map(([type, measurements]) => (
                     <OrganisationMeasurementTable
