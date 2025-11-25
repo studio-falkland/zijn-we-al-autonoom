@@ -6,7 +6,13 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { PropsWithChildren } from 'react';
 import { useRedButton } from '../RedButton/context';
 
-export default function Map({ data, children }: PropsWithChildren<{ data?: URL[] | LatestMeasurementResult[]}>) {
+export interface MapProps {
+    data?: URL[] | LatestMeasurementResult[];
+    children?: React.ReactNode;
+    height?: number;
+}
+
+export default function Map({ data, children, height }: PropsWithChildren<MapProps>) {
     const [isRedButtonActive] = useRedButton();
 
     return (
@@ -16,7 +22,7 @@ export default function Map({ data, children }: PropsWithChildren<{ data?: URL[]
                 longitude: 5.6462,
                 zoom: 5.8,
             }}
-            style={{width: '100%', height: 400}}
+            style={{width: '100%', height: height ?? 400}}
             mapStyle="https://tiles.versatiles.org/assets/styles/colorful/style.json"
         >
             {data?.map((url) => url.organisation.lat && url.organisation.lng && (

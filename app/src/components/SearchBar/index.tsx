@@ -117,7 +117,7 @@ export default function SearchBar() {
                                             <span>Email</span>
                                             <div>
                                                 {getEmojiForCountryCode(item.item.measurements?.['email-as'][0]?.as_country_code)}
-                                                <span className="ml-2">{item.item.measurements?.['email-as'][0]?.as_country_code}</span>
+                                                <span className="ml-2">{item.item.measurements?.['email-as'][0]?.as_organisation}</span>
                                             </div>
                                         </div>
                                         <div className="flex flex-col text-sm text-blue-900/50">
