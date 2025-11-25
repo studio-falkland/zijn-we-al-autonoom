@@ -124,7 +124,7 @@ export default async function DatasetsPage() {
             <h2 className="text-2xl font-bold mt-8">Onderliggende datasets</h2>
             <p className="mt-2">De exacte dataset-locaties en update-frequentie worden in de database bijgehouden. Hieronder vind je een overzicht van alle specifieke datasets die worden gebruikt en wanneer ze voor het laatst zijn bijgewerkt.</p>
             <div className="bg-white rounded-xl border border-blue-800 box-shadow-zwaa overflow-hidden mt-8">
-                <table className="table-auto w-full mb-2">
+                <table className="table-auto w-full mb-2 text-lg">
                     <thead className="text-left text-blue-900/50 border-b border-gray-200">
                         <tr>
                             <th className="font-normal p-4">Dataset ID</th>
