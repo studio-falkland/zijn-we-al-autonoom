@@ -3,6 +3,17 @@ import { useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { useRedButton } from './context';
 import { Power } from 'lucide-react';
+import { Measurement } from '@are-we-dependent/data';
+
+/**
+ * Get the text color (CSS class) for a given measurement.
+ */
+export function getColorForMeasurement(measurement: Measurement) {
+    if (measurement.as_country_code === 'US') {
+        return 'text-red-500';
+    }
+    return 'text-blue-900';
+}
 
 export default function RedButton() {
     const [isActive, setIsActive] = useRedButton();

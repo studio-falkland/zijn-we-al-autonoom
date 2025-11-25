@@ -11,13 +11,23 @@ import { Category, Sectors } from '@are-we-dependent/data';
 import { getCategoryLabel, getSectorLabel } from '@/lib/labels';
 import { ArrowRight, Search } from 'lucide-react';
 
+/**
+ * The maximum number of results to show in the search bar
+ */
 const MAX_RESULTS = 25;
 
+/**
+ * Displays a search bar that helps user find organisations and places.
+ */
 export default function SearchBar() {
+    // The query string in the search bar
     const [query, setQuery] = useState('');
+
+    // Keep track of the data and search results
     const data = useRef<SearchData | 'loading' | null>(null);
     const search = useRef<FuzzySearcher<SearchOrganisation> | null>(null);
 
+    // The number of results found and the items to display
     const { noResults, items } = useMemo(() => {
         if (!search.current || !query) {
             return { noResults: 0, items: [] };
@@ -31,14 +41,20 @@ export default function SearchBar() {
         };
     }, [query]);
 
+    // A loader function that retrieves a precomputed search data file from the server
     const loadData = useCallback(async () => {
+        // GUARD: If the data is already loaded, return
         if (data.current) {
             return;
         }
 
+        // Set the data to loading
         data.current = 'loading';
 
+        // Fetch the search data from the server
         const response = await fetch('/search-data.json');
+
+        // Set the data to the search data
         data.current = await response.json();
         search.current = createFuzzySearch(
             (data.current as SearchData).organizations,
