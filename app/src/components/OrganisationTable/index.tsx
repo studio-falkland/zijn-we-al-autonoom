@@ -5,6 +5,8 @@ import { LatestMeasurementResult } from '@/lib/queries';
 import { useRedButton } from '@/components/RedButton/context';
 import { getEmojiForCountryCode } from '@/lib/icons';
 import Link from 'next/link';
+import { cx } from 'class-variance-authority';
+import { getColorForMeasurement } from '../RedButton';
 
 export interface OrganisationTableProps extends React.HTMLAttributes<HTMLTableElement> {
     type: 'email-as' | 'webhosting-as';
@@ -33,7 +35,10 @@ export default function OrganisationTable({
                 {data.map((row) => (
                     <TableRow 
                         key={row.id}
-                        className={`hover:bg-gray-50 ${isRedButtonActive && row.measurements[0].as_country_code === 'US' ? 'text-red-500' : ''}`}
+                        className={cx(
+                            'hover:bg-gray-50',
+                            isRedButtonActive && getColorForMeasurement(row.measurements.at(0)!)
+                        )}
                     >
                         <TableCell className="p-0">
                             <Link 
