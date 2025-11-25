@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { SearchData, SearchOrganisation } from '../../../scripts/generate-search-json.mjs';
 import createFuzzySearch, { FuzzySearcher } from '@nozbe/microfuzz'
 import { useCombobox } from 'downshift';
@@ -157,7 +157,7 @@ export default function SearchBar() {
                         {noResults === 0 && (
                             <li className="p-3">
                                 <p className="text-sm text-blue-900/50">
-                                    Geen resultaten gevonden voor "{query}"
+                                    Geen resultaten gevonden voor &quot;{query}&quot;
                                 </p>
                             </li>
                         )}
