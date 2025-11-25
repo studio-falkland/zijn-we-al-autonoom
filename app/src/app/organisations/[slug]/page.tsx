@@ -99,7 +99,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
                     {organisation.urls.map((url) => (
                         <h2 className="text-2xl flex items-center gap-3 mb-2" key={url.id}>
                             <LinkIcon className="w-6 h-6" />
-                            <a href={url.url} target="_blank" className="text-blue-500 hover:text-blue-700">
+                            <a href={`//${url.url}`} target="_blank" className="text-blue-500 hover:text-blue-700">
                                 {url.url}
                             </a>
                         </h2>
