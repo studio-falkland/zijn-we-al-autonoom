@@ -8,7 +8,7 @@ import { Measurement } from '@are-we-dependent/data';
 /**
  * Get the text color (CSS class) for a given measurement.
  */
-export function getColorForMeasurement(measurement: Measurement) {
+export function getColorForMeasurement(measurement: Pick<Measurement, 'as_country_code'>) {
     if (measurement.as_country_code === 'US') {
         return 'text-red-500';
     }
