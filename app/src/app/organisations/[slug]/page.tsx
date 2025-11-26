@@ -9,6 +9,7 @@ import { ArrowRight, Calendar, LinkIcon, MapPinned } from 'lucide-react';
 import Map from '@/components/Map';
 import OrganisationMeasurementTable from './components/OrganisationMeasurementTable';
 import OrganisationStatus from './components/OrganisationStatus';
+import { createPageMetadata } from '@/lib/metadata';
 
 export async function generateStaticParams() {
     return db.manager.getRepository(Organisation)
@@ -16,6 +17,22 @@ export async function generateStaticParams() {
         .select('slug')
         .getRawMany()
         .then((organisations) => organisations.map((organisation) => ({ slug: organisation.slug })));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
+    
+    const organisation = await db.manager.getRepository(Organisation)
+        .findOne({ 
+            where: { slug },
+            relations: ['classifications'],
+        });
+    
+    if (!organisation) {
+        return {};
+    }
+    
+    return createPageMetadata({ organisationName: organisation.name });
 }
 
 export default async function OrganisationPage({ params }: { params: Promise<{ slug: string }> }) {

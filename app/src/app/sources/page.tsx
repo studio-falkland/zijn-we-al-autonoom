@@ -1,4 +1,9 @@
 import { getDatasets } from '@/lib/queries';
+import { createMetadata } from '@/lib/metadata';
+
+export const metadata = createMetadata({
+    title: 'Bronnen en Attributie',    
+});
 
 export interface Source {
     name: string;

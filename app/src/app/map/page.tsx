@@ -5,6 +5,9 @@ import { getDatasetLabel } from '@/lib/labels';
 import { DestinationDataset } from '@are-we-dependent/data';
 import { Map } from 'lucide-react';
 import Link from 'next/link';
+import { createMapMetadata } from '@/lib/metadata';
+
+export const metadata = createMapMetadata();
 
 export default async function MapPage() {
     return (

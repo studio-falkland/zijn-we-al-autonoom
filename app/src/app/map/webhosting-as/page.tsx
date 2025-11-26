@@ -3,6 +3,9 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import MapRenderer from '../mapRenderer';
 import { partitionOrganisationsIntoGeoJSON } from '@/lib/partitionOrganisations';
 import { getLatestMeasurements } from '@/lib/queries';
+import { createMapMetadata } from '@/lib/metadata';
+
+export const metadata = createMapMetadata(DestinationDataset.WebhostingAS);
 
 type OrganisationWithMeasurements = Pick<Organisation, 'lat' | 'lng'> & {
     url: {

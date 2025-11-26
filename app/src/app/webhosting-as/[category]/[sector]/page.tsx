@@ -6,6 +6,7 @@ import { getCategoryLabel, getSectorLabel } from '@/lib/labels';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Server } from 'lucide-react';
+import { createPageMetadata } from '@/lib/metadata';
 
 export interface WebhostingSectorProps {
     params: Promise<{ category: Category, sector: Sectors }>;
@@ -18,6 +19,11 @@ export async function generateStaticParams() {
             category: instance.category,
             sector: instance.sector,
         }));
+}
+
+export async function generateMetadata({ params }: WebhostingSectorProps) {
+    const { category, sector } = await params;
+    return createPageMetadata({ dataset: DestinationDataset.WebhostingAS, category, sector });
 }
 
 export default async function WebhostingSector({ params }: WebhostingSectorProps) {

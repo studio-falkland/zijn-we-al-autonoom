@@ -8,9 +8,15 @@ import { Category, Region, DestinationDataset } from '@are-we-dependent/data';
 import { groups as groupArray } from 'd3-array';
 import { Mail } from 'lucide-react';
 import { getLatestMeasurements } from '@/lib/queries';
+import { createPageMetadata } from '@/lib/metadata';
 
 export async function generateStaticParams() {
     return Object.values(Category).map((category) => ({ category }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ category: Category }> }) {
+    const { category } = await params;
+    return createPageMetadata({ dataset: DestinationDataset.EmailAS, category });
 }
 
 export default async function MailCategory({ params }: { params: Promise<{ category: Category }> }) {
