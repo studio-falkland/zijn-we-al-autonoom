@@ -7,7 +7,6 @@ import { RedButtonProvider } from '@/components/RedButton/context';
 import Menu from './menu';
 import Footer from './footer';
 import { createMetadata } from '@/lib/metadata';
-import { create } from 'lodash';
 
 // If loading a variable font, you don't need to specify the font weight
 const inter = Inter({ subsets: ['latin'] })

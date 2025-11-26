@@ -20,6 +20,13 @@ export function createMetadata({ title, description }: {
     return {
         title: fullTitle,
         description: fullDescription,
+        icons: {
+            icon: [
+                { url: '/favicon.ico', sizes: '32x32' },
+                { url: '/favicon.svg', type: 'image/svg+xml' },
+            ],
+            apple: '/favicon.png',
+        },
         openGraph: {
             title: fullTitle,
             description: fullDescription,
