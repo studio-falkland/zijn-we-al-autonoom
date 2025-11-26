@@ -9,11 +9,16 @@ import { groups as groupArray } from 'd3-array';
 import { Server } from 'lucide-react';
 import { getLatestMeasurements } from '@/lib/queries';
 import RatioCard from '@/components/RatioCard';
+import { createPageMetadata } from '@/lib/metadata';
 
 export async function generateStaticParams() {
     return Object.values(Category).map((category) => ({ category }));
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ category: Category }> }) {
+    const { category } = await params;
+    return createPageMetadata({ dataset: DestinationDataset.WebhostingAS, category });
+}
 
 export default async function WebserverCategory({ params }: { params: Promise<{ category: Category }> }) {
     const { category } = await params;

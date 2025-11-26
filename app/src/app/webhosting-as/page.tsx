@@ -7,7 +7,9 @@ import { groups as groupArray } from 'd3-array';
 import Link from 'next/link';
 import { getLatestMeasurements } from '@/lib/queries';
 import { DestinationDataset } from '@are-we-dependent/data';
+import { createPageMetadata } from '@/lib/metadata';
 
+export const metadata = createPageMetadata({ dataset: DestinationDataset.WebhostingAS });
 
 export default async function Webserver() {
     const result = await getLatestMeasurements(DestinationDataset.WebhostingAS);

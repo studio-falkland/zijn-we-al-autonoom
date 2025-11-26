@@ -7,6 +7,9 @@ import { groups as groupArray } from 'd3-array';
 import Link from 'next/link';
 import { getLatestMeasurements } from '@/lib/queries';
 import { DestinationDataset } from '@are-we-dependent/data';
+import { createPageMetadata } from '@/lib/metadata';
+
+export const metadata = createPageMetadata({ dataset: DestinationDataset.EmailAS });
 
 export default async function Mail() {
     const result = await getLatestMeasurements(DestinationDataset.EmailAS);

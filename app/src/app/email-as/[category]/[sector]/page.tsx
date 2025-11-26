@@ -7,6 +7,7 @@ import { getLatestMeasurements } from '@/lib/queries';
 import { Category, DestinationDataset, Sectors } from '@are-we-dependent/data';
 import { flatHierarchy } from '@are-we-dependent/data/hierarchy';
 import { Mail } from 'lucide-react';
+import { createPageMetadata } from '@/lib/metadata';
 
 export interface MailSectorProps {
     params: Promise<{ category: Category, sector: Sectors }>;
@@ -19,7 +20,12 @@ export async function generateStaticParams() {
             category: instance.category,
             sector: instance.sector,
         }));
-}   
+}
+
+export async function generateMetadata({ params }: MailSectorProps) {
+    const { category, sector } = await params;
+    return createPageMetadata({ dataset: DestinationDataset.EmailAS, category, sector });
+}
 
 export default async function MailSector({ params }: MailSectorProps) {
     const { category, sector } = await params;
