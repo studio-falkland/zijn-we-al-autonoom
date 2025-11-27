@@ -39,6 +39,7 @@ export function createMetadata({ title, description }: {
             title: fullTitle,
             description: fullDescription,
         },
+        metadataBase: new URL('https://zijnwealautonoom.nl'),
     };
 }
 
@@ -115,4 +116,8 @@ export function createMapMetadata(dataset?: DestinationDataset): Metadata {
         description: createDependencyDescription('Nederlandse organisaties', label.toLowerCase()),
     });
 }
+
+export const sourcesMetadata = createMetadata({
+    title: 'Bronnen en Attributie',
+});
 
