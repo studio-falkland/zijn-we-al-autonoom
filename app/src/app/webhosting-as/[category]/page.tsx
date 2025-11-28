@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import calculateHHI from '@/lib/hhi';
 import { getIconForCategory } from '@/lib/icons';
 import { getCategoryLabel } from '@/lib/labels';
-import { Category, DestinationDataset, Region } from '@are-we-dependent/data';
+import { Category, DestinationDataset } from '@are-we-dependent/data';
 import { groups as groupArray } from 'd3-array';
 import { Server } from 'lucide-react';
 import { getLatestMeasurements } from '@/lib/queries';

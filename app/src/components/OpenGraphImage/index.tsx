@@ -1,6 +1,3 @@
-import { getEmojiForCountryCode } from '@/lib/icons';
-import { getDatasetLabel } from '@/lib/labels';
-import { Measurement } from '@are-we-dependent/data';
 import { ImageResponse } from 'next/og';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
