@@ -6,6 +6,12 @@ import { Cloud } from 'lucide-react';
 import { Fragment } from 'react';
 
 export default function Home() {
+    const categories = Array.from(new Set(
+        hierarchy.flatMap((region) => (
+            region.children.map((category) => category.type)
+        ))
+    ));
+
     return (
         <>
             <div className="flex py-12 items-center justify-between">
@@ -18,19 +24,17 @@ export default function Home() {
             <SearchBar />
             <h2 className="text-3xl text-blue-800 mb-8 tracking-tight mt-12">Nationale statistieken</h2>
             <div className="grid gap-4 md:grid-cols-2 grid-cols-1">
-                {hierarchy.flatMap((region) => (
-                    region.children.flatMap((category) => (
-                        <Fragment key={`${region.type}_${category.type}`}>
-                            <RatioCard
-                                category={category.type}
-                                dataset={DestinationDataset.EmailAS}
-                            />
-                            <RatioCard
-                                category={category.type}
-                                dataset={DestinationDataset.WebhostingAS}
-                            />
-                        </Fragment>
-                    ))
+                {categories.map((category) => (
+                    <Fragment key={category}>
+                        <RatioCard
+                            category={category}
+                            dataset={DestinationDataset.EmailAS}
+                        />
+                        <RatioCard
+                            category={category}
+                            dataset={DestinationDataset.WebhostingAS}
+                        />
+                    </Fragment>
                 ))}
             </div>
         </>
