@@ -22,12 +22,10 @@ export default function Home() {
                     region.children.flatMap((category) => (
                         <Fragment key={`${region.type}_${category.type}`}>
                             <RatioCard
-                                region={region.type}
                                 category={category.type}
                                 dataset={DestinationDataset.EmailAS}
                             />
                             <RatioCard
-                                region={region.type}
                                 category={category.type}
                                 dataset={DestinationDataset.WebhostingAS}
                             />
