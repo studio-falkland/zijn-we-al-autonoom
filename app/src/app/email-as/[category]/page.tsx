@@ -4,7 +4,7 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbS
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { getIconForCategory } from '@/lib/icons';
 import { getCategoryLabel } from '@/lib/labels';
-import { Category, Region, DestinationDataset, GovernmentSector } from '@are-we-dependent/data';
+import { Category, DestinationDataset } from '@are-we-dependent/data';
 import { groups as groupArray } from 'd3-array';
 import { Mail } from 'lucide-react';
 import { getLatestMeasurements } from '@/lib/queries';

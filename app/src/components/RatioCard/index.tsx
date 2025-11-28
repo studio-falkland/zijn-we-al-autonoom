@@ -1,4 +1,4 @@
-import { Category, DestinationDataset, Region, Sectors } from '@are-we-dependent/data';
+import { Category, DestinationDataset, Sectors } from '@are-we-dependent/data';
 import { ArrowRight } from 'lucide-react';
 import { getFrequencySet } from './Treemap/queries';
 import Treemap from './Treemap';
