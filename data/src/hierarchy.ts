@@ -20,7 +20,7 @@ export enum Category {
     Government = 'government',
     // Financial = 'financial',
     Business = 'business',
-    Defense = 'defense',
+    // Defense = 'defense',
     Healthcare = 'healthcare',
     Education = 'education',
     DotNL = 'dot-nl',
