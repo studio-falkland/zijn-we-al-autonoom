@@ -110,9 +110,13 @@ async function generateOptimizedSearchJSON(): Promise<void> {
         .where('organisation.active = :active', { active: true })
         .orderBy('organisation.name COLLATE NOCASE', 'ASC');
 
+    console.time('query');
     const rawResults: RawQueryResult[] = await query.getRawMany();
+    console.timeEnd('query');
 
-    // Group by organization to create structured data (following your mapping pattern)
+    // Group by organization to create structured data (following your mapping
+    // pattern)
+    console.time('transformation');
     const organizationsMap = new Map<number, SearchOrganisation>();
 
     rawResults.forEach((row: RawQueryResult) => {
@@ -162,13 +166,8 @@ async function generateOptimizedSearchJSON(): Promise<void> {
         }
     });
 
-    // Filter organizations that have at least one measurement
+    // Retrieve all organizations
     const organizations = Array.from(organizationsMap.values())
-        .filter((org: SearchOrganisation) =>
-            org.measurements[DestinationDataset.EmailAS].length > 0 ||
-            org.measurements[DestinationDataset.WebhostingAS].length > 0 ||
-            org.measurements[DestinationDataset.WebhostingIP].length > 0
-        );
 
     // Create search data structure
     const searchData: SearchData = {
@@ -180,9 +179,13 @@ async function generateOptimizedSearchJSON(): Promise<void> {
         organizations: organizations
     };
 
+    console.timeEnd('transformation');
+    console.time('writing');
+
     // Write full version
     const jsonString = JSON.stringify(searchData, null, 2);
     await writeFile('./public/search-data.json', jsonString);
+    console.timeEnd('writing');
 
     // Calculate file size
     const fileSizeBytes = Buffer.byteLength(jsonString, 'utf8');
