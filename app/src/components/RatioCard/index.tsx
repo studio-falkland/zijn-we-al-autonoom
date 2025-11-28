@@ -8,16 +8,15 @@ import { getCategoryLabel, getDatasetLabel, getSectorLabel } from '@/lib/labels'
 import { getIconForCategory, getIconForDataset } from '@/lib/icons';
 
 export interface RatioCardProps {
-    region: Region,
     category: Category,
     dataset: DestinationDataset,
     sector?: Sectors,
 }
 
 export default async function RatioCard({
-    region, category, dataset, sector,
+    category, dataset, sector,
 }: RatioCardProps) {
-    const frequencies = await getFrequencySet({ region, category, type: dataset, sector });
+    const frequencies = await getFrequencySet({ category, type: dataset, sector });
 
     // const RegionIcon = getIconForRegion(region);
     const CategoryIcon = getIconForCategory(category);
