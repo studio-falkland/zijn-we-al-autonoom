@@ -182,7 +182,7 @@ async function generateOptimizedSearchJSON(): Promise<void> {
 
     // Write full version
     const jsonString = JSON.stringify(searchData, null, 2);
-    await writeFile('./search-data.json', jsonString);
+    await writeFile('./public/search-data.json', jsonString);
 
     // Calculate file size
     const fileSizeBytes = Buffer.byteLength(jsonString, 'utf8');
