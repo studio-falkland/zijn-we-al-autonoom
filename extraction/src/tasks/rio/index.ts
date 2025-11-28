@@ -29,8 +29,8 @@ function getRioConfig(
 
             return {
                 name: row['Officiële naam'],
-                address: `${visitingAddress?.straat} ${visitingAddress?.huisnummer}`,
-                city: visitingAddress?.plaats,
+                address: `${visitingAddress?.openbareRuimte} ${visitingAddress?.huisnummer}`,
+                city: visitingAddress?.woonplaats,
                 postcode: visitingAddress?.postcode,
                 lat: visitingAddress?.centroideLatitude
                     ? parseFloat(visitingAddress.centroideLatitude)
@@ -42,8 +42,9 @@ function getRioConfig(
         },
         getUrl(row) {
             return row['Internetpagina\'s']
-                .replace(', label: algemeen', '')
-                .trim();
+                .split(';')
+                .map((url) => url.split(',')[0].trim())
+                .at(0) ?? null;
         },
         delimiter: ';',
         headers: true,

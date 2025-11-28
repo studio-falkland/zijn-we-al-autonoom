@@ -1,10 +1,10 @@
 export interface RIOAddress {
     type: 'Bezoekadres' | 'Postadres' | 'Woo-Adres';
-    straat?: string;
+    openbareRuimte?: string;
     huisnummer?: string;
     postbus?: string;
     postcode: string;
-    plaats: string;
+    woonplaats: string;
     provincieAfkorting?: string;
     land?: string;
     centroideLatitude?: string;
