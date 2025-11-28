@@ -4,7 +4,7 @@ import { HealthcareSector, Category, Region, Sectors } from '@are-we-dependent/d
 import { DatasetDatum } from '@/lib/task/DatasetTask.js';
 import { groups } from 'd3';
 
-const OVERPASS_API_HOST = 'https://overpass.private.coffee/api/interpreter';
+const OVERPASS_API_HOST = 'https://overpass-api.de/api/interpreter';
 
 const OVERPASS_QUERY = `
 [out:json][timeout:120];
