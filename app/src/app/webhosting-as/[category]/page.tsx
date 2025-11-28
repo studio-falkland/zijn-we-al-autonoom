@@ -68,7 +68,6 @@ export default async function WebserverCategory({ params }: { params: Promise<{ 
                 {groups.map(([group]) => (
                     <RatioCard
                         dataset={DestinationDataset.WebhostingAS}
-                        region={Region.Local}
                         category={category}
                         sector={group}
                         key={group}
