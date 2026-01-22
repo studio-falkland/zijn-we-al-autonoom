@@ -26,7 +26,7 @@ export default function RootLayout({
                     <TooltipProvider>
                         <div className="flex flex-col min-h-screen">
                             <Menu />
-                            <main className="max-w-[1280px] mx-auto xl:px-0 p-8 flex-grow-1 w-full">
+                            <main className="max-w-[1280px] mx-auto xl:px-0 md:p-8 p-4 flex-grow-1 w-full">
                                 {children}
                             </main>
                             <Footer />

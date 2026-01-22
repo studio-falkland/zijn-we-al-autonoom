@@ -3,7 +3,7 @@ import { getIconForCategory } from '@/lib/icons';
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent, NavigationMenuLink } from '@/components/ui/navigation-menu';
 import hierarchy, { DestinationDataset } from '@are-we-dependent/data/hierarchy';
 import Link from 'next/link';
-import { Mail, Server } from 'lucide-react';
+import { ChartPie, Mail, Map, Server } from 'lucide-react';
 import { getCategoryLabel, getRegionLabel } from '@/lib/labels';
 import styles from './menu.module.css';
 export default function Menu() {
@@ -14,19 +14,21 @@ export default function Menu() {
                 <div className={styles.blur} /> 
                 <div className={styles.blur} />
             </div>
-            <div className="max-w-[1280px] mx-auto py-8 max-xl:pr-4 grid grid-cols-3 items-center z-10 relative">
-                <Link href="/" className="flex items-center gap-2" prefetch={false}>
-                    <img src="/logo.svg" className="h-[24px] xl:-ml-[10.31%] -ml-[1%]" alt="Zijn we al autonoom?" />
+            <div className="max-w-[1280px] mx-auto py-8 max-xl:pr-4 grid grid-cols-3 items-center z-10 gap-6 relative">
+                <Link href="/" className="flex md:items-center items-start gap-2" prefetch={false}>
+                    <img src="/logo.svg" className="hidden md:block h-[24px] w-auto xl:-ml-[10.31%] -ml-[1%]" alt="Zijn we al autonoom?" />
+                    <img src="/logo-small.svg" className="md:hidden h-[24px] w-auto" alt="Zijn we al autonoom?" />
                     <div className="rounded bg-blue-500 text-white px-2 py-1 text-xs inline-block">BETA</div>
                 </Link>
-                <div className="flex items-center justify-center">
+                <div className="flex items-center mx-auto justify-center">
                     <RedButton />
                 </div>
                 <NavigationMenu className="ml-auto">
                     <NavigationMenuList>
                         <NavigationMenuItem>
                             <NavigationMenuTrigger className="text-lg">
-                                Kaart
+                                <Map className="w-6 h-6 md:w-5 md:h-5" />
+                                <span className="hidden md:block ml-2">Kaart</span>
                             </NavigationMenuTrigger>
                             <NavigationMenuContent>
                                 <NavigationMenuLink asChild>
@@ -63,9 +65,10 @@ export default function Menu() {
                         </NavigationMenuItem>
                         <NavigationMenuItem>
                             <NavigationMenuTrigger className="text-lg">
-                                Sectoren
+                                <ChartPie className="w-6 h-6 md:w-5 md:h-5" />
+                                <span className="hidden md:block ml-2">Sectoren</span>
                             </NavigationMenuTrigger>
-                            <NavigationMenuContent className="flex gap-4">
+                            <NavigationMenuContent className="flex gap-4 md:flex-row flex-col">
                                 {hierarchy.map((region) => (
                                     <div key={region.type}>
                                         <h2 className="font-bold p-2 text-lg">{getRegionLabel(region.type)}</h2>

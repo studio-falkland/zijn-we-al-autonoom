@@ -27,7 +27,7 @@ export default async function MailCategory({ params }: { params: Promise<{ categ
     const GroupIcon = getIconForCategory(category);
 
     return (
-        <div className="p-4">
+        <div>
             <Breadcrumb>
                 <BreadcrumbList>
                     <BreadcrumbItem>

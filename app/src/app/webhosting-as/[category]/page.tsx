@@ -29,7 +29,7 @@ export default async function WebserverCategory({ params }: { params: Promise<{ 
     const GroupIcon = getIconForCategory(category);
 
     return (
-        <div className="p-4">
+        <div>
             <Breadcrumb>
                 <BreadcrumbList>
                     <BreadcrumbItem>

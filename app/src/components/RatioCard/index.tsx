@@ -30,8 +30,8 @@ export default async function RatioCard({
             href={sector ? `/${dataset}/${category}/${sector}` : `/${dataset}/${category}`}
             prefetch={false}
         >
-            <div className="flex justify-between">
-                <div className="flex items-center gap-4 pl-1">
+            <div className="flex justify-between flex-col md:flex-row gap-y-4">
+                <div className="flex items-center gap-x-4 gap-y-1 pl-1 flex-wrap">
                     <div className="flex items-center gap-2">
                         <DatasetIcon className="w-4 h-4" />
                         {getDatasetLabel(dataset)}
