@@ -34,7 +34,7 @@ export default async function MailSector({ params }: MailSectorProps) {
     const GroupIcon = getIconForCategory(category);
 
     return (
-        <div className="p-4">
+        <div>
             <Breadcrumb>
                 <BreadcrumbList>
                     <BreadcrumbItem>

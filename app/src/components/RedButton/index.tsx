@@ -31,7 +31,9 @@ export default function RedButton() {
             )}
         >
             <Power className="h-4 w-4" />
-            Grote rode knop
+            <span className="hidden md:block">
+                Grote rode knop
+            </span>
         </button>
     );
 }
