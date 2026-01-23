@@ -63,7 +63,7 @@ const SOURCES: Source[] = [
     {
         name: 'ENTRADA',
         source: 'SIDN Labs',
-        url: 'https://nlstats.sidnlabs.nl/',
+        url: 'https://stats.sidnlabs.nl/',
         license: 'Custom export',
         description: 'Statistieken verzamelen over het gehele .nl-domein.',
     },
