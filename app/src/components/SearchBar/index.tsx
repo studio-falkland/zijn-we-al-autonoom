@@ -10,6 +10,7 @@ import { getEmojiForCountryCode, getIconForCategory } from '@/lib/icons';
 import { Category, Sectors } from '@are-we-dependent/data';
 import { getCategoryLabel, getSectorLabel } from '@/lib/labels';
 import { ArrowRight, Search } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 /**
  * The maximum number of results to show in the search bar
@@ -22,6 +23,7 @@ const MAX_RESULTS = 25;
 export default function SearchBar() {
     // The query string in the search bar
     const [query, setQuery] = useState('');
+    const router = useRouter();
 
     // Keep track of the data and search results
     const data = useRef<SearchData | 'loading' | null>(null);
@@ -79,6 +81,12 @@ export default function SearchBar() {
                 loadData();
             }
         },
+        onSelectedItemChange: ({ selectedItem }) => {
+            if (selectedItem) {
+                router.push(`/organisations/${selectedItem.item.slug}`);
+            }
+        },
+        itemToString: (item) => item?.item.name || '',
         items,
     });
 
