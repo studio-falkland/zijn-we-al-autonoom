@@ -11,7 +11,7 @@ const getLabel = (hhi: number) => {
     if (hhi >= 4000) return "Oligopolie";
     if (hhi >= 2500) return "Hoge concentratie";
     if (hhi >= 1500) return "Matige concentratie";
-    return "Competetief";
+    return "Competitief";
 }
 
 export default function Concentration({ frequencies }: { frequencies: Frequency[] }) {
