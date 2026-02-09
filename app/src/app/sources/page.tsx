@@ -49,7 +49,7 @@ const SOURCES: Source[] = [
     {
         name: 'Open Onderwijsdata',
         source: 'Dienst Uitvoering Onderwijs',
-        url: 'https://onderwijsdata.nl/open-onderwijsdata/',
+        url: 'https://duo.nl/open_onderwijsdata/',
         license: 'CC0',
         description: 'Het vaststellen van organisaties en bijbehorende URLs van basisscholen, middelbare scholen en hoger onderwijsinstellingen.',
     },
