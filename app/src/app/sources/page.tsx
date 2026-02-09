@@ -99,7 +99,7 @@ export default async function DatasetsPage() {
             <p className="mt-2">De data wordt met de grootst mogelijk zorgvuldigheid verzameld. Vanwege de grootte van die datasets is het onvermijdelijk dat de meetgegevens fouten bevatten. We proberen voornamelijk op grote schaal een beeld te geven van afhankelijkheid. Mochten je als organisatie benoemd zijn op dee website, neem dan contact op bij fouten.</p>
 
             <h2 className="text-2xl font-bold mt-8">Bronnen</h2>
-            <div className="grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-4 mt-4">
+            <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-2 gap-4 mt-4">
                 {SOURCES.map((dataset) => (
                     <div className="bg-white p-4 rounded-xl border border-blue-800 box-shadow-zwaa" key={dataset.name}>
                         <p className="opacity-50 text-sm">Organisatie</p>
