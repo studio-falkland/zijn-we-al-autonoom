@@ -1,9 +1,10 @@
+<br />
 
-<center>
+<p align="center">
 <img src="./app/public/logo.svg" width="75%" alt="Zijn we al autonoom?">
-</center>
+</p>
 
-<br /><br />
+<br />
 
 Het internet raakt meer en meer gecentraliseerd bij enkele grote partijen. Voor een steeds digitaler Nederland kan die toenemende afhankelijkheid problematisch worden. Als die afhankelijkheid bijvoorbeeld tegen ons wordt gebruikt.
 
