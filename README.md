@@ -65,9 +65,10 @@ pnpm app:dev
 ```
 
 ## Partners
-
+<div class="grid" markdown>
 <img src="./app/public/falkland-logo-long.svg" width="25%" alt="Studio Falkland"/>
 <img src="./app/public/internet-infrastructuur-in-beeld-logo.svg" width="20%"
 alt="Internet Infrastructuur in Beeld"/>
 <img src="./app/public/sidn-fonds-logo.svg" width="25%" alt="SIDN Fonds"/>
 <img src="./app/public/sidn-labs-logo.svg" width="18%" alt="SIDN Labs"/>
+</div>
