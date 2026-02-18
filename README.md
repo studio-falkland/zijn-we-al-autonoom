@@ -1,7 +1,9 @@
 <br />
 
 <p align="center">
+<a href="https://zijnwealautonoom.nl">
 <img src="./app/public/logo.svg" width="75%" alt="Zijn we al autonoom?">
+</a>
 </p>
 
 <br />
