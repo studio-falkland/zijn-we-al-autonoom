@@ -1,6 +1,7 @@
 import { getCategoryLabel } from '@/lib/labels';
 import { getLatestUpdateDate } from '@/lib/queries';
 import { Category, DestinationDataset } from '@are-we-dependent/data';
+import { GithubIcon } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function Footer() {
@@ -10,7 +11,6 @@ export default async function Footer() {
         month: '2-digit',
         year: 'numeric',
     });
-
 
     return (
         <footer className="bg-[#f6f6f6] mt-40 px-4">
@@ -37,6 +37,16 @@ export default async function Footer() {
                         <span className="font-bold">{formattedLatestDate}</span>
                         . Data is vergaard uit openbare bronnen.
                     </p>
+                    <p>
+                        <a
+                            href="https://github.com/studio-falkland/zijn-we-al-autonoom"
+                            className="flex gap-3 mt-4 text-blue-700 items-center"
+                            target="_blank"
+                        >
+                            <GithubIcon width="16" height="16" />
+                            Bekijk de code op GitHub
+                        </a>
+                    </p>
                 </div>
                 <div className="text-[#999] grid gap-4 grid-cols-2 h-fit">
                     <a href="https://falkland.studio" target="_blank" className="opacity-80 hover:opacity-100 transition-opacity">
@@ -58,21 +68,21 @@ export default async function Footer() {
                 </div>
                 <div className="flex gap-2">
                     <div className="w-full">
-                        <Link 
+                        <Link
                             href="/"
                             className="text-blue-800 block"
                             prefetch={false}
                         >
                             Home
                         </Link>
-                        <Link 
+                        <Link
                             href="/about"
                             className="text-blue-800 block"
                             prefetch={false}
                         >
                             Over
                         </Link>
-                        <Link 
+                        <Link
                             href="/sources"
                             className="text-blue-800 block"
                             prefetch={false}
@@ -81,14 +91,14 @@ export default async function Footer() {
                         </Link>
                         <p className="opacity-25 mt-1.5">Visualisaties</p>
                         <p className="opacity-50">Kaarten</p>
-                        <Link 
+                        <Link
                             href={`/map/${DestinationDataset.EmailAS}`}
                             className="text-blue-800 block"
                             prefetch={false}
                         >
                             Email
                         </Link>
-                        <Link 
+                        <Link
                             href={`/map/${DestinationDataset.WebhostingAS}`}
                             className="text-blue-800 block"
                             prefetch={false}
