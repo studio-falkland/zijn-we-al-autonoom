@@ -9,7 +9,8 @@
     "lint": "eslint",
     "extract": "pnpm --filter extraction start",
     "app:dev": "pnpm --filter app dev",
-    "app:build": "pnpm --filter app build"
+    "app:build": "pnpm --filter app build",
+    "release": "bash release.sh"
   },
   "author": "Lei Nelissen",
   "workspaces": [
