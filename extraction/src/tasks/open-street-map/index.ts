@@ -22,67 +22,72 @@ export default class RetrieveOpenStreetMapData extends RemoteDatasetTask {
     description = 'Retrieving Open Street Map entities'
 
     async onStart() {
-        // Retrieve the dataset based on the given URL
-        const retrievalResult = await this.retrieveDatasetFromURL(
-            'open-street-map',
-            OVERPASS_API_HOST,
-            { 
-                method: 'POST',
-                body: new URLSearchParams({ data: OVERPASS_QUERY }).toString(),
-            }
-        );
-
-        // GUARD: Check if the result was successfully retrieved
-        if (!retrievalResult) return this.finish();
-        const { data, dataset } = retrievalResult;
-
-        // Parse the data into a JSON object
-        const text = new TextDecoder().decode(data)
-        const { elements }: OverpassResponse = JSON.parse(text);
-
-        // Loop through all returned entities
-        const organisations: (DatasetDatum & { sector: Sectors })[] = elements
-            // Filter any organisations without a name
-            .filter((f) => !!f.tags.name)
-            .map((feature) => {
-                // Map the OSM format to our organisation format
-                return {
-                    organisation: {
-                        name: feature.tags.name!,
-                        address: feature.tags['addr:street'] && feature.tags['addr:housenumber']
-                            ? `${feature.tags['addr:street']} ${feature.tags['addr:housenumber']}`
-                            : undefined,
-                        postcode: feature.tags['addr:postcode'],
-                        city: feature.tags['addr:city'],
-                        lat: feature.lat,
-                        lng: feature.lon,
-                    },
-                    url: feature.tags.website,
-                    sector: this.mapAmenityToHealthcareSector(feature.tags.amenity),
-                }
-            });
-
-        this.log(`Retrieved ${organisations.length} valid entities from OpenStreetMap`);
-        this.updateTotal(organisations.length);
-
-        // Group into sector and insert them into the database
-        for await (const [sector, data] of groups(organisations, (o) => o.sector)) {
-            await this.insertOrUpdate(
-                dataset,
-                data,
-                {
-                    sector,
-                    region: Region.Local,
-                    category: Category.Healthcare
+        try {
+            // Retrieve the dataset based on the given URL
+            const retrievalResult = await this.retrieveDatasetFromURL(
+                'open-street-map',
+                OVERPASS_API_HOST,
+                { 
+                    method: 'POST',
+                    body: new URLSearchParams({ data: OVERPASS_QUERY }).toString(),
                 }
             );
 
-            this.updateProgress((n) => n + data.length);
-        }
+            // GUARD: Check if the result was successfully retrieved
+            if (!retrievalResult) return this.finish();
+            const { data, dataset } = retrievalResult;
 
-        // Finish task
-        await this.finishDataset(dataset);
-        this.finish();
+            // Parse the data into a JSON object
+            const text = new TextDecoder().decode(data)
+            const { elements }: OverpassResponse = JSON.parse(text);
+
+            // Loop through all returned entities
+            const organisations: (DatasetDatum & { sector: Sectors })[] = elements
+                // Filter any organisations without a name
+                .filter((f) => !!f.tags.name)
+                .map((feature) => {
+                    // Map the OSM format to our organisation format
+                    return {
+                        organisation: {
+                            name: feature.tags.name!,
+                            address: feature.tags['addr:street'] && feature.tags['addr:housenumber']
+                                ? `${feature.tags['addr:street']} ${feature.tags['addr:housenumber']}`
+                                : undefined,
+                            postcode: feature.tags['addr:postcode'],
+                            city: feature.tags['addr:city'],
+                            lat: feature.lat,
+                            lng: feature.lon,
+                        },
+                        url: feature.tags.website,
+                        sector: this.mapAmenityToHealthcareSector(feature.tags.amenity),
+                    }
+                });
+
+            this.log(`Retrieved ${organisations.length} valid entities from OpenStreetMap`);
+            this.updateTotal(organisations.length);
+
+            // Group into sector and insert them into the database
+            for await (const [sector, data] of groups(organisations, (o) => o.sector)) {
+                await this.insertOrUpdate(
+                    dataset,
+                    data,
+                    {
+                        sector,
+                        region: Region.Local,
+                        category: Category.Healthcare
+                    }
+                );
+
+                this.updateProgress((n) => n + data.length);
+            }
+
+            // Finish task
+            await this.finishDataset(dataset);
+            this.finish();
+        } catch (err) {
+            this.log(`OpenStreetMap retrieval failed, skipping task`, { err });
+            this.finish();
+        }
     }
 
     mapAmenityToHealthcareSector(amenity: OSMAmenity) {
