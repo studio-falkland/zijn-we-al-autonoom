@@ -6,14 +6,20 @@ export default class MeasurementTask extends Task {
         values: Omit<Partial<Measurement>, 'id' | 'created_at' | 'error' | 'url'> & { url: URL | (() => string) },
         errorId?: number,
     ) {
-        return db.createQueryBuilder()
-            .insert()
-            .into(Measurement)
-            .values({
-                ...values,
-                error: errorId ? { id: errorId } : null,
-            })
-            .execute();
+        try {
+            return await db.createQueryBuilder()
+                .insert()
+                .into(Measurement)
+                .values({
+                    ...values,
+                    error: errorId ? { id: errorId } : null,
+                })
+                .execute();
+        } catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            const stack = err instanceof Error ? err.stack : undefined;
+            this.log(`Failed to insert measurement for URL "${typeof values.url === 'function' ? values.url() : values.url?.url}": ${message}`, { stack });
+        }
     }
 
     async insertError(
@@ -21,23 +27,29 @@ export default class MeasurementTask extends Task {
         url: string,
         error: Error,
     ) {
-        // First, insert the error
-        const result = await db.createQueryBuilder()
-            .insert()
-            .into(MeasurementError)
-            .values({
-                error: error.message,
-                stack: error.stack,
-            })
-            .returning('id')
-            .execute();
+        try {
+            // First, insert the error
+            const result = await db.createQueryBuilder()
+                .insert()
+                .into(MeasurementError)
+                .values({
+                    error: error.message,
+                    stack: error.stack,
+                })
+                .returning('id')
+                .execute();
 
-        // Then, insert the measurement with the error
-        return this.insertMeasurement({
-            type,
-            url,
-            data: "error"
-        }, result.raw[0].id);
+            // Then, insert the measurement with the error
+            return this.insertMeasurement({
+                type,
+                url,
+                data: "error"
+            }, result.raw[0].id);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            const stack = err instanceof Error ? err.stack : undefined;
+            this.log(`Failed to insert error record for URL "${url}": ${message}`, { stack });
+        }
     }
 
     async getAllURLs() {

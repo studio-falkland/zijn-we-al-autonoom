@@ -71,7 +71,11 @@ export default function TaskExecutor({ task, onFinish }: TaskExecutorProps) {
         log(`Starting task`);
 
         try {
-            taskInstance.onStart();
+            Promise.resolve(taskInstance.onStart()).catch((err) => {
+                logger.child({ name: task.name, err });
+                setError(true);
+                finish();
+            });
         }
         catch (err) {
             logger.child({ name: task.name, err });
