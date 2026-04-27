@@ -72,3 +72,6 @@ alt="Internet Infrastructuur in Beeld"/>
 <img src="./app/public/sidn-fonds-logo.svg" width="25%" alt="SIDN Fonds"/>
 <img src="./app/public/sidn-labs-logo.svg" width="18%" alt="SIDN Labs"/>
 </div>
+
+## Licentie
+Dit werk wordt openbaar gemaakt onder de EUPL-1.2 licentie. Zie de [LICENSE](./LICENSE.md) voor meer informatie.
