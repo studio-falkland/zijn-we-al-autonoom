@@ -7,6 +7,7 @@ import { RedButtonProvider } from '@/components/RedButton/context';
 import Menu from './menu';
 import Footer from './footer';
 import { createMetadata } from '@/lib/metadata';
+import Script from "next/script";
 
 // If loading a variable font, you don't need to specify the font weight
 const inter = Inter({ subsets: ['latin'] })
@@ -33,6 +34,7 @@ export default function RootLayout({
                         </div>
                     </TooltipProvider>
                 </RedButtonProvider>
+                <Script defer src="/umami" data-website-id="67fb2287-fe0c-4541-98bf-e7b8e5e72070" data-host-url="https://analytics.lei.wtf" />
             </body>
         </html>
     );
