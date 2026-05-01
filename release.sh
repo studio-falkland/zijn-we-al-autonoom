@@ -8,11 +8,29 @@ if [ -f .env ]; then
   set +a
 fi
 
+SKIP_EXTRACTION=false
+
+for arg in "$@"; do
+  case $arg in
+    --no-extraction)
+      SKIP_EXTRACTION=true
+      ;;
+    *)
+      echo "Unknown option: $arg"
+      exit 1
+      ;;
+  esac
+done
+
 echo "🚀 Starting deployment..."
 
 echo ""
-echo "📦 Step 1/4: Running extraction..."
-pnpm extract
+if [ "$SKIP_EXTRACTION" = true ]; then
+  echo "📦 Step 1/4: Skipping extraction (--no-extraction)"
+else
+  echo "📦 Step 1/4: Running extraction..."
+  pnpm extract
+fi
 
 echo ""
 echo "🔨 Step 2/4: Building app..."
