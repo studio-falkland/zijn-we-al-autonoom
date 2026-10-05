@@ -53,7 +53,7 @@ This app runs on an iPad built into an installation at Dutch Design Week. The in
 
 - Use `@maplibre/maplibre-react-native` with a **custom Mapbox style JSON** (authored in Mapbox Studio, exported; MapLibre consumes the same style spec).
 - Real geographic accuracy: services are pinned at true coordinates.
-- Offline-tolerant: bundle NL tiles as MBTiles and cache at runtime; never depend on venue wifi.
+- Tiles come from a hosted vector source; bundling NL tiles as MBTiles + runtime cache is a Phase 4 nice-to-have, not a launch requirement (venue wifi is expected to work).
 - MapLibre is a native module → requires a development build (no Expo Go).
 
 ## 2. Printable card — expo-print, HTML/SVG via WebKit, A7
@@ -78,6 +78,37 @@ This app runs on an iPad built into an installation at Dutch Design Week. The in
 - Use a **Zustand** store as the single source of truth for the wizard session: `location`, `selectedServices`, `generatedCard` (including the PDF file path), `printStatus`.
 - **No persistence.** Kiosk restarts begin a fresh wizard; do not store session state in sqlite/TypeORM (content data — services, coordinates — still comes from the existing data layer).
 - Reset the session when the card is printed, so the kiosk is ready for the next visitor.
+
+## Implementation order
+
+**Phase 0 — Foundations**
+- Kiosk skeleton: wizard routes (`index → location → services → generate → print/done`), Familjen Grotesk via `expo-font`, iPad orientation (landscape).
+- Styling: plain `StyleSheet` + a tokens module (colors, spacing, type scale, radii); no styling libraries. Single fixed theme matching the physical installation; light/dark only if needed.
+- Zustand wizard store (`location`, `selectedServices`, `generatedCard`, `printStatus`) — in-memory only, no persistence.
+- Wire the existing sqlite/TypeORM data layer into `ddw-app`; service queries per neighborhood.
+- First local dev build on the iPad (`pnpm build:ios`) to establish the build loop early.
+
+**Phase 1 — Screen flow with real data**
+- MapLibre map screen: custom style JSON, NL bounds, tap-to-locate (hosted tiles for now).
+- Services selection screen, styled with the tokens.
+- Treemap screen: port `patterns.tsx` defs to react-native-svg, render from selections.
+
+**Phase 2 — Print pipeline (spike before build)**
+- Print spike: expo-print HTML/SVG — pattern/mask fidelity, Familjen Grotesk base64 embedding, A7 geometry, zoom-test, test print on the ET-8550.
+- Card generator: A7 HTML from the treemap; layout logic shared with the screen renderer (one source of truth for the artwork).
+
+**Phase 3 — Printing integration + essential kiosk behavior**
+- Manual print via expo-print (confirm-tap) as the interim path.
+- IPP layer: `ipp` package, `Print-Job` with A7 `media-col`, `NSLocalNetworkUsageDescription` + `NSAllowsLocalNetworking`, automatic submission.
+- Printer-offline error state; session reset after print (kiosk loop ready for the next visitor).
+
+**Phase 4 — Nice-to-haves (only if time permits)**
+- Offline tiles: MBTiles bundling + runtime tile cache.
+- Idle timeout / auto-reset.
+- Additional error/UX polish.
+
+**Phase 5 — Launch readiness**
+- Dutch copy, final style pass, test cards at real print settings, full-day soak test on the kiosk iPad.
 
 # Development practices
 
