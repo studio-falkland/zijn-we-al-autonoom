@@ -1,12 +1,12 @@
 import { Category, DestinationDataset, Region } from '@are-we-dependent/data/hierarchy';
-import { Building2, CircleHelp, Flag, GraduationCap, Hospital, Landmark, LucideIcon, Mail, Server, Shield } from 'lucide-react';
+import { Building2, CircleHelp, Flag, GraduationCap, Hospital, Landmark, LucideIcon, Mail, Server } from 'lucide-react';
 
 /**
  * A record describing which category should correspond to which icon
  */
 export const categoryIcons: Record<Category, LucideIcon> = {
     [Category.Business]: Building2,
-    [Category.Defense]: Shield,
+    // [Category.Defense]: Shield,
     [Category.Education]: GraduationCap,
     // [Category.Financial]: PiggyBank,
     [Category.Government]: Landmark,

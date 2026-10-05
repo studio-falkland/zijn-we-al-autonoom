@@ -1,4 +1,5 @@
-import db, { Measurement, MeasurementError, URL } from '@are-we-dependent/data';
+import db from '@/lib/db.js';
+import { DestinationDataset, Measurement, MeasurementError, URL } from '@are-we-dependent/data';
 import { Task } from './index.jsx';
 
 export default class MeasurementTask extends Task {
@@ -41,8 +42,9 @@ export default class MeasurementTask extends Task {
 
             // Then, insert the measurement with the error
             return this.insertMeasurement({
-                type,
-                url,
+                // The task name ('mx', 'webhost', ...) is stored as the type
+                type: type as DestinationDataset,
+                url: () => url,
                 data: "error"
             }, result.raw[0].id);
         } catch (err) {

@@ -41,7 +41,7 @@ export default class RetrieveWebhost extends MeasurementTask {
 
                     await this.insertMeasurement({
                         type: DestinationDataset.WebhostingAS,
-                        url,
+                        url: () => url,
                         data: asn.toString(),
                         asn: asn ?? undefined,
                         as_organisation: as.name,

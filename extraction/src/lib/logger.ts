@@ -16,7 +16,7 @@ const transport = pino.transport({
 });
 
 // Initialise the logger
-const logger = pino.default(transport);
+const logger = pino(transport);
 
 // And append a log to the file so we know a new run is started
 logger.info('Extractor initialised. Running tasks...');

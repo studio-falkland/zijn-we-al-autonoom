@@ -1,7 +1,7 @@
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import Measurement from './Measurement.js';
 
-@Entity()
+@Entity('measurement_error')
 export default class MeasurementError {
     @PrimaryGeneratedColumn()
     id: number;

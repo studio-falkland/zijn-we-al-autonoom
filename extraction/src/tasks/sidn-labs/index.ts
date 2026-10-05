@@ -3,7 +3,8 @@ import asnLookup from '@/lib/asnLookup.js';
 import lookup from '@/lib/ipLookup.js';
 import { resolver } from '@/lib/resolver.js';
 import CSVTask from '@/lib/task/CSVTask.jsx';
-import db, { Aggregate, DestinationDataset } from '@are-we-dependent/data';
+import db from '@/lib/db.js';
+import { Aggregate, DestinationDataset } from '@are-we-dependent/data';
 import { PromisePool } from '@supercharge/promise-pool';
 import { parseString } from 'fast-csv';
 

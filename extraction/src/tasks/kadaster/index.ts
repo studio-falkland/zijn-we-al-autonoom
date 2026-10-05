@@ -1,5 +1,6 @@
 import DatasetTask from '@/lib/task/DatasetTask.js';
-import db, { Organisation } from '@are-we-dependent/data';
+import db from '@/lib/db.js';
+import { Organisation } from '@are-we-dependent/data';
 import { PromisePool } from '@supercharge/promise-pool';
 import { IsNull, Not } from 'typeorm'
 

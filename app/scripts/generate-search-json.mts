@@ -1,6 +1,16 @@
 // scripts/generate-search-json.ts
 import { writeFile } from 'fs/promises';
-import db, { DestinationDataset } from '@are-we-dependent/data';
+import { mkdirSync } from 'fs';
+import { dirname } from 'path';
+import sqlite from 'better-sqlite3';
+import { createDataSource, DestinationDataset } from '@are-we-dependent/data';
+import { DB_PATH } from '@are-we-dependent/data/const';
+
+const db = createDataSource({
+    type: 'better-sqlite3',
+    database: DB_PATH,
+    driver: sqlite,
+});
 
 export interface RawQueryResult {
     organisation_id: number;

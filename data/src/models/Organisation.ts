@@ -3,7 +3,7 @@ import URL from './URL.js';
 import Dataset from './Dataset.js';
 import OrganisationClassification from './Classification.js';
 
-@Entity()
+@Entity('organisation')
 export default class Organisation {
     @PrimaryGeneratedColumn()
     id: number;

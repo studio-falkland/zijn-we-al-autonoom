@@ -3,7 +3,8 @@ import { EntityManager } from 'typeorm';
 import { Task } from './index.jsx';
 
 import parseURL from '@/lib/ParseURL.js';
-import db, {
+import db from '@/lib/db.js';
+import {
     Dataset,
     Organisation,
     Category,
@@ -59,7 +60,7 @@ export default class DatasetTask extends Task {
         let dataset = await db.manager.findOne(Dataset, {
             where: { name },
             // Also, retrieve the organsiation currently associated with this dataset
-            relations: ['organisations'] },
+            relations: { organisations: true } },
         );
 
         // Calculate the amount of time that has passed since last update
@@ -206,7 +207,7 @@ export default class DatasetTask extends Task {
             .into(OrganisationClassification)
             .values({
                 ...classification,
-                organisation: slug,
+                organisation: { slug },
             })
             .execute();
     }
@@ -226,7 +227,7 @@ export default class DatasetTask extends Task {
             .into(URL)
             .values({
                 url: parsedUrl,
-                organisation: slug,
+                organisation: { slug },
             })
             .insert()
             .orUpdate(

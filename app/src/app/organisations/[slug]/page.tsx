@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const organisation = await db.manager.getRepository(Organisation)
         .findOne({ 
             where: { slug },
-            relations: ['classifications'],
+            relations: { classifications: true },
         });
     
     if (!organisation) {
@@ -42,7 +42,10 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
     const organisationEntity = await db.manager.getRepository(Organisation)
         .findOne({ 
             where: { slug },
-            relations: ['classifications', 'urls.measurements.url'],
+            relations: {
+                classifications: true,
+                urls: { measurements: { url: true } },
+            },
             order: {
                 urls: {
                     created_at: 'ASC',

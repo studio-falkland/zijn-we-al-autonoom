@@ -23,7 +23,10 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 
         const organisation = await db.manager.getRepository(Organisation).findOne({
             where: { slug },
-            relations: ['classifications', 'urls.measurements.url'],
+            relations: {
+                classifications: true,
+                urls: { measurements: { url: true } },
+            },
             order: {
                 urls: {
                     measurements: {

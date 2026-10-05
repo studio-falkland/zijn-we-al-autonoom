@@ -1,6 +1,14 @@
 import { writeFile } from 'fs/promises';
-import db, { Category, DestinationDataset, Organisation } from '@are-we-dependent/data';
+import sqlite from 'better-sqlite3';
+import { createDataSource, Category, DestinationDataset, Organisation } from '@are-we-dependent/data';
+import { DB_PATH } from '@are-we-dependent/data/const';
 import { flatHierarchy } from '@are-we-dependent/data/hierarchy';
+
+const db = createDataSource({
+    type: 'better-sqlite3',
+    database: DB_PATH,
+    driver: sqlite,
+});
 
 const BASE_URL = 'https://zijnwealautonoom.nl';
 

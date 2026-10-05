@@ -98,9 +98,16 @@ export default class RetrieveRijksoverheidURLs extends CSVTask {
             return;
         }
 
+        // GUARD: If no data was retrieved, there is nothing to parse
+        if (!result.data) {
+            this.finish();
+            return;
+        }
+
         // Parse data as XML
+        const xmlBuffer = ArrayBuffer.isView(result.data) ? result.data : Buffer.from(result.data);
         const rootObject: RIOXML = new XMLParser()
-            .parse(Buffer.from(result.data));
+            .parse(xmlBuffer);
 
         const data: DatasetDatum[] = rootObject['p:RegisterInternetdomeinenOverheid']['p:organisatie'].map((o) => {
             return {

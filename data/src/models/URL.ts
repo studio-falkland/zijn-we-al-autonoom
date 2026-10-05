@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn
 import Organisation from './Organisation.js';
 import Measurement from './Measurement.js';
 
-@Entity()
+@Entity('url')
 export default class URL {
     @PrimaryGeneratedColumn()
     id: number;

@@ -41,7 +41,7 @@ export default class CSVTask extends RemoteDatasetTask {
 
     async importCSV<T>(
         dataset: Dataset | undefined,
-        buffer: ArrayBuffer | undefined,
+        buffer: ArrayBuffer | Buffer | undefined,
         {
             headers, classification, getOrganisation, getUrl, name, delimiter,
         }: BaseCSVDatasetConfig<T>,

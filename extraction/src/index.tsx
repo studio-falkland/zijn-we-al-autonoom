@@ -8,7 +8,7 @@ import RetrieveWebhost from '@/tasks/webhost/index.js';
 import RetrieveRijksoverheidURLs from '@/tasks/rio/index.js';
 import RetrieveSchoolURLs from '@/tasks/duo/index.js';
 import { Task } from './lib/task/index.jsx';
-import db from '@are-we-dependent/data';
+import db from '@/lib/db.js';
 import TaskExecutor from './lib/task/executor.jsx';
 import RetrieveIPInfoDatabase from './tasks/ipinfo/index.js';
 import RetrieveCaidaASNDataset from './tasks/caida/index.js';

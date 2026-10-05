@@ -28,11 +28,5 @@
   "dependencies": {
     "eslint-plugin-unused-imports": "^4.1.4",
     "patch-package": "^8.0.0"
-  },
-  "pnpm": {
-    "patchedDependencies": {
-      "typeorm": "patches/typeorm.patch",
-      "mmdb-lib": "patches/mmdb-lib.patch"
-    }
   }
 }

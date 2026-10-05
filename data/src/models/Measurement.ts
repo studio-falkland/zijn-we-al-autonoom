@@ -3,7 +3,7 @@ import MeasurementError from './MeasurementError.js';
 import URL from './URL.js';
 import { DestinationDataset } from '../hierarchy.js';
 
-@Entity()
+@Entity('measurement')
 export default class Measurement {
     @PrimaryGeneratedColumn()
     id: number;

@@ -1,7 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import Organisation from './Organisation.js';
 
-@Entity()
+@Entity('dataset')
 export default class Dataset {
     @PrimaryGeneratedColumn()
     id: number;

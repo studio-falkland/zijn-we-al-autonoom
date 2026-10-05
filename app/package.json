@@ -22,6 +22,7 @@
     "@visx/hierarchy": "^3.12.0",
     "@visx/scale": "^3.12.0",
     "@visx/tooltip": "^3.12.0",
+    "better-sqlite3": "^11.10.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "d3": "^7.9.0",
@@ -34,8 +35,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^2.5.5",
-    "tailwindcss-animate": "^1.0.7",
-    "typeorm": "^0.3.21-dev.87b9fad"
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.14",

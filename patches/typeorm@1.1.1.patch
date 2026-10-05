@@ -1,0 +1,28 @@
+diff --git a/driver/better-sqlite3/BetterSqlite3Driver.js b/driver/better-sqlite3/BetterSqlite3Driver.js
+index 214b6df7f1504c0226bb4aec0753b118b910f246..f2f25e99155543ca74abf893e84fe33da32a97da 100644
+--- a/driver/better-sqlite3/BetterSqlite3Driver.js
++++ b/driver/better-sqlite3/BetterSqlite3Driver.js
+@@ -153,6 +153,10 @@ class BetterSqlite3Driver extends AbstractSqliteDriver_1.AbstractSqliteDriver {
+             ? optionsDb
+             : node_path_1.default.join(this.options.baseDirectory, optionsDb));
+     }
++
++    isReturningSqlSupported() {
++        return true;
++    }
+ }
+ exports.BetterSqlite3Driver = BetterSqlite3Driver;
+ //# sourceMappingURL=BetterSqlite3Driver.js.map
+\ No newline at end of file
+diff --git a/query-builder/InsertQueryBuilder.js b/query-builder/InsertQueryBuilder.js
+index ee3bf0c148db2a91ebc95265f49065da567cd5d0..4710d8ef7b48286c8f6bceca8a6baba5ea2f2d99 100644
+--- a/query-builder/InsertQueryBuilder.js
++++ b/query-builder/InsertQueryBuilder.js
+@@ -471,6 +471,7 @@ class InsertQueryBuilder extends QueryBuilder_1.QueryBuilder {
+         if (returningExpression &&
+             (DriverUtils_1.DriverUtils.isPostgresFamily(this.dataSource.driver) ||
+                 this.dataSource.driver.options.type === "cockroachdb" ||
++                this.dataSource.driver.options.type === "better-sqlite3" ||
+                 DriverUtils_1.DriverUtils.isMySQLFamily(this.dataSource.driver) ||
+                 (this.dataSource.driver.options.type === "oracle" &&
+                     !this.expressionMap.insertFromSelect))) {

@@ -13,7 +13,7 @@ export const categoryLabels: Record<Category, string> = {
     [Category.Government]: 'Overheid',
     // [Category.Financial]: 'Financieel',
     [Category.Business]: 'Bedrijven',
-    [Category.Defense]: 'Defensie',
+    // [Category.Defense]: 'Defensie',
     [Category.Healthcare]: 'Zorg',
     [Category.Education]: 'Onderwijs',
     [Category.DotNL]: '.nl',

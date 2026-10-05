@@ -2,8 +2,18 @@ packages:
   - app/
   - data/
   - extraction/
-onlyBuiltDependencies:
-  - better-sqlite3
-  - esbuild
-  - sharp
+  - ddw-app/
+allowBuilds:
+  better-sqlite3: true
+  esbuild: true
+  sharp: true
 minimumReleaseAge: 10080 # 7 days
+minimumReleaseAgeExclude:
+  - '@expo/ui@57.0.21'
+  - expo-constants@57.0.20
+  - expo-modules-core@57.0.20
+  - expo-router@57.0.24
+  - expo@57.0.26
+patchedDependencies:
+  typeorm@1.1.1: patches/typeorm@1.1.1.patch
+  mmdb-lib@2.2.1: patches/mmdb-lib.patch

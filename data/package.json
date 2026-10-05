@@ -6,8 +6,8 @@
   "scripts": {
     "build": "tsc",
     "typeorm": "tsx ../node_modules/.bin/typeorm",
-    "migrations:generate": "npm run typeorm -- migration:generate -d src/dindexb.ts src/migrations/m",
-    "migrations:up": "npm run typeorm -- migration:run -d src/index.ts",
+    "migrations:generate": "npm run typeorm -- migration:generate -d src/cli-data-source.ts src/migrations/m",
+    "migrations:up": "npm run typeorm -- migration:run -d src/cli-data-source.ts",
     "preinstall": "npx only-allow pnpm"
   },
   "author": "",
@@ -15,9 +15,10 @@
   "description": "",
   "dependencies": {
     "better-sqlite3": "^11.8.1",
-    "typeorm": "^0.3.21-dev.87b9fad"
+    "typeorm": "^1.1.1"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   },
@@ -25,6 +26,14 @@
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./entities": {
+      "import": "./dist/entities.js",
+      "types": "./dist/entities.d.ts"
+    },
+    "./migrations": {
+      "import": "./dist/migrations.js",
+      "types": "./dist/migrations.d.ts"
     },
     "./const": {
       "import": "./dist/const.js",
