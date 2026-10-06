@@ -23,6 +23,7 @@ export enum Category {
     // Defense = 'defense',
     Healthcare = 'healthcare',
     Education = 'education',
+    Utilities = 'utilities',
     DotNL = 'dot-nl',
 }
 
@@ -62,8 +63,13 @@ export enum EducationSector {
     Higher = 'education_higher',
 }
 
-export const sectors = [GovernmentSector, FinancialSector, BusinessSector, HealthcareSector, EducationSector];
-export type Sectors = GovernmentSector | FinancialSector | BusinessSector | HealthcareSector | EducationSector;
+export enum UtilitiesSector {
+    Power = 'utilities_power',
+    Water = 'utilities_water',
+}
+
+export const sectors = [GovernmentSector, FinancialSector, BusinessSector, HealthcareSector, EducationSector, UtilitiesSector];
+export type Sectors = GovernmentSector | FinancialSector | BusinessSector | HealthcareSector | EducationSector | UtilitiesSector;
 
 export type Hierarchy = {
     type: Region;
@@ -75,7 +81,8 @@ export type Hierarchy = {
                 | FinancialSector
                 | BusinessSector
                 | HealthcareSector
-                | EducationSector;
+                | EducationSector
+                | UtilitiesSector;
         }[];
     }[];
 }[];
@@ -115,6 +122,14 @@ const hierarchy: Hierarchy = [
                     { type: EducationSector.Primary },
                     { type: EducationSector.Secondary },
                     { type: EducationSector.Higher },
+                ],
+            },
+            {
+                type: Category.Utilities,
+                description: 'Lokale nutsbedrijven, zoals energie- en drinkwaterbedrijven.',
+                children: [
+                    { type: UtilitiesSector.Power },
+                    { type: UtilitiesSector.Water },
                 ],
             },
         ],
