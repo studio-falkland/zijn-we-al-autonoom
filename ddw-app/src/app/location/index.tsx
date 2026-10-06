@@ -52,8 +52,6 @@ const styles = StyleSheet.create({
     input: {
         ...Type.bodyLarge,
         color: Theme.text,
-        borderBottomWidth: 2,
-        borderBottomColor: Theme.text,
         minWidth: 240,
         textAlign: 'center',
     },

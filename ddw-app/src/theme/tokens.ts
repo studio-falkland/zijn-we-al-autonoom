@@ -17,11 +17,16 @@ export const Colors = {
         textbox: '#6468AA',
     },
     red: '#FB2C36',
+    grey: {
+        700: '#595969',
+        200: '#c4c4d4',
+    },
+    white: '#FFFFFF',
 } as const;
 
 // Semantic aliases for kiosk surfaces, text, and interactive elements.
 export const Theme = {
-    background: '#FFFFFF',
+    background: Colors.blue[50],
     panel: Colors.blue[50],
     text: Colors.blue[900],
     textMuted: Colors.blue.textbox,
@@ -86,6 +91,7 @@ export const Shadows = StyleSheet.create({
 // Type scale mirroring the Figma text styles (pt values, Familjen Grotesk).
 export const Type = StyleSheet.create({
     hero: {
+        color: Colors.blue[900],
         fontFamily: Fonts.family,
         fontWeight: Fonts.bold,
         fontSize: 64,
@@ -93,6 +99,7 @@ export const Type = StyleSheet.create({
         letterSpacing: -1.28
     },
     page: {
+        color: Colors.blue[900],
         fontFamily: Fonts.family,
         fontWeight: Fonts.bold,
         fontSize: 40,
@@ -100,6 +107,7 @@ export const Type = StyleSheet.create({
         letterSpacing: -0.8
     },
     sub: {
+        color: Colors.blue[900],
         fontFamily: Fonts.family,
         fontWeight: Fonts.bold,
         fontSize: 24,
@@ -107,6 +115,7 @@ export const Type = StyleSheet.create({
         letterSpacing: -0.24
     },
     bodyLarge: {
+        color: Colors.blue[900],
         fontFamily: Fonts.family,
         fontWeight: Fonts.regular,
         fontSize: 24,
@@ -114,6 +123,7 @@ export const Type = StyleSheet.create({
         letterSpacing: -0.24
     },
     body: {
+        color: Colors.blue[900],
         fontFamily: Fonts.family,
         fontWeight: Fonts.regular,
         fontSize: 16,
@@ -121,6 +131,7 @@ export const Type = StyleSheet.create({
         letterSpacing: 0
     },
     bodySmall: {
+        color: Colors.blue[900],
         fontFamily: Fonts.family,
         fontWeight: Fonts.regular,
         fontSize: 14,
@@ -128,6 +139,7 @@ export const Type = StyleSheet.create({
         letterSpacing: 0
     },
     cardTitle: {
+        color: Colors.blue[900],
         fontFamily: Fonts.family,
         fontWeight: Fonts.regular,
         fontSize: 24,
