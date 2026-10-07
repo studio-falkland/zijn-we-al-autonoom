@@ -1,6 +1,10 @@
-// Dependency breakdown for a selection: latest measurement per URL, aggregated
-// by AS organisation, matching the web app's treemap input shape.
-import { Measurement, Organisation, URL } from '@are-we-dependent/data';
+// Dependency breakdown for a selection: the combined web + email hosting
+// footprint of the selected services. For every URL we take the latest
+// measurement per dataset type (webhosting-as, email-as) and count each as one
+// dependency instance of its AS organisation — the web app's per-dataset
+// semantics, but with both hosting dimensions combined into one card.
+
+import { DestinationDataset, Measurement, Organisation, URL } from '@are-we-dependent/data';
 import { In } from 'typeorm';
 
 import { db, ensureDb } from './db';
@@ -15,6 +19,11 @@ export type MeasurementFrequency = {
     as_organisation: string | null;
 };
 
+// The two hosting datasets that make up the personal visualization.
+// Legacy types (webhost/mx) are excluded: they are older names for the same
+// datasets and would double-count a URL's web or email dependency.
+const DEPENDENCY_TYPES = [DestinationDataset.WebhostingAS, DestinationDataset.EmailAS];
+
 // The share of hosted URLs per AS organisation for the selected services.
 export async function getDependencyFrequencies(
     services: Organisation[],
@@ -23,28 +32,33 @@ export async function getDependencyFrequencies(
     const slugs = services.map((service) => service.slug);
     if (slugs.length === 0) return [];
 
-    // Load every URL of the selected organisations with their measurements.
+    // Load every URL of the selected organisations with only their web/email
+    // hosting measurements.
     const urls = await db.getRepository(URL).find({
-        where: { organisation: { slug: In(slugs) } },
+        where: {
+            organisation: { slug: In(slugs) },
+            measurements: { type: In(DEPENDENCY_TYPES) },
+        },
         relations: { measurements: true },
     });
 
-    // Keep only the most recent measurement per URL.
+    // Keep only the most recent measurement per URL per dataset type.
     const latest = new Map<string, Measurement>();
     for (const url of urls) {
         for (const measurement of url.measurements ?? []) {
-            const previous = latest.get(url.url);
+            const key = `${url.url}::${measurement.type}`;
+            const previous = latest.get(key);
             if (!previous || new Date(measurement.created_at) > new Date(previous.created_at)) {
-                latest.set(url.url, measurement);
+                latest.set(key, measurement);
             }
         }
     }
 
-    // Count how often each AS organisation hosts one of the selected URLs.
+    // Count how often each AS organisation hosts one of the dependency instances.
     const counts = new Map<string, MeasurementFrequency>();
     let total = 0;
     for (const measurement of latest.values()) {
-        if (measurement.asn == null) continue; // unmeasured URLs are excluded
+        if (measurement.asn == null) continue; // unmeasured instances are excluded
         const label = measurement.as_organisation ?? 'Onbekend';
         const entry = counts.get(label) ?? {
             category: label,

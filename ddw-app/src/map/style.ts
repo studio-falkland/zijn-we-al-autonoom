@@ -114,17 +114,6 @@ export const mapStyle: StyleSpecification = {
             },
         },
         {
-            // The blue dot under each place label (sprite icon replaced by a circle layer).
-            id: 'place-dot',
-            type: 'circle',
-            source: 'composite',
-            'source-layer': 'place_label',
-            paint: {
-                'circle-color': '#0000ff',
-                'circle-radius': 2.5,
-            },
-        },
-        {
             // Place names in the label blue, largest settlements first.
             id: 'place-label',
             type: 'symbol',

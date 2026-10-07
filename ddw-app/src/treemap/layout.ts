@@ -6,7 +6,7 @@ import { hierarchy, treemap, treemapBinary } from 'd3';
 import type { MeasurementFrequency } from '@/data/dependencies';
 
 // Shares below this percentage are rolled into a single "Others" tile.
-const MIN_PERCENTAGE = 0.5;
+const MIN_PERCENTAGE = 5;
 
 // A node datum: a frequency, or the root carrying children.
 type TreemapDatum = MeasurementFrequency & { children?: TreemapDatum[] };
@@ -54,11 +54,13 @@ export function buildTreemapLayout(
     const leaves: TreemapDatum[] = other.frequency > 0 ? [...main, other] : main;
     if (leaves.length === 0) return [];
 
-    // Lay the tree out with binary tiling and 4px gutters, like the web app.
+    // Lay the tree out with binary tiling and 4px gutters between tiles, but
+    // no outer inset so the tile field aligns exactly with the card padding.
     const treemapRoot = treemap<TreemapDatum>()
         .tile(treemapBinary)
         .size([width, height])
-        .padding(4)(
+        .paddingInner(4)
+        .paddingOuter(0)(
         hierarchy<TreemapDatum>({
             category: 'root',
             frequency: 0,
