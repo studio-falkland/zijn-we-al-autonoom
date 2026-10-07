@@ -14,7 +14,7 @@ export default function StartScreen() {
                 <Text style={styles.subtitle}>
                     Ontdek welke diensten in jouw buurt afhankelijk zijn van grote techbedrijven.
                 </Text>
-                <Button label="Begin" onPress={() => router.push('/location')} />
+                <Button label="Begin" onPress={() => router.push('/map')} />
             </View>
         </SafeAreaView>
     );

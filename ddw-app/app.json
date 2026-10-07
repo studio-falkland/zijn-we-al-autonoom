@@ -29,6 +29,13 @@
         "plugins": [
             "expo-router",
             "expo-dev-client",
+            "@maplibre/maplibre-react-native",
+            [
+                "expo-asset",
+                {
+                    "assets": ["../data/db/are-we-dependent.db"]
+                }
+            ],
             [
                 "expo-font",
                 {

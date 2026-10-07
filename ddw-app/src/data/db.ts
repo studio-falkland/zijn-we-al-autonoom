@@ -1,21 +1,29 @@
 // Read-only connection to the bundled content database via TypeORM's expo driver.
 import { createDataSource } from '@are-we-dependent/data';
-import { Asset } from 'expo-asset';
-import { File } from 'expo-file-system';
+import { Directory, File, Paths } from 'expo-file-system';
 import * as SQLite from 'expo-sqlite';
 import type { DataSource } from 'typeorm';
 
-// The bundled database asset, served by Metro (extension registered by expo-sqlite).
-const DB_ASSET = require('../../../data/db/are-we-dependent.db') as number;
 const DB_NAME = 'are-we-dependent.db';
 
-// Copy the bundled database into expo-sqlite's directory on first launch.
+// The expo-asset config plugin embeds the database as a native resource, so it
+// ships inside the app binary in every build. SQLite must open a writable file
+// in its managed directory, so copy the embedded resource there once.
 async function seedDatabase(): Promise<void> {
-    const destination = new File(SQLite.defaultDatabaseDirectory, DB_NAME);
+    // expo-sqlite creates its directory lazily on first open; make sure it exists.
+    const databaseDirectory = new Directory(SQLite.defaultDatabaseDirectory);
+    databaseDirectory.create({ intermediates: true, idempotent: true });
+
+    const destination = new File(databaseDirectory, DB_NAME);
     if (destination.exists) return;
-    const asset = await Asset.fromModule(DB_ASSET).downloadAsync();
-    if (!asset.localUri) throw new Error(`Unable to resolve bundled database ${DB_NAME}`);
-    await new File(asset.localUri).copy(destination);
+
+    const bundled = new File(Paths.bundle, DB_NAME);
+    if (!bundled.exists) {
+        throw new Error(
+            'Bundled database not found — rebuild the app (pnpm build:ios) so the expo-asset plugin can embed it.',
+        );
+    }
+    await bundled.copy(destination);
 }
 
 // The app data source: expo driver, no synchronize, no migrations (read-only).
