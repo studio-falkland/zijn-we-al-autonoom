@@ -1,7 +1,7 @@
 // Primary button used across the kiosk screens.
 import { Pressable, StyleSheet, Text } from 'react-native';
 
-import { Colors, Radii, Shadows, Spacing, Type } from '@/theme/tokens';
+import { Colors, Radii, Spacing, Type } from '@/theme/tokens';
 
 // A full-width kiosk button; disabled state for blocked steps.
 export function Button({ label, onPress, disabled }: { label: string; onPress: () => void; disabled?: boolean }) {
