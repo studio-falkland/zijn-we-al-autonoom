@@ -7,7 +7,7 @@
 import { isUSFrequency, PatternMatcher, renderPatternDefsSvg } from '@/components/treemap/patternDefs';
 import type { MeasurementFrequency } from '@/data/dependencies';
 import { buildTreemapLayout, type TreemapRect } from '@/treemap/layout';
-import { frequencyLabelName } from '@/treemap/label';
+import { frequencyLabelName, truncateLabel } from '@/treemap/label';
 
 import { FAMILIEN_GROTESK_400_BASE64, FAMILIEN_GROTESK_700_BASE64 } from './fontsBase64';
 
@@ -58,16 +58,20 @@ function escapeXml(value: string): string {
 function tileToSvg(rect: TreemapRect, index: number, label: string | null): string {
     const us = isUSFrequency(rect.frequency);
     const mask = PatternMatcher(rect.frequency);
-    // The label plate: spans the tile, pale blue, and clips the name to
-    // itself so the text can never exceed the background.
+    // The label plate: spans the tile, pale blue, with the name centred and
+    // truncated to fit so it never exceeds the background.
     const centerX = rect.x + rect.width / 2;
     const centerY = rect.y + rect.height / 2;
-    const plate = label
-        ? `<clipPath id="plate-${index}"><rect x="${rect.x + 16}" y="${centerY - 12}" width="${rect.width - 32}" height="24" rx="4"/></clipPath>` +
-          `<rect x="${rect.x + 16}" y="${centerY - 12}" width="${rect.width - 32}" height="24" rx="4" fill="${LABEL_PLATE}" clip-path="url(#clip-${index})"/>`
+    const plateX = rect.x + 16;
+    const plateY = centerY - 12;
+    const plateWidth = rect.width - 32;
+    const fittedLabel = label ? truncateLabel(label, plateWidth - 8) : null;
+    const plate = fittedLabel
+        ? `<clipPath id="plate-${index}"><rect x="${plateX}" y="${plateY}" width="${plateWidth}" height="24" rx="4"/></clipPath>` +
+          `<rect x="${plateX}" y="${plateY}" width="${plateWidth}" height="24" rx="4" fill="${LABEL_PLATE}" clip-path="url(#clip-${index})"/>`
         : '';
-    const text = label
-        ? `<text x="${centerX}" y="${centerY + 4}" font-family="Familjen Grotesk" font-size="12" font-weight="400" fill="${INK}" text-anchor="middle" clip-path="url(#plate-${index})">${escapeXml(label)}</text>`
+    const text = fittedLabel
+        ? `<text x="${centerX}" y="${centerY + 4}" font-family="Familjen Grotesk" font-size="12" font-weight="400" fill="${INK}" text-anchor="middle" clip-path="url(#plate-${index})">${escapeXml(fittedLabel)}</text>`
         : '';
     return (
         `<clipPath id="clip-${index}"><rect x="${rect.x}" y="${rect.y}" width="${rect.width}" height="${rect.height}"/></clipPath>` +

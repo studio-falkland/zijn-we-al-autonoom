@@ -7,7 +7,7 @@ import { ClipPath, G, Line, Rect, Svg, Text } from 'react-native-svg';
 import type { CardContext } from '@/card/cardHtml';
 import type { MeasurementFrequency } from '@/data/dependencies';
 import { buildTreemapLayout, type TreemapRect } from '@/treemap/layout';
-import { frequencyLabelName } from '@/treemap/label';
+import { frequencyLabelName, truncateLabel } from '@/treemap/label';
 import { Colors, Fonts } from '@/theme/tokens';
 import { isUSFrequency, PatternMatcher } from './patternDefs';
 import TreemapPatterns from './patterns';
@@ -36,9 +36,14 @@ function Tile({ rect, index, label }: { rect: TreemapRect; index: number; label:
     const us = isUSFrequency(frequency);
     const mask = PatternMatcher(frequency);
 
-    // The label plate: spans the tile, white, with the name centered on it.
+    // The label plate: spans the tile, pale blue, with the name centred and
+    // truncated to fit so it never exceeds the background.
     const centerX = rect.x + rect.width / 2;
     const centerY = rect.y + rect.height / 2;
+    const plateX = rect.x + 16;
+    const plateY = centerY - 12;
+    const plateWidth = rect.width - 32;
+    const fittedLabel = label ? truncateLabel(label, plateWidth - 8) : null;
 
     return (
         <G>
@@ -47,16 +52,16 @@ function Tile({ rect, index, label }: { rect: TreemapRect; index: number; label:
             </ClipPath>
             <Rect x={rect.x} y={rect.y} width={rect.width} height={rect.height} rx={4} fill={LEAF_BASE} />
             <Rect x={rect.x} y={rect.y} width={rect.width} height={rect.height} rx={4} fill={us ? LEAF_RED : LEAF_BLUE} mask={mask} />
-            {label && (
+            {fittedLabel && (
                 <>
                     {/* The plate clips the name to itself, so the text can never exceed it. */}
                     <ClipPath id={`plate-${index}`}>
-                        <Rect x={rect.x + 16} y={centerY - 12} width={rect.width - 32} height={24} rx={4} />
+                        <Rect x={plateX} y={plateY} width={plateWidth} height={24} rx={4} />
                     </ClipPath>
                     <Rect
-                        x={rect.x + 16}
-                        y={centerY - 12}
-                        width={rect.width - 32}
+                        x={plateX}
+                        y={plateY}
+                        width={plateWidth}
                         height={24}
                         fill={Colors.blue[50]}
                         clipPath={`url(#clip-${index})`}
@@ -72,7 +77,7 @@ function Tile({ rect, index, label }: { rect: TreemapRect; index: number; label:
                         clipPath={`url(#plate-${index})`}
                         fontFamily={Fonts.family}
                     >
-                        {label}
+                        {fittedLabel}
                     </Text>
                 </>
             )}

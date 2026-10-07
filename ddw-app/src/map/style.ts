@@ -64,6 +64,9 @@ export const mapStyle: StyleSpecification = {
             type: 'line',
             source: 'composite',
             'source-layer': 'water',
+            // The water source is mostly polygons; only real lines render here
+            // (the fill's outline colour already traces the shores).
+            filter: ['==', '$type', 'LineString'],
             layout: {
                 'line-cap': 'round',
                 'line-join': 'round',
@@ -96,6 +99,9 @@ export const mapStyle: StyleSpecification = {
             type: 'line',
             source: 'composite',
             'source-layer': 'admin',
+            // The admin source mixes lines and polygons; render only the
+            // boundaries, skipping polygons that would be invalid geometry.
+            filter: ['==', '$type', 'LineString'],
             layout: {
                 'line-cap': 'round',
                 'line-join': 'round',
