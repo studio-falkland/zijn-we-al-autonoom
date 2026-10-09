@@ -1,11 +1,11 @@
 {
     "expo": {
-        "name": "ddw-app",
-        "slug": "ddw-app",
+        "name": "Zijn we al autonoom? DDW",
+        "slug": "ZWAA DDW",
         "version": "1.0.0",
         "orientation": "landscape",
         "icon": "./assets/images/icon.png",
-        "scheme": "ddwapp",
+        "scheme": "zwaa-ddw-app",
         "userInterfaceStyle": "light",
         "ios": {
             "icon": "./assets/expo.icon",
