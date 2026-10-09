@@ -12,14 +12,15 @@ export type GeneratedCard = {
 // Print pipeline status for the kiosk loop.
 export type PrintStatus = 'idle' | 'printing' | 'done' | 'error';
 
-// The visitor's location; just the zipcode for now, extensible later.
+// The visitor's location: their postcode plus the tapped point it came from.
 export type Location = {
-    zipcode: string;
+    postcode: string;
+    center: [number, number]; // [longitude, latitude] of the chosen point
 };
 
 // Session state and actions for a single visitor.
 export type SessionState = {
-    // The visitor's location (Phase 0: zipcode; map/search replaces this in Phase 1).
+    // The visitor's location, chosen in the gather section's first step.
     location: Location | null;
     selectedServices: Organisation[];
     generatedCard: GeneratedCard | null;

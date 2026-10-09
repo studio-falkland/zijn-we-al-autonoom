@@ -79,6 +79,14 @@ export const Shadows = StyleSheet.create({
         shadowOpacity: 1,
         elevation: 4,
     },
+    // The website's smaller hard shadow, used on inputs.
+    boxSmall: {
+        shadowColor: '#0000A1',
+        shadowOffset: { width: 2, height: 2 },
+        shadowRadius: 0,
+        shadowOpacity: 1,
+        elevation: 2,
+    },
     boxRed: {
         shadowColor: Colors.red,
         shadowOffset: { width: 4, height: 4 },

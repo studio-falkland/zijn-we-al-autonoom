@@ -106,7 +106,9 @@ export default function MapScreen() {
             if (!org) return;
 
             toggleService(org);
-            if (!location && org.postcode) setLocation({ zipcode: org.postcode });
+            if (!location && org.postcode && org.lng != null && org.lat != null) {
+                setLocation({ postcode: org.postcode, center: [org.lng, org.lat] });
+            }
         },
         [organisations, location, setLocation, toggleService],
     );

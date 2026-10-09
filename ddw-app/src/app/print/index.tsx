@@ -39,7 +39,7 @@ export default function PrintScreen() {
                     setError('Geen meetgegevens voor deze selectie.');
                     return;
                 }
-                const place = await getPlaceName(location?.zipcode ?? '');
+                const place = await getPlaceName(location?.postcode ?? '');
                 if (cancelled) return;
                 const { uri } = await generateCardPdf(frequencies, { place });
                 if (cancelled) return;

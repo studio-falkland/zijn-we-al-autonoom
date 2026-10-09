@@ -26,7 +26,7 @@ export default function GenerateScreen() {
         getDependencyFrequencies(selected).then((result) => {
             if (!cancelled) setFrequencies(result);
         });
-        getPlaceName(location?.zipcode ?? '').then((result) => {
+        getPlaceName(location?.postcode ?? '').then((result) => {
             if (!cancelled) setPlace(result);
         });
         return () => {
