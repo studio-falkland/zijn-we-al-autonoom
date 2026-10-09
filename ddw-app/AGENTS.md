@@ -117,3 +117,6 @@ This app runs on an iPad built into an installation at Dutch Design Week. The in
 - **Split code into code blocks of at most 4–7 lines.** Every code block starts with a comment explaining what is happening there.
 - **Do not build libraries, shims, helpers, or abstraction layers unless absolutely necessary.** Use dependencies as documented — e.g. TypeORM's react-native driver connects straight to expo-sqlite. Add glue code only when the documented path provably fails.
 - **Prefer the typed query API.** Use object-based query criteria (`repository.find({ where: {...} })`) and the standard query builder. Raw SQL strings in `.where(...)` are a last resort — only when the normal API cannot express the query.
+- **Never touch files that are irrelevant to your plan.** Keep every change scoped to the task at hand.
+- **Use 4-space indentation everywhere.** No tabs; no 2-space indentation.
+- **Always append `--pnpm` to `expo install` commands** — e.g. `pnpm expo:install --pnpm expo-image`.

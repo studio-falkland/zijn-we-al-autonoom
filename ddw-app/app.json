@@ -33,7 +33,9 @@
             [
                 "expo-asset",
                 {
-                    "assets": ["../data/db/are-we-dependent.db"]
+                    "assets": [
+                        "../data/db/are-we-dependent.db"
+                    ]
                 }
             ],
             [
@@ -52,7 +54,8 @@
                     "image": "./assets/images/splash-icon.png",
                     "imageWidth": 76
                 }
-            ]
+            ],
+            "expo-image"
         ],
         "experiments": {
             "typedRoutes": true,
