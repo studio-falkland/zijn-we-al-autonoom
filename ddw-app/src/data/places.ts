@@ -7,15 +7,93 @@
 // the domain knowledge the OpenAPI spec does not describe.
 import { free, lookup, reverseGeocoder, useFree, type ResponseDocsItem } from './pdok/generated';
 
-// The subset of a PDOK result document this app reads.
-// The spec types every result as `{ [key: string]: unknown }`, so the fields we
-// actually rely on are spelled out here and narrowed at the boundary below.
-type PdokDoc = {
-    id?: string; // stable PDOK object id; the Lookup API fetches by this
-    type?: string; // "gemeente", "postcode", "adres", ...
-    weergavenaam?: string; // human-readable label, e.g. "Gemeente Rotterdam"
-    postcode?: string; // e.g. "1011AB" (no space), on postcode/address results
-    centroide_ll?: string; // centroid as WKT, e.g. "POINT(4.90 52.37)"
+// A PDOK Locatieserver result document.
+//
+// The OpenAPI spec types every result loosely (`{ [key: string]: unknown }`), so
+// the complete field set is spelled out here for discovery and autocompletion.
+// Solr omits fields whose value is null, so every field is optional, and which
+// ones are present depends on the object's `type`:
+//   adres, weg, postcode, woonplaats, gemeente, provincie, waterschap,
+//   perceel, appartementsrecht, hectometerpaal, wijk, buurt.
+// Source: PDOK Locatieserver API (the default `fl` used by lookup/free) plus
+// fields observed in live responses.
+export type PdokDoc = {
+    // --- Identity and classification ---
+    id?: string; // Solr object id, prefixed by type, e.g. "adr-...", "pcd-...", "wsa-..."
+    identificatie?: string; // source registry id, e.g. "0363010000003186_1012JS_3594"
+    weergavenaam?: string; // human-readable label, e.g. "Dam, 1012JS Amsterdam"
+    type?: string; // object type, e.g. "adres", "postcode", "gemeente"
+    subtype?: string; // finer object subtype, where applicable
+    bron?: string; // source: BAG, NWB, BAG/NWB, DKK, Bestuurlijke Grenzen, CBS, HWH
+    adrestype?: string; // "hoofdadres" | "nevenadres"
+    rdf_seealso?: string; // linked-data URI for the object
+
+    // --- Address ---
+    straatnaam?: string;
+    straatnaam_verkort?: string;
+    huisnummer?: number;
+    huisletter?: string;
+    huisnummertoevoeging?: string;
+    huis_nlt?: string; // house number incl. letter/toevoeging, e.g. "5B"
+    postcode?: string; // e.g. "1012JS" (no space)
+
+    // --- Street / road (BAG openbare ruimte + NWB) ---
+    openbareruimte_id?: string;
+    openbareruimtetype?: string; // e.g. "Weg"
+    nwb_id?: string; // Nationaal Wegen Bestand id
+    wegnummer?: string;
+    hectometernummer?: number;
+    hectometerletter?: string;
+    zijde?: string;
+
+    // --- Administrative areas ---
+    buurtnaam?: string;
+    buurtcode?: string;
+    wijknaam?: string;
+    wijkcode?: string;
+    woonplaatsnaam?: string;
+    woonplaatscode?: string;
+    gemeentenaam?: string; // municipality, e.g. "Amsterdam"
+    gemeentecode?: string; // CBS municipality code, e.g. "0363"
+    provincienaam?: string; // province, e.g. "Noord-Holland"
+    provinciecode?: string; // CBS province code, e.g. "PV27"
+    provincieafkorting?: string; // e.g. "NH"
+    waterschapsnaam?: string; // e.g. "Waterschap Amstel, Gooi en Vecht"
+    waterschapscode?: string; // e.g. "11"
+
+    // --- Kadaster (parcel / apartment) ---
+    kadastraal_object_id?: string;
+    kadastrale_gemeentecode?: string; // e.g. "ALD00"
+    kadastrale_gemeentenaam?: string;
+    kadastrale_sectie?: string; // e.g. "A"
+    perceelnummer?: number;
+    kadastrale_grootte?: number; // area in m²
+    kadastrale_aanduiding?: string[]; // e.g. ["Aarlanderveen A 1", "ALD00 A 1"]
+    gekoppeld_perceel?: string[]; // e.g. ["ASD05-G-7855"]
+    gekoppeld_appartement?: string[]; // e.g. ["ASD05-G-9407-A-38"]
+    volgnummer?: number;
+
+    // --- BAG object references ---
+    adresseerbaarobject_id?: string;
+    nummeraanduiding_id?: string;
+
+    // --- Geometry (WKT) ---
+    centroide_ll?: string; // WGS84 centroid, e.g. "POINT(4.90 52.37)"
+    centroide_rd?: string; // RD (EPSG:28992) centroid, e.g. "POINT(121420 487340)"
+    geometrie_ll?: string; // WGS84 geometry; only with `fl=*` or explicit request
+    geometrie_rd?: string; // RD geometry; only with `fl=*` or explicit request
+    boundingbox_ll?: string; // WGS84 bounding box
+    boundingbox_rd?: string; // RD bounding box
+
+    // --- Search / index metadata ---
+    score?: number; // Solr relevance score; not returned with `fl=*` unless `fl=*,score`
+    sortering?: number;
+    typesortering?: number;
+    suggest?: string[]; // autocomplete variants
+    afstand?: number; // distance in metres, on reverse results
+    shard?: string;
+    shards?: string;
+    _version_?: number; // Solr internal document version
 };
 
 // One place the search box can offer, and that the map can fly to.
@@ -95,12 +173,16 @@ export function usePlaceSearch(query: string) {
     return { places, isLoading, error };
 }
 
-// The postcode at a coordinate — the value behind "where do you live?".
-// This is a two-step PDOK lookup: `reverse` finds the nearest postcode object to
-// the point but only exposes the postcode inside its display name, so `lookup`
-// then fetches that same object by id to read the clean `postcode` field.
-// Returns null when the point has no postcode or a request fails.
-export async function reversePostcode(lng: number, lat: number): Promise<string | null> {
+// The PDOK fields the app reads once a location is resolved.
+const PLACE_FIELDS =
+    'id type weergavenaam postcode gemeentenaam gemeentecode provincienaam provinciecode centroide_ll centroide_rd';
+
+// The postcode-area document at a coordinate — the value behind "where do you
+// live?". A two-step PDOK lookup: `reverse` finds the nearest postcode object to
+// the point, then `lookup` fetches that same object by id with the fields we read
+// (the reverse envelope omits some of them, e.g. the clean `postcode`).
+// Returns null when the point has no postcode object or a request fails.
+export async function reversePlace(lng: number, lat: number): Promise<PdokDoc | null> {
     // Step 1: nearest postcode object to the tapped point (lon/lat in WGS84).
     const reverse = await reverseGeocoder({ lon: lng, lat, type: 'postcode', rows: 1 });
     if (reverse.status !== 200) return null;
@@ -109,9 +191,20 @@ export async function reversePostcode(lng: number, lat: number): Promise<string 
     const id = (reverse.data.response?.docs ?? []).map(asPdokDoc)[0]?.id;
     if (!id) return null;
 
-    // Step 2: resolve the object to its clean `postcode` field.
-    const detail = await lookup({ id, fl: 'postcode' });
+    // Step 2: resolve the object to the fields we read, including both centroids.
+    const detail = await lookup({ id, fl: PLACE_FIELDS });
     if (detail.status !== 200) return null;
 
-    return (detail.data.response?.docs ?? []).map(asPdokDoc)[0]?.postcode ?? null;
+    return (detail.data.response?.docs ?? []).map(asPdokDoc)[0] ?? null;
+}
+
+// The waterschap (water authority) that covers a coordinate.
+// Unlike the postcode, the reverse geocoder returns the waterschap polygon and
+// its name directly, so one `reverse` call is enough — no `lookup` follow-up.
+// Returns null when the point has no waterschap or a request fails.
+export async function reverseWaterschap(lng: number, lat: number): Promise<string | null> {
+    const reverse = await reverseGeocoder({ lon: lng, lat, type: 'waterschap', rows: 1 });
+    if (reverse.status !== 200) return null;
+
+    return (reverse.data.response?.docs ?? []).map(asPdokDoc)[0]?.waterschapsnaam ?? null;
 }

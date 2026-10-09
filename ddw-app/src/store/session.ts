@@ -4,6 +4,9 @@
 import type { Organisation } from '@are-we-dependent/data';
 import { create } from 'zustand';
 
+import type { PdokDoc } from '@/data/places';
+import { resolveUtilities, type Utilities } from '@/data/utilities';
+
 // The generated A7 card, including the on-device PDF path.
 export type GeneratedCard = {
     pdfUri: string;
@@ -12,20 +15,26 @@ export type GeneratedCard = {
 // Print pipeline status for the kiosk loop.
 export type PrintStatus = 'idle' | 'printing' | 'done' | 'error';
 
-// The visitor's location: their postcode plus the tapped point it came from.
+// The visitor's location: the postcode, the tapped point (for the map marker)
+// and the full PDOK document. The document's centroids drive the utility
+// lookups, so it is stored alongside the postcode.
 export type Location = {
     postcode: string;
     center: [number, number]; // [longitude, latitude] of the chosen point
+    pdok?: PdokDoc;
 };
 
 // Session state and actions for a single visitor.
 export type SessionState = {
     // The visitor's location, chosen in the gather section's first step.
     location: Location | null;
+    // The utility providers serving the location, resolved from the PDOK document.
+    utilities: Utilities | null;
     selectedServices: Organisation[];
     generatedCard: GeneratedCard | null;
     printStatus: PrintStatus;
     setLocation(location: Location): void;
+    setUtilities(utilities: Utilities | null): void;
     toggleService(service: Organisation): void;
     setGeneratedCard(card: GeneratedCard): void;
     setPrintStatus(status: PrintStatus): void;
@@ -33,14 +42,29 @@ export type SessionState = {
 };
 
 // The single source of truth for the visitor session.
-export const useSessionStore = create<SessionState>()((set) => ({
+export const useSessionStore = create<SessionState>()((set, get) => ({
     location: null,
+    utilities: null,
     selectedServices: [],
     generatedCard: null,
     printStatus: 'idle',
 
-    // Record the visitor's location.
-    setLocation: (location) => set({ location }),
+    // Record the visitor's location and resolve its utility providers. Without a
+    // PDOK document there is nothing to resolve against, so utilities stay null.
+    setLocation: (location) => {
+        set({ location, utilities: null });
+        if (!location.pdok) return;
+
+        resolveUtilities(location.pdok)
+            .then((utilities) => {
+                // Ignore a resolution whose location has since been replaced.
+                if (get().location === location) set({ utilities });
+            })
+            .catch((error) => console.error('Failed to resolve utilities', error));
+    },
+
+    // Record the resolved providers directly.
+    setUtilities: (utilities) => set({ utilities }),
 
     // Toggle a service in or out of the selection, keyed by slug.
     toggleService: (service) =>
@@ -57,5 +81,12 @@ export const useSessionStore = create<SessionState>()((set) => ({
     setPrintStatus: (printStatus) => set({ printStatus }),
 
     // Explicit end-of-flow action: clear the session for the next visitor.
-    resetSession: () => set({ location: null, selectedServices: [], generatedCard: null, printStatus: 'idle' }),
+    resetSession: () =>
+        set({
+            location: null,
+            utilities: null,
+            selectedServices: [],
+            generatedCard: null,
+            printStatus: 'idle',
+        }),
 }));

@@ -28,7 +28,7 @@ export default function StartScreen() {
                     <Text style={styles.sub}>
                         Do you want to know how your daily life is influenced by these dependencies?
                     </Text>
-                    <Button label="Start to explore" onPress={() => router.push('/map')} />
+                    <Button label="Start to explore" onPress={() => router.push('/gather')} />
                 </View>
             </View>
         </SafeAreaView>

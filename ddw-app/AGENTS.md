@@ -75,7 +75,7 @@ This app runs on an iPad built into an installation at Dutch Design Week. The in
 
 ## 4. Wizard state — Zustand, in-memory only
 
-- Use a **Zustand** store as the single source of truth for the wizard session: `location`, `selectedServices`, `generatedCard` (including the PDF file path), `printStatus`.
+- Use a **Zustand** store as the single source of truth for the wizard session: `location` (postcode + the PDOK document), `utilities` (netbeerder elektra/gas, drinkwater and waterschap, resolved from the PDOK document), `selectedServices`, `generatedCard` (including the PDF file path), `printStatus`.
 - **No persistence.** Kiosk restarts begin a fresh wizard; do not store session state in sqlite/TypeORM (content data — services, coordinates — still comes from the existing data layer).
 - Reset the session when the card is printed, so the kiosk is ready for the next visitor.
 
@@ -104,6 +104,7 @@ This app runs on an iPad built into an installation at Dutch Design Week. The in
 
 **Phase 4 — Nice-to-haves (only if time permits)**
 - Offline tiles: MBTiles bundling + runtime tile cache.
+- **Offline utility lookup**: the netbeerder elektra/gas and drinkwater areas (Stichting Mijn Aansluiting "Netbeheergebieden" WFS) and the waterschap (PDOK reverse) are resolved over the network at runtime. For a wifi-independent kiosk, download those polygon layers, simplify them, bundle them with the app, and resolve providers with a local point-in-polygon test instead of the live calls.
 - Idle timeout / auto-reset.
 - Additional error/UX polish.
 
