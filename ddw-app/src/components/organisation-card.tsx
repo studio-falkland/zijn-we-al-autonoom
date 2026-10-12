@@ -87,12 +87,15 @@ export function OrganisationCard({
     organisation,
     onDelete,
     size = 'medium',
+    muted = false,
 }: {
     organisation: SelectedService;
     /** When given, shows the trash control and calls this to remove the card. */
     onDelete?: () => void;
     /** Card scale. */
     size?: OrganisationCardSize;
+    /** Dims the whole card, e.g. once it has been chosen and shown elsewhere. */
+    muted?: boolean;
 }) {
     const sector = organisation.classifications?.[0]?.sector;
     const sectorLabel = useSectorLabel();
@@ -100,7 +103,7 @@ export function OrganisationCard({
     const trash = Math.round(metrics.remove * 0.6);
 
     return (
-        <CardContainer style={metrics.card}>
+        <CardContainer style={[metrics.card, muted && styles.muted]}>
             <CardHeader>
                 <CardTitle numberOfLines={2} style={metrics.title}>
                     {organisation.name}
@@ -135,6 +138,9 @@ export function OrganisationCard({
 }
 
 const styles = StyleSheet.create({
+    muted: {
+        opacity: 0.4,
+    },
     remove: {
         alignItems: 'center',
         backgroundColor: Colors.white,

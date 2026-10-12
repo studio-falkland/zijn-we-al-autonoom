@@ -1,8 +1,9 @@
 // Map-facing query: every active local organisation with coordinates.
 import { Category, GovernmentSector, Organisation, Region } from '@are-we-dependent/data';
-import { Between, IsNull, Not } from 'typeorm';
+import { Between, In, IsNull, Not } from 'typeorm';
 
 import { db, ensureDb } from './db';
+import { GOVERNMENT_SERVICE_SLUGS } from './government-services';
 
 // All local organisations that can be pinned to the map, coordinates only.
 // Sector is loaded so the map can prioritise some providers' labels.
@@ -110,6 +111,21 @@ export async function getCategoryOrganisations(
         ((organisation.lat ?? lat) - lat) ** 2 + ((organisation.lng ?? lng) - lng) ** 2;
 
     return organisations.sort((a, b) => distance(a) - distance(b)).slice(0, CATEGORY_LIMIT);
+}
+
+// The predefined national government services, as stored rows. Membership and
+// order come from the constant; the names and classifications from the rows.
+export async function getGovernmentServices(): Promise<Organisation[]> {
+    await ensureDb();
+
+    const organisations = await db.getRepository(Organisation).find({
+        where: { active: true, slug: In(GOVERNMENT_SERVICE_SLUGS) },
+        relations: { classifications: true },
+    });
+
+    // Order the rows back into the constant's order, so the grid is stable.
+    const order = new Map(GOVERNMENT_SERVICE_SLUGS.map((slug, index) => [slug, index]));
+    return organisations.sort((a, b) => (order.get(a.slug) ?? 0) - (order.get(b.slug) ?? 0));
 }
 
 // Resolve the visitor's municipality and water authority. Both names come from

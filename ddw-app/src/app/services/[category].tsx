@@ -107,12 +107,12 @@ export default function CategoryScreen() {
         if (place.center) cameraRef.current?.flyTo({ center: place.center, zoom: 13, duration: 500 });
     }, []);
 
-    // Advance to the next category, or to the card once past the last one.
+    // Advance to the next category, then the national services, then the card.
     const handleAdvance = useCallback(() => {
         if (!current) return;
         const next = nextCategory(current.key);
         if (next) router.push({ pathname: '/services/[category]', params: { category: next } });
-        else router.push('/generate');
+        else router.push('/services/government');
     }, [current]);
 
     if (!current) return null;

@@ -55,6 +55,8 @@ export const nl = {
         finding: 'We zoeken je leveranciers…',
         explainer: 'Waar je woont bepaalt welke dienstverleners je gebruikt.',
         selectOnMap: 'Selecteer ze op de kaart.',
+        governmentQuestion: 'Gebruik je een van deze landelijke diensten?',
+        governmentBody: 'Selecteer ze hieronder.',
         skip: 'Ik gebruik er geen',
     },
 
@@ -209,6 +211,8 @@ export const en: Messages = {
         finding: 'Finding your providers…',
         explainer: "Where you live decides which service providers you're using.",
         selectOnMap: 'Select them on the map.',
+        governmentQuestion: 'Do you use any of these national services?',
+        governmentBody: 'Select them below.',
         skip: "I don't use any",
     },
 
