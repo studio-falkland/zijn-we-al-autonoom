@@ -3,6 +3,12 @@
 
 import { create } from 'zustand';
 
+import {
+    getDependencyFrequencies,
+    getServiceProviders,
+    type MeasurementFrequency,
+    type ServiceProviders,
+} from '@/data/dependencies';
 import type { PdokDoc } from '@/data/places';
 import type { SelectedService } from '@/data/services';
 import { resolveUtilities, type Utilities } from '@/data/utilities';
@@ -25,6 +31,29 @@ export type Location = {
     pdok?: PdokDoc;
 };
 
+// The derived card data: the per-service providers, their combined frequencies,
+// the visitor's place and the on-device PDF. Computed in the background so the
+// reveal, fuse and outro screens never wait on it.
+export type CardData = {
+    key: string;
+    providers: ServiceProviders[];
+    frequencies: MeasurementFrequency[];
+    place: string | null;
+};
+
+// The background card computation's state.
+export type CardStatus = 'idle' | 'loading' | 'ready' | 'error';
+
+// The signature of the inputs a CardData was computed from, so a screen only
+// trusts data that matches the current selection and location.
+export function cardKey(services: SelectedService[], location: Location | null): string {
+    const slugs = services.map((service) => service.slug).sort().join(',');
+    return `${slugs}|${location?.postcode ?? ''}`;
+}
+
+// The newest background run; earlier runs bail so their results never land.
+let latestRequest = 0;
+
 // Session state and actions for a single visitor.
 export type SessionState = {
     // The visitor's chosen UI language, picked on the start screen.
@@ -34,6 +63,9 @@ export type SessionState = {
     // The utility providers serving the location, resolved from the PDOK document.
     utilities: Utilities | null;
     selectedServices: SelectedService[];
+    cardData: CardData | null;
+    cardStatus: CardStatus;
+    cardError: string | null;
     generatedCard: GeneratedCard | null;
     printStatus: PrintStatus;
     setLanguage(language: Language): void;
@@ -41,6 +73,7 @@ export type SessionState = {
     setUtilities(utilities: Utilities | null): void;
     toggleService(service: SelectedService): void;
     addServices(services: SelectedService[]): void;
+    refreshCardData(): Promise<void>;
     setGeneratedCard(card: GeneratedCard): void;
     setPrintStatus(status: PrintStatus): void;
     resetSession(): void;
@@ -52,6 +85,9 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
     location: null,
     utilities: null,
     selectedServices: [],
+    cardData: null,
+    cardStatus: 'idle',
+    cardError: null,
     generatedCard: null,
     printStatus: 'idle',
 
@@ -91,6 +127,42 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
             return additions.length > 0 ? { selectedServices: [...state.selectedServices, ...additions] } : {};
         }),
 
+    // Recompute the derived card data in the background: the per-service
+    // providers, the combined frequencies, the place, and the A7 PDF. A stale run
+    // is dropped, and any failure surfaces as an error the screens show.
+    refreshCardData: async () => {
+        const { selectedServices, location } = get();
+        const key = cardKey(selectedServices, location);
+        const token = ++latestRequest;
+        set({ cardStatus: 'loading', cardError: null });
+
+        try {
+            const [providers, frequencies] = await Promise.all([
+                getServiceProviders(selectedServices),
+                getDependencyFrequencies(selectedServices),
+            ]);
+            // The place comes straight from the PDOK document held in the session.
+            const place = location?.pdok?.woonplaatsnaam ?? location?.pdok?.gemeentenaam ?? null;
+            if (frequencies.length === 0) throw new Error('Geen meetgegevens voor deze selectie.');
+            // The print document pulls in the embedded fonts, so load it lazily.
+            const { generateCardPdf } = await import('@/card/generate');
+            const { uri } = await generateCardPdf(frequencies, { place });
+            if (token !== latestRequest) return;
+            set({
+                cardData: { key, providers, frequencies, place },
+                cardStatus: 'ready',
+                generatedCard: { pdfUri: uri },
+                printStatus: 'done',
+            });
+        } catch (error) {
+            if (token !== latestRequest) return;
+            set({
+                cardStatus: 'error',
+                cardError: error instanceof Error ? error.message : 'De kaart kon niet worden gemaakt.',
+            });
+        }
+    },
+
     // Store the generated card once the PDF exists on device.
     setGeneratedCard: (generatedCard) => set({ generatedCard }),
 
@@ -99,13 +171,18 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
 
     // Explicit end-of-flow action: clear the session for the next visitor.
     // The language resets too, so the next visitor picks their own on the start.
-    resetSession: () =>
+    resetSession: () => {
+        latestRequest += 1;
         set({
             language: DEFAULT_LANGUAGE,
             location: null,
             utilities: null,
             selectedServices: [],
+            cardData: null,
+            cardStatus: 'idle',
+            cardError: null,
             generatedCard: null,
             printStatus: 'idle',
-        }),
+        });
+    },
 }));

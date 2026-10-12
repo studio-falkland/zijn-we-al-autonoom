@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
 
 import { Button } from '@/components/button';
+import { MOSAIC_INSET } from '@/components/card/mosaic-card';
 import { fanLayout } from '@/components/fan-layout';
 import { CARD_DIMENSIONS } from '@/components/organisation-card';
 import { RECOLOR_DURATION } from '@/components/treemap/mosaic';
@@ -15,7 +16,7 @@ import { isUSFrequency } from '@/components/treemap/patternDefs';
 import type { ServiceProviders } from '@/data/dependencies';
 import { buildTreemapLayout } from '@/treemap/layout';
 import { Spacing, Theme, Type } from '@/theme/tokens';
-import { MOSAIC_SIZE, RevealCard, type RevealPosition } from './reveal-card';
+import { RevealCard, type RevealPosition } from './reveal-card';
 
 // Card metrics, kept in step with the reveal card's own box.
 const CARD = CARD_DIMENSIONS.medium;
@@ -117,7 +118,6 @@ export function RevealStage({ cards, onContinue }: { cards: ServiceProviders[]; 
                         <RevealCard
                             key={card.service.slug}
                             card={card}
-                            rects={plan.cards[index].rects}
                             tileOrder={plan.cards[index].tileOrder}
                             flipped={index < flipped}
                             revealedUS={revealedUS}
@@ -169,9 +169,9 @@ function planReveal(cards: ServiceProviders[], screen: { width: number; height: 
     // A running counter hands each US tile its slot in the blue-to-red sequence.
     let usCount = 0;
     const laid = cards.map((card) => {
-        const rects = buildTreemapLayout(card.frequencies, MOSAIC_SIZE.width, MOSAIC_SIZE.height);
+        const rects = buildTreemapLayout(card.frequencies, CARD.width - MOSAIC_INSET, CARD.height - MOSAIC_INSET);
         const tileOrder = rects.map((rect) => (isUSFrequency(rect.frequency) ? usCount++ : null));
-        return { rects, tileOrder };
+        return { tileOrder };
     });
     const positions = slotsFor(cards.length, screen, stageArea);
     return { cards: laid, usCount, positions };

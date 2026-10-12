@@ -1,0 +1,72 @@
+// Fuse screen: the gathered service cards merge into the single personal A7 card.
+// The card and its PDF are prepared in the background; the interim AirPrint button
+// lives alongside the continue action until automatic printing (Phase 3) lands.
+
+import { router } from 'expo-router';
+import * as Print from 'expo-print';
+import { useCallback, useState } from 'react';
+import { StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { FailureState } from '@/components/failure-state';
+import { FuseStage } from '@/components/fuse/fuse-stage';
+import { cardKey, useSessionStore } from '@/store/session';
+import { Theme } from '@/theme/tokens';
+
+export default function FuseScreen() {
+    const selected = useSessionStore((state) => state.selectedServices);
+    const location = useSessionStore((state) => state.location);
+    const cardData = useSessionStore((state) => state.cardData);
+    const cardStatus = useSessionStore((state) => state.cardStatus);
+    const cardError = useSessionStore((state) => state.cardError);
+    const generatedCard = useSessionStore((state) => state.generatedCard);
+    const refreshCardData = useSessionStore((state) => state.refreshCardData);
+    const [printing, setPrinting] = useState(false);
+    const [printError, setPrintError] = useState<string | null>(null);
+
+    // Interim path: send the PDF to AirPrint with a confirm-tap dialog.
+    const handlePrint = useCallback(async () => {
+        if (!generatedCard) return;
+        setPrinting(true);
+        setPrintError(null);
+        try {
+            await Print.printAsync({ uri: generatedCard.pdfUri });
+        } catch (failure) {
+            setPrintError(failure instanceof Error ? failure.message : 'Printen is mislukt.');
+        } finally {
+            setPrinting(false);
+        }
+    }, [generatedCard]);
+
+    // On to the outro, which closes the kiosk loop for the next visitor.
+    const handleContinue = useCallback(() => router.push('/outro'), []);
+
+    // Only trust data computed for the current selection and location.
+    const ready = cardData !== null && cardData.key === cardKey(selected, location);
+
+    return (
+        <SafeAreaView style={styles.screen}>
+            {cardStatus === 'error' ? (
+                <FailureState message={cardError} onRetry={refreshCardData} />
+            ) : cardData && ready ? (
+                <FuseStage
+                    cards={cardData.providers}
+                    frequencies={cardData.frequencies}
+                    place={cardData.place}
+                    printing={printing}
+                    printed={generatedCard !== null}
+                    error={printError}
+                    onPrint={handlePrint}
+                    onContinue={handleContinue}
+                />
+            ) : null}
+        </SafeAreaView>
+    );
+}
+
+const styles = StyleSheet.create({
+    screen: {
+        backgroundColor: Theme.background,
+        flex: 1,
+    },
+});

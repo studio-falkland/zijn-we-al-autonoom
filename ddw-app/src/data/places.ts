@@ -175,7 +175,7 @@ export function usePlaceSearch(query: string) {
 
 // The PDOK fields the app reads once a location is resolved.
 const PLACE_FIELDS =
-    'id type weergavenaam postcode gemeentenaam gemeentecode provincienaam provinciecode centroide_ll centroide_rd';
+    'id type weergavenaam postcode woonplaatsnaam gemeentenaam gemeentecode provincienaam provinciecode centroide_ll centroide_rd';
 
 // The postcode-area document at a coordinate — the value behind "where do you
 // live?". A two-step PDOK lookup: `reverse` finds the nearest postcode object to
