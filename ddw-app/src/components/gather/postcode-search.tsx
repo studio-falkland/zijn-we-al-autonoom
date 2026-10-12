@@ -26,8 +26,8 @@ const DEBOUNCE_MS = 250;
 function SearchIcon() {
     return (
         <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-            <Circle cx={11} cy={11} r={8} stroke={Colors.blue[900]} strokeWidth={2} />
-            <Line x1={21} y1={21} x2={16.65} y2={16.65} stroke={Colors.blue[900]} strokeWidth={2} strokeLinecap="round" />
+            <Circle cx={11} cy={11} r={8} stroke={Colors.blue[800]} strokeWidth={2} />
+            <Line x1={21} y1={21} x2={16.65} y2={16.65} stroke={Colors.blue[800]} strokeWidth={2} strokeLinecap="round" />
         </Svg>
     );
 }

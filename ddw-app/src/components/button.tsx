@@ -3,15 +3,31 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { Colors, Radii, Spacing, Type } from '@/theme/tokens';
 
-// A full-width kiosk button; disabled state for blocked steps.
-export function Button({ label, onPress, disabled }: { label: string; onPress: () => void; disabled?: boolean }) {
+// A full-width kiosk button; disabled state for blocked steps. `size="small"`
+// tightens the label and padding for compact panels.
+export function Button({
+    label,
+    onPress,
+    disabled,
+    size = 'medium',
+}: {
+    label: string;
+    onPress: () => void;
+    disabled?: boolean;
+    size?: 'medium' | 'small';
+}) {
     return (
         <Pressable
             onPress={onPress}
             disabled={disabled}
-            style={({ pressed }) => [styles.button, pressed && styles.pressed, disabled && styles.disabled]}
+            style={({ pressed }) => [
+                styles.button,
+                size === 'small' && styles.buttonSmall,
+                pressed && styles.pressed,
+                disabled && styles.disabled,
+            ]}
         >
-            <Text style={styles.label}>{label}</Text>
+            <Text style={[styles.label, size === 'small' && styles.labelSmall]}>{label}</Text>
         </Pressable>
     );
 }
@@ -22,6 +38,9 @@ const styles = StyleSheet.create({
         paddingVertical: Spacing.md,
         paddingHorizontal: Spacing.lg,
         borderRadius: Radii.lg,
+    },
+    buttonSmall: {
+        paddingVertical: Spacing.sm,
     },
     pressed: {
         backgroundColor: Colors.blue[800],
@@ -34,6 +53,10 @@ const styles = StyleSheet.create({
         color: Colors.white,
         textAlign: 'center',
         fontWeight: 400,
+    },
+    labelSmall: {
+        fontSize: 20,
+        lineHeight: 20,
     },
     labelDisabled: {
         color: Colors.grey[200],

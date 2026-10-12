@@ -14,12 +14,12 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     {
         key: 'education',
         category: Category.Education,
-        question: 'Do you or your family members use any educational facility?',
+        question: 'Does one of your family members go to one of these educational facilities?',
     },
     {
         key: 'healthcare',
         category: Category.Healthcare,
-        question: 'Do you or your family members use any healthcare provider?',
+        question: 'Do you or your family members use any of these healthcare providers?',
     },
 ];
 

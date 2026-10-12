@@ -4,10 +4,11 @@
 // dependency instance of its AS organisation — the web app's per-dataset
 // semantics, but with both hosting dimensions combined into one card.
 
-import { DestinationDataset, Measurement, Organisation, URL } from '@are-we-dependent/data';
+import { DestinationDataset, Measurement, URL } from '@are-we-dependent/data';
 import { In } from 'typeorm';
 
 import { db, ensureDb } from './db';
+import type { SelectedService } from './services';
 
 // One treemap leaf: an AS organisation (or "Onbekend") and its share.
 export type MeasurementFrequency = {
@@ -26,7 +27,7 @@ const DEPENDENCY_TYPES = [DestinationDataset.WebhostingAS, DestinationDataset.Em
 
 // The share of hosted URLs per AS organisation for the selected services.
 export async function getDependencyFrequencies(
-    services: Organisation[],
+    services: SelectedService[],
 ): Promise<MeasurementFrequency[]> {
     await ensureDb();
     const slugs = services.map((service) => service.slug);

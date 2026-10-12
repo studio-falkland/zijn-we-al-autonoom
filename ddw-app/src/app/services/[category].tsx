@@ -8,20 +8,19 @@ import type { Organisation } from '@are-we-dependent/data';
 import { GeoJSONSource, Layer, type CameraRef } from '@maplibre/maplibre-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
+import { FannedCards } from '@/components/fanned-cards';
 import { BaseMap, NL_BOUNDS } from '@/components/gather/base-map';
-import { MapPanel } from '@/components/gather/map-panel';
 import { PostcodeSearch } from '@/components/gather/postcode-search';
-import { OrganisationCard } from '@/components/organisation-card';
-import { RESTART_BUTTON_GUTTER } from '@/components/restart-button';
+import { CARD_DIMENSIONS } from '@/components/organisation-card';
 import { findCategory, nextCategory } from '@/data/categories';
 import { getCategoryOrganisations } from '@/data/organisations';
 import { type PlaceSuggestion } from '@/data/places';
 import { useSessionStore } from '@/store/session';
-import { Colors, Spacing, Theme, Type } from '@/theme/tokens';
+import { Colors, Radii, Shadows, Spacing, Theme, Type } from '@/theme/tokens';
 
 // Providers become GeoJSON points; each carries the icon its button needs.
 function toFeatures(organisations: Organisation[], selectedSlugs: Set<string>): GeoJSON.FeatureCollection {
@@ -48,6 +47,10 @@ function focusBounds(center: [number, number] | undefined): [number, number, num
     const span = 0.02;
     return [lng - span, lat - span, lng + span, lat + span];
 }
+
+// How far the hand sinks past the bottom edge, so the cards' lower third is cut
+// off. Smaller sinks the hand less (higher); larger sinks it further.
+const FAN_SINK = CARD_DIMENSIONS.medium.height / 5;
 
 export default function CategoryScreen() {
     const { category } = useLocalSearchParams<{ category: string }>();
@@ -86,23 +89,6 @@ export default function CategoryScreen() {
         [selected, current],
     );
 
-    // Bring a newly added card into view: flag the growth, then scroll once the
-    // list has relaid out (content size changes after the state commits).
-    const deckRef = useRef<ScrollView>(null);
-    const grewOnNextLayout = useRef(false);
-    const previousCount = useRef(selected.length);
-
-    useEffect(() => {
-        if (selected.length > previousCount.current) grewOnNextLayout.current = true;
-        previousCount.current = selected.length;
-    }, [selected.length]);
-
-    const handleContentSizeChange = useCallback(() => {
-        if (!grewOnNextLayout.current) return;
-        grewOnNextLayout.current = false;
-        deckRef.current?.scrollToEnd({ animated: true });
-    }, []);
-
     // Tapping a provider toggles it in or out of the selection.
     const handlePress = useCallback(
         (event: { nativeEvent: { features: GeoJSON.Feature[] } }) => {
@@ -131,64 +117,49 @@ export default function CategoryScreen() {
 
     return (
         <SafeAreaView style={styles.screen}>
-            <MapPanel
-                map={
-                    <View style={styles.mapWrap}>
-                        <BaseMap cameraRef={cameraRef} bounds={focusBounds(location?.center)}>
-                            {features && (
-                                <GeoJSONSource id="category-providers" data={features} onPress={handlePress}>
-                                    {/* Each provider is a navy name button, solid once selected. */}
-                                    <Layer
-                                        id="category-provider-button"
-                                        type="symbol"
-                                        minzoom={10}
-                                        layout={{
-                                            'icon-image': ['get', 'icon'],
-                                            'icon-allow-overlap': true,
-                                            'icon-text-fit': 'both',
-                                            'icon-text-fit-padding': [6, 10, 6, 10],
-                                            'text-field': ['get', 'name'],
-                                            'text-font': ['DIN Pro Regular'],
-                                            'text-size': 14,
-                                            'text-anchor': 'center',
-                                            'text-padding': 12,
-                                            'text-allow-overlap': false,
-                                        }}
-                                        paint={{ 'text-color': Colors.white }}
-                                    />
-                                </GeoJSONSource>
-                            )}
-                        </BaseMap>
-                        <View style={styles.search}>
-                            <PostcodeSearch onSelect={handleSearchSelect} />
-                        </View>
-                    </View>
-                }
-                panel={
-                    <View style={styles.panel}>
-                        {/* The running selection, as the same cards as the locked-in step. */}
-                        <ScrollView
-                            ref={deckRef}
-                            style={styles.deck}
-                            contentContainerStyle={styles.deckContent}
-                            onContentSizeChange={handleContentSizeChange}
-                        >
-                            {selected.map((service) => (
-                                <OrganisationCard
-                                    key={service.slug}
-                                    organisation={service}
-                                    onDelete={() => toggleService(service)}
-                                />
-                            ))}
-                        </ScrollView>
-                        <View style={styles.footer}>
-                            <Text style={styles.question}>{current.question}</Text>
-                            <Text style={styles.body}>Select them on the map.</Text>
-                            <Button label={picked ? 'Continue' : "Don't use these? Skip"} onPress={handleAdvance} />
-                        </View>
-                    </View>
-                }
-            />
+            {/* The map fills the whole screen; everything else floats over it. */}
+            <BaseMap cameraRef={cameraRef} bounds={focusBounds(location?.center)}>
+                {features && (
+                    <GeoJSONSource id="category-providers" data={features} onPress={handlePress}>
+                        {/* Each provider is a navy name button, solid once selected. */}
+                        <Layer
+                            id="category-provider-button"
+                            type="symbol"
+                            minzoom={10}
+                            layout={{
+                                'icon-image': ['get', 'icon'],
+                                'icon-allow-overlap': true,
+                                'icon-text-fit': 'both',
+                                'icon-text-fit-padding': [6, 10, 6, 10],
+                                'text-field': ['get', 'name'],
+                                'text-font': ['DIN Pro Regular'],
+                                'text-size': 14,
+                                'text-anchor': 'center',
+                                'text-padding': 12,
+                                'text-allow-overlap': false,
+                            }}
+                            paint={{ 'text-color': Colors.white }}
+                        />
+                    </GeoJSONSource>
+                )}
+            </BaseMap>
+            {/* The running selection, fanned across the full width. */}
+            <View style={styles.fan}>
+                <FannedCards organisations={selected} onRemove={(organisation) => toggleService(organisation)} />
+            </View>
+            {/* The right third: the search, over a floating panel. */}
+            <View style={styles.column}>
+                <PostcodeSearch onSelect={handleSearchSelect} />
+                <View style={styles.panel}>
+                    <Text style={styles.question}>{current.question}</Text>
+                    <Text style={styles.body}>Select them on the map.</Text>
+                    <Button
+                        label={picked ? 'Continue' : "I don't use any"}
+                        onPress={handleAdvance}
+                        size="small"
+                    />
+                </View>
+            </View>
         </SafeAreaView>
     );
 }
@@ -198,37 +169,39 @@ const styles = StyleSheet.create({
         backgroundColor: Theme.background,
         flex: 1,
     },
-    mapWrap: {
-        flex: 1,
-        position: 'relative',
-    },
-    search: {
-        left: RESTART_BUTTON_GUTTER,
+    // The right third: the search over the floating panel.
+    column: {
+        gap: Spacing.md,
         position: 'absolute',
         right: Spacing.lg,
-        top: Spacing.md,
+        top: Spacing.lg,
+        width: '33%',
     },
+    // The floating panel: same stroke and shadow as the search field.
     panel: {
-        flex: 1,
+        backgroundColor: Colors.white,
+        borderColor: Colors.blue[800],
+        borderRadius: Radii.md,
+        borderWidth: 1,
         gap: Spacing.lg,
+        padding: Spacing.lg,
+        ...Shadows.boxSmall,
     },
-    deck: {
-        flex: 1,
-    },
-    deckContent: {
-        alignItems: 'center',
-        gap: Spacing.md,
-        paddingBottom: Spacing.lg,
-        paddingHorizontal: Spacing.md,
-        paddingTop: Spacing.xs,
-    },
-    footer: {
-        gap: Spacing.lg,
+    // The hand, across the full width of the screen.
+    fan: {
+        bottom: -FAN_SINK,
+        left: 0,
+        position: 'absolute',
+        right: 0,
     },
     question: {
         ...Type.sub,
+        fontSize: 20,
+        lineHeight: 20,
     },
     body: {
         ...Type.bodyLarge,
+        fontSize: 20,
+        lineHeight: 24,
     },
 });

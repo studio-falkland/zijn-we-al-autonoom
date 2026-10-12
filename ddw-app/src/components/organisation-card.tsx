@@ -3,7 +3,6 @@
 //
 // Used wherever an organisation is listed. It scales through three sizes and can
 // carry a delete control (the trash button) for removable lists.
-import type { Organisation } from '@are-we-dependent/data';
 import { Pressable, StyleSheet, type TextStyle, type ViewStyle } from 'react-native';
 import { Path, Svg } from 'react-native-svg';
 
@@ -11,32 +10,50 @@ import { CardBody, CardIcon, CardPatternedBackground } from '@/components/card/c
 import { CardContainer } from '@/components/card/card-container';
 import { CardHeader, CardSubtitle, CardTitle } from '@/components/card/card-header';
 import { SectorIcon, sectorLabel } from '@/components/sectors';
+import type { SelectedService } from '@/data/services';
 import { Colors, Radii, Spacing, Theme } from '@/theme/tokens';
 
 export type OrganisationCardSize = 'small' | 'medium' | 'large';
 
-// Each size: the card box, the icon that fills its body, the title metrics and
-// the delete control.
+// The card's box per size. Exported so layouts that arrange several cards (like
+// the fan) can measure them without duplicating the numbers.
+export const CARD_DIMENSIONS: Record<OrganisationCardSize, { width: number; height: number }> = {
+    small: { width: 130, height: 200 },
+    medium: { width: 190, height: 300 },
+    large: { width: 250, height: 400 },
+};
+
+// Each size: the card box, the icon that fills its body, the title and subtitle
+// metrics, and the delete control.
 const SIZES: Record<
     OrganisationCardSize,
-    { card: ViewStyle; icon: { width: number; height: number }; title: TextStyle; remove: number }
+    {
+        card: ViewStyle;
+        icon: { width: number; height: number };
+        title: TextStyle;
+        subtitle: TextStyle;
+        remove: number;
+    }
 > = {
     small: {
-        card: { height: 200, width: 130 },
+        card: CARD_DIMENSIONS.small,
         icon: { width: 60, height: 80 },
         title: { fontSize: 16, lineHeight: 15 },
+        subtitle: { fontSize: 12, lineHeight: 15 },
         remove: 24,
     },
     medium: {
-        card: { height: 300, width: 190 },
+        card: CARD_DIMENSIONS.medium,
         icon: { width: 90, height: 120 },
         title: { fontSize: 24, lineHeight: 22 },
+        subtitle: { fontSize: 16, lineHeight: 22 },
         remove: 28,
     },
     large: {
-        card: { height: 400, width: 250 },
+        card: CARD_DIMENSIONS.large,
         icon: { width: 130, height: 170 },
         title: { fontSize: 30, lineHeight: 28 },
+        subtitle: { fontSize: 20, lineHeight: 26 },
         remove: 32,
     },
 };
@@ -71,7 +88,7 @@ export function OrganisationCard({
     onDelete,
     size = 'medium',
 }: {
-    organisation: Organisation;
+    organisation: SelectedService;
     /** When given, shows the trash control and calls this to remove the card. */
     onDelete?: () => void;
     /** Card scale. */
@@ -87,7 +104,7 @@ export function OrganisationCard({
                 <CardTitle numberOfLines={2} style={metrics.title}>
                     {organisation.name}
                 </CardTitle>
-                <CardSubtitle>{sector ? sectorLabel(sector) : ''}</CardSubtitle>
+                <CardSubtitle style={metrics.subtitle}>{sector ? sectorLabel(sector) : ''}</CardSubtitle>
             </CardHeader>
             <CardBody>
                 <CardPatternedBackground />

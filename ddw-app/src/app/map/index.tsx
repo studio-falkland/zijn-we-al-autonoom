@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
 import { getMapOrganisations, mapSortKey } from '@/data/organisations';
+import type { SelectedService } from '@/data/services';
 import { mapStyle } from '@/map/style';
 import { useSessionStore } from '@/store/session';
 import { Colors, Spacing, Theme, Type } from '@/theme/tokens';
@@ -45,7 +46,7 @@ const SECTOR_LABELS: Record<string, string> = {
 };
 
 // The sector of the provider's first classification, in Dutch.
-function sectorLabel(org: Organisation): string {
+function sectorLabel(org: SelectedService): string {
     const sector = org.classifications?.[0]?.sector;
     return sector ? SECTOR_LABELS[sector] ?? sector : '';
 }

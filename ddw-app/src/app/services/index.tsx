@@ -1,11 +1,10 @@
 // Services step: the providers a visitor is locked into by where they live.
 //
-// After choosing a postcode we resolve the municipality and water authority in
-// our own data, and read the grid operators and water company the location
-// resolves to at runtime. Each provider is classified with the shared hierarchy
-// (region, category, sector) and shown as a portrait card over the map, pinned
-// where we have real coordinates. Continuing adds the providers we measure to
-// the visitor's selection, so they show up on the card downstream.
+// The map fills the whole screen. The right third explains the step and advances;
+// the providers are dealt into the hand along the bottom, one at a time. Each is
+// classified with the shared hierarchy (region, category, sector) and pinned where
+// we have real coordinates. Continuing adds them to the selection, so they show up
+// on the card downstream.
 import {
     Category,
     GovernmentSector,
@@ -17,19 +16,18 @@ import {
 import { GeoJSONSource, Layer } from '@maplibre/maplibre-react-native';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
-import { CardBody, CardIcon, CardPatternedBackground } from '@/components/card/card-body';
-import { CardContainer } from '@/components/card/card-container';
-import { CardHeader, CardSubtitle, CardTitle } from '@/components/card/card-header';
+import { FannedCards } from '@/components/fanned-cards';
 import { BaseMap, NL_BOUNDS } from '@/components/gather/base-map';
-import { SectorIcon, sectorLabel } from '@/components/sectors';
+import { CARD_DIMENSIONS } from '@/components/organisation-card';
 import { SERVICE_CATEGORIES } from '@/data/categories';
 import { getLocationProviders, type LocationProviders } from '@/data/organisations';
+import type { SelectedService } from '@/data/services';
 import { useSessionStore } from '@/store/session';
-import { Colors, Spacing, Theme, Type } from '@/theme/tokens';
+import { Colors, Radii, Shadows, Spacing, Theme, Type } from '@/theme/tokens';
 
 // PDOK returns postcodes without a space; add one for display only.
 const formatPostcode = (postcode: string) => postcode.replace(/^(\d{4})([A-Z]{2})$/i, '$1 $2');
@@ -44,6 +42,18 @@ type LockedProvider = {
     organisation: Organisation | null;
     point: [number, number] | null; // [longitude, latitude], null when unknown
 };
+
+// A provider as the hand and the selection take it: a measured one as its stored
+// organisation, the rest (grid operators, water company) by name and sector.
+function toService(provider: LockedProvider): SelectedService {
+    return (
+        provider.organisation ?? {
+            slug: `utility-${provider.sector}-${provider.name.toLowerCase().replace(/\s+/g, '-')}`,
+            name: provider.name,
+            classifications: [{ sector: provider.sector, category: provider.category, region: provider.region }],
+        }
+    );
+}
 
 // A one-point FeatureCollection for the visitor's dot layer (empty without one).
 function pointFeature(point: [number, number] | null): GeoJSON.FeatureCollection {
@@ -75,11 +85,19 @@ function focusBounds(center: [number, number] | undefined): [number, number, num
     return [lng - span, lat - span, lng + span, lat + span];
 }
 
+// How far the hand sinks past the bottom edge, so the cards' lower third is cut
+// off. Smaller sinks the hand less (higher); larger sinks it further.
+const FAN_SINK = CARD_DIMENSIONS.medium.height / 5;
+// How long between cards as the hand is dealt on arrival.
+const REVEAL_DELAY = 350;
+
 export default function ServicesScreen() {
     const location = useSessionStore((state) => state.location);
     const utilities = useSessionStore((state) => state.utilities);
     const addServices = useSessionStore((state) => state.addServices);
     const [providers, setProviders] = useState<LocationProviders | null>(null);
+    // How many cards have been dealt into the hand so far.
+    const [revealed, setRevealed] = useState(0);
 
     // Resolve the municipality and water authority once their names are known
     // (the water authority arrives with the utility lookup, a moment later).
@@ -158,13 +176,20 @@ export default function ServicesScreen() {
         return list;
     }, [location, providers, utilities]);
 
-    // Adding the measured providers to the selection, then on to the card.
+    // Deal the hand one card at a time, chasing the list as the providers resolve.
+    useEffect(() => {
+        if (revealed >= cards.length) return;
+        const timer = setTimeout(() => setRevealed((count) => count + 1), REVEAL_DELAY);
+        return () => clearTimeout(timer);
+    }, [revealed, cards.length]);
+
+    const hand = useMemo(() => cards.slice(0, revealed).map(toService), [cards, revealed]);
+
+    // Adding every locked-in provider to the selection, then on to the first
+    // category (or straight to the card).
     const handleContinue = useCallback(() => {
-        const measured = cards
-            .map((card) => card.organisation)
-            .filter((organisation): organisation is Organisation => organisation !== null);
-        if (measured.length > 0) addServices(measured);
-        // Hand off to the first category step (or straight to the card).
+        const selection = cards.map(toService);
+        if (selection.length > 0) addServices(selection);
         const first = SERVICE_CATEGORIES[0];
         if (first) router.push({ pathname: '/services/[category]', params: { category: first.key } });
         else router.push('/generate');
@@ -172,72 +197,55 @@ export default function ServicesScreen() {
 
     return (
         <SafeAreaView style={styles.screen}>
-            <View style={styles.mapWrap}>
-                <BaseMap bounds={focusBounds(location?.center)}>
-                    {/* The visitor, drawn as the same anchored dot as in gather. */}
-                    <GeoJSONSource id="visitor-point" data={pointFeature(location?.center ?? null)}>
-                        <Layer
-                            id="visitor-point-dot"
-                            type="circle"
-                            paint={{
-                                'circle-color': Colors.blue[900],
-                                'circle-radius': 7,
-                                'circle-stroke-color': Colors.white,
-                                'circle-stroke-width': 2,
-                            }}
-                        />
-                    </GeoJSONSource>
-                    {/* The providers we can place, as their navy name buttons. */}
-                    <GeoJSONSource id="locked-providers" data={pinFeatures(cards)}>
-                        <Layer
-                            id="locked-providers-button"
-                            type="symbol"
-                            layout={{
-                                'icon-image': 'provider-button-selected',
-                                'icon-allow-overlap': true,
-                                'icon-text-fit': 'both',
-                                'icon-text-fit-padding': [6, 10, 6, 10],
-                                'text-field': ['get', 'name'],
-                                'text-font': ['DIN Pro Regular'],
-                                'text-size': 14,
-                                'text-anchor': 'center',
-                            }}
-                            paint={{ 'text-color': Colors.white }}
-                        />
-                    </GeoJSONSource>
-                </BaseMap>
-                {/* The question, over the top edge of the map. */}
-                <View style={styles.headingWrap}>
+            {/* The map fills the whole screen; the column and the hand float over it. */}
+            <BaseMap bounds={focusBounds(location?.center)}>
+                {/* The visitor, drawn as the same anchored dot as in gather. */}
+                <GeoJSONSource id="visitor-point" data={pointFeature(location?.center ?? null)}>
+                    <Layer
+                        id="visitor-point-dot"
+                        type="circle"
+                        paint={{
+                            'circle-color': Colors.blue[900],
+                            'circle-radius': 7,
+                            'circle-stroke-color': Colors.white,
+                            'circle-stroke-width': 2,
+                        }}
+                    />
+                </GeoJSONSource>
+                {/* The providers we can place, as their navy name buttons. */}
+                <GeoJSONSource id="locked-providers" data={pinFeatures(cards)}>
+                    <Layer
+                        id="locked-providers-button"
+                        type="symbol"
+                        layout={{
+                            'icon-image': 'provider-button-selected',
+                            'icon-allow-overlap': true,
+                            'icon-text-fit': 'both',
+                            'icon-text-fit-padding': [6, 10, 6, 10],
+                            'text-field': ['get', 'name'],
+                            'text-font': ['DIN Pro Regular'],
+                            'text-size': 14,
+                            'text-anchor': 'center',
+                        }}
+                        paint={{ 'text-color': Colors.white }}
+                    />
+                </GeoJSONSource>
+            </BaseMap>
+            {/* The hand, dealt one card at a time, across the full width. */}
+            <View style={styles.fan}>
+                <FannedCards organisations={hand} />
+            </View>
+            {/* The right third: the explanation and the action. */}
+            <View style={styles.column}>
+                <View style={styles.panel}>
                     <Text style={styles.heading}>These come with where you live</Text>
                     {location && <Text style={styles.subtitle}>{formatPostcode(location.postcode)}</Text>}
-                </View>
-                {/* The provider cards: a portrait deck over the bottom of the map. */}
-                <View style={styles.deck}>
-                    {cards.length === 0 ? (
-                        <Text style={styles.empty}>Finding your providers…</Text>
-                    ) : (
-                        <ScrollView
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={styles.deckContent}
-                        >
-                            {cards.map((card) => (
-                                <CardContainer key={`${card.sector}-${card.name}`} style={styles.cardBody}>
-                                    <CardHeader>
-                                        <CardTitle numberOfLines={2}>{card.name}</CardTitle>
-                                        <CardSubtitle>{sectorLabel(card.sector)}</CardSubtitle>
-                                    </CardHeader>
-                                    <CardBody>
-                                        <CardPatternedBackground />
-                                        <CardIcon>
-                                            <SectorIcon sector={card.sector} width={90} height={120} />
-                                        </CardIcon>
-                                    </CardBody>
-                                </CardContainer>
-                            ))}
-                        </ScrollView>
-                    )}
-                    <Button label="Continue" onPress={handleContinue} disabled={cards.length === 0} />
+                    <Text style={styles.body}>
+                        {cards.length === 0
+                            ? 'Finding your providers…'
+                            : "Where you live decides which service providers you're using. "}
+                    </Text>
+                    <Button label="Continue" onPress={handleContinue} disabled={cards.length === 0} size="small" />
                 </View>
             </View>
         </SafeAreaView>
@@ -249,41 +257,42 @@ const styles = StyleSheet.create({
         backgroundColor: Theme.background,
         flex: 1,
     },
-    mapWrap: {
-        flex: 1,
-        position: 'relative',
-    },
-    headingWrap: {
-        gap: Spacing.xs,
-        left: Spacing.lg,
+    // The right third: the explanation, over the map.
+    column: {
         position: 'absolute',
         right: Spacing.lg,
-        top: Spacing.xxxl,
+        top: Spacing.lg,
+        width: '33%',
+    },
+    // The floating panel: same stroke and shadow as the search field.
+    panel: {
+        backgroundColor: Colors.white,
+        borderColor: Colors.blue[800],
+        borderRadius: Radii.md,
+        borderWidth: 1,
+        gap: Spacing.md,
+        padding: Spacing.lg,
+        ...Shadows.boxSmall,
     },
     heading: {
         ...Type.sub,
+        fontSize: 20,
+        lineHeight: 20,
     },
     subtitle: {
         ...Type.bodySmall,
         color: Theme.textMuted,
     },
-    deck: {
-        bottom: Spacing.lg,
-        gap: Spacing.md,
-        left: Spacing.lg,
+    body: {
+        ...Type.bodyLarge,
+        fontSize: 20,
+        lineHeight: 24,
+    },
+    // The hand, across the full width of the screen.
+    fan: {
+        bottom: -FAN_SINK,
+        left: 0,
         position: 'absolute',
-        right: Spacing.lg,
-    },
-    deckContent: {
-        gap: Spacing.md,
-        paddingBottom: Spacing.sm
-    },
-    cardBody: {
-        height: 300,
-        width: 190,
-    },
-    empty: {
-        ...Type.bodySmall,
-        color: Theme.textMuted,
+        right: 0,
     },
 });

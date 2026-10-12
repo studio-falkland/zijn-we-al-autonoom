@@ -1,10 +1,10 @@
 // In-memory visitor session store (Zustand).
 // No persistence: a kiosk restart begins a fresh session.
 
-import type { Organisation } from '@are-we-dependent/data';
 import { create } from 'zustand';
 
 import type { PdokDoc } from '@/data/places';
+import type { SelectedService } from '@/data/services';
 import { resolveUtilities, type Utilities } from '@/data/utilities';
 
 // The generated A7 card, including the on-device PDF path.
@@ -30,13 +30,13 @@ export type SessionState = {
     location: Location | null;
     // The utility providers serving the location, resolved from the PDOK document.
     utilities: Utilities | null;
-    selectedServices: Organisation[];
+    selectedServices: SelectedService[];
     generatedCard: GeneratedCard | null;
     printStatus: PrintStatus;
     setLocation(location: Location): void;
     setUtilities(utilities: Utilities | null): void;
-    toggleService(service: Organisation): void;
-    addServices(services: Organisation[]): void;
+    toggleService(service: SelectedService): void;
+    addServices(services: SelectedService[]): void;
     setGeneratedCard(card: GeneratedCard): void;
     setPrintStatus(status: PrintStatus): void;
     resetSession(): void;
