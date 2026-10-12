@@ -1,5 +1,6 @@
 // One card in the reveal: the service's front, turning over onto its own provider
-// mosaic. It eases between the fan and grid slots and flips when the stage cues it.
+// mosaic. It eases from the opening fan (bottom-centre anchors, like the services
+// hand) into its scaled grid slot, and flips when the stage cues it.
 
 import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
@@ -27,8 +28,9 @@ export const MOSAIC_SIZE = {
 const MOVE_DURATION = 600;
 const FLIP_DURATION = 320;
 
-// A slot in the shared fan/grid box: where the card sits and how far it tilts.
-export type RevealPosition = { x: number; y: number; angle: number };
+// A slot in the shared fan/grid space: the card's bottom-centre anchor, its tilt,
+// and its scale. Anchoring the bottom centre keeps the fan's arc stable.
+export type RevealPosition = { x: number; y: number; angle: number; scale: number };
 
 export function RevealCard({
     card,
@@ -47,32 +49,36 @@ export function RevealCard({
     position: { fan: RevealPosition; grid: RevealPosition };
     grid: boolean;
 }) {
-    // The bottom-centre pivot keeps the fan grounded while the tops swing out.
+    // Placement is by the card's bottom centre, so rotate and scale pivot there.
     const pivot = CARD.height / 2;
-    const x = useSharedValue(position.fan.x);
-    const y = useSharedValue(position.fan.y);
+    const left = useSharedValue(position.fan.x - CARD.width / 2);
+    const top = useSharedValue(position.fan.y - CARD.height);
     const angle = useSharedValue(position.fan.angle);
+    const scale = useSharedValue(position.fan.scale);
 
-    // On the fan-to-grid switch, ease every card to its grid slot and upright.
+    // On the fan-to-grid switch, ease every card to its grid slot and size.
     useEffect(() => {
         const target = grid ? position.grid : position.fan;
-        x.value = withTiming(target.x, { duration: MOVE_DURATION });
-        y.value = withTiming(target.y, { duration: MOVE_DURATION });
+        left.value = withTiming(target.x - CARD.width / 2, { duration: MOVE_DURATION });
+        top.value = withTiming(target.y - CARD.height, { duration: MOVE_DURATION });
         angle.value = withTiming(target.angle, { duration: MOVE_DURATION });
-    }, [grid, position, x, y, angle]);
+        scale.value = withTiming(target.scale, { duration: MOVE_DURATION });
+    }, [grid, position, left, top, angle, scale]);
 
-    const tilt = useAnimatedStyle(() => ({
+    // The pivot shift turns and scales about the bottom centre, not the middle.
+    const motion = useAnimatedStyle(() => ({
         transform: [
-            { translateX: x.value },
-            { translateY: y.value },
+            { translateX: left.value },
+            { translateY: top.value },
             { translateY: pivot },
             { rotate: `${angle.value}deg` },
+            { scale: scale.value },
             { translateY: -pivot },
         ],
     }));
 
     return (
-        <Animated.View style={[styles.card, styles.slot, tilt]}>
+        <Animated.View style={[styles.card, styles.slot, motion]}>
             <FlipCard
                 flipped={flipped}
                 duration={FLIP_DURATION}

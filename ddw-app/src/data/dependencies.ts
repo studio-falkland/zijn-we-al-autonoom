@@ -121,11 +121,12 @@ export async function getServiceProviders(services: SelectedService[]): Promise<
     }));
 }
 
-// The latest measurement of each dataset type, as equal-share treemap leaves.
+// The latest measurement of each hosting dataset type, as equal-share leaves.
 function toServiceFrequencies(measurements: Measurement[]): MeasurementFrequency[] {
-    // Keep only the most recent measurement per dataset type.
+    // Keep only the most recent measurement per dataset type we measure.
     const latest = new Map<string, Measurement>();
     for (const measurement of measurements) {
+        if (!DEPENDENCY_TYPES.includes(measurement.type)) continue;
         const previous = latest.get(measurement.type);
         if (!previous || new Date(measurement.created_at) > new Date(previous.created_at)) {
             latest.set(measurement.type, measurement);
