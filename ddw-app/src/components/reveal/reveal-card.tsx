@@ -8,7 +8,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-na
 
 import { FlipCard } from '@/components/card/flip-card';
 import { MosaicCard } from '@/components/card/mosaic-card';
-import { CARD_DIMENSIONS, OrganisationCard } from '@/components/organisation-card';
+import { CARD_DIMENSIONS, OrganisationCard, OrganisationHeader } from '@/components/organisation-card';
 import type { ServiceProviders } from '@/data/dependencies';
 
 // The card box. The mosaic inside its border is sized by MosaicCard.
@@ -79,6 +79,7 @@ export function RevealCard({
                         height={CARD.height}
                         tileOrder={tileOrder}
                         revealedUS={revealedUS}
+                        header={<OrganisationHeader organisation={card.service} size="medium" />}
                     />
                 }
             />

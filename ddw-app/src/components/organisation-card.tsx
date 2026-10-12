@@ -83,6 +83,31 @@ function TrashIcon({ size }: { size: number }) {
     );
 }
 
+// The card's header: the organisation's name and its sector. Shared by the card's
+// front and, on a flipped card, the mosaic's back, so both faces carry the same
+// label. Set `size` to match the card it heads.
+export function OrganisationHeader({
+    organisation,
+    size = 'medium',
+}: {
+    organisation: SelectedService;
+    /** Card scale, so the type matches the card. */
+    size?: OrganisationCardSize;
+}) {
+    const sector = organisation.classifications?.[0]?.sector;
+    const sectorLabel = useSectorLabel();
+    const metrics = SIZES[size];
+
+    return (
+        <CardHeader>
+            <CardTitle numberOfLines={2} style={metrics.title}>
+                {organisation.name}
+            </CardTitle>
+            <CardSubtitle style={metrics.subtitle}>{sector ? sectorLabel(sector) : ''}</CardSubtitle>
+        </CardHeader>
+    );
+}
+
 export function OrganisationCard({
     organisation,
     onDelete,
@@ -98,18 +123,12 @@ export function OrganisationCard({
     muted?: boolean;
 }) {
     const sector = organisation.classifications?.[0]?.sector;
-    const sectorLabel = useSectorLabel();
     const metrics = SIZES[size];
     const trash = Math.round(metrics.remove * 0.6);
 
     return (
         <CardContainer style={[metrics.card, muted && styles.muted]}>
-            <CardHeader>
-                <CardTitle numberOfLines={2} style={metrics.title}>
-                    {organisation.name}
-                </CardTitle>
-                <CardSubtitle style={metrics.subtitle}>{sector ? sectorLabel(sector) : ''}</CardSubtitle>
-            </CardHeader>
+            <OrganisationHeader organisation={organisation} size={size} />
             <CardBody>
                 <CardPatternedBackground />
                 {sector && (
