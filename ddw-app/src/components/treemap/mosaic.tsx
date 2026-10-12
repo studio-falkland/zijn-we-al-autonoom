@@ -14,7 +14,10 @@ import { isUSFrequency, PatternMatcher } from './patternDefs';
 // The leaf fills, matching the A7 card and the web app.
 const LEAF_BLUE = '#0000FF';
 const LEAF_RED = '#FF0000';
-const LEAF_BASE = '#F6F6FF';
+const LEAF_BASE = '#FFFFFF';
+
+// The label's font size inside its plate.
+const LABEL_FONT_SIZE = 11;
 
 // How long a US tile takes to turn red once it is cued.
 export const RECOLOR_DURATION = 220;
@@ -37,7 +40,7 @@ export function MosaicTile({ rect, revealed }: { rect: TreemapRect; revealed: bo
 
     // Labels only fit the larger tiles; a sliver of a provider stays unlabelled.
     const labelled = rect.width >= 56 && rect.height >= 30;
-    const label = labelled ? truncateLabel(rect.frequency.category, rect.width - 20) : null;
+    const label = labelled ? truncateLabel(rect.frequency.category, rect.width - 20, LABEL_FONT_SIZE) : null;
 
     return (
         <G>
@@ -84,13 +87,13 @@ function TileLabel({ uid, rect, label }: { uid: string; rect: TreemapRect; label
                 width={plateWidth}
                 height={plateHeight}
                 rx={4}
-                fill={Colors.blue[50]}
+                fill={Colors.white}
                 clipPath={`url(#clip-${uid})`}
             />
             <Text
                 x={rect.x + rect.width / 2}
                 y={rect.y + rect.height / 2 + 4}
-                fontSize={11}
+                fontSize={LABEL_FONT_SIZE}
                 fontWeight="400"
                 fill={Colors.blue[900]}
                 textAnchor="middle"

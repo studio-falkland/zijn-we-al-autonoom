@@ -64,6 +64,9 @@ export type PatternDef = {
     width: number;
     height: number;
     paths: PatternPath[];
+    // An optional size multiplier for this motif, on top of PATTERN_SCALE, so a
+    // single pattern can be tuned without touching the rest.
+    scale?: number;
 };
 
 // A white-line hatch pattern (the 4px p1/p2/us grids).
@@ -72,14 +75,19 @@ function hatch(id: string, d: string): PatternDef {
 }
 
 // A filled logo glyph (amazon/microsoft/google), white paths in a tile.
-function logo(id: string, width: number, height: number, ds: string[]): PatternDef {
+function logo(id: string, width: number, height: number, ds: string[], scale?: number): PatternDef {
     return {
         id,
         width,
         height,
+        scale,
         paths: ds.map((d) => ({ d, fill: 'white', fillRule: 'evenodd', clipRule: 'evenodd' })),
     };
 }
+
+// The Amazon arrows read a touch large beside the other motifs, so they carry an
+// extra down-scale on top of the shared PATTERN_SCALE.
+const AMAZON_SCALE = 0.8;
 
 export const patternDefs: PatternDef[] = [
     hatch('zwaa-p1', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2'),
@@ -94,6 +102,7 @@ export const patternDefs: PatternDef[] = [
             'M0 19.4211V18.0842C0.398186 18.0316 0.806345 17.8942 1.21768 17.6608L0.172256 17.2277L0.680806 16L3.75017 17.2714L2.4788 20.3407L1.25105 19.8322L1.6148 18.954C1.09403 19.2128 0.553279 19.3716 0 19.4211Z',
             'M12 18.0842V19.4211C11.8759 19.4322 11.7512 19.4378 11.626 19.4378C10.3274 19.4378 9.08751 18.8357 8 17.7481L8.93968 16.8085C9.84552 17.7143 10.7651 18.1089 11.626 18.1089C11.7495 18.1089 11.8743 18.1007 12 18.0842Z',
         ],
+        AMAZON_SCALE,
     ),
     logo(
         'zwaa-microsoft',
@@ -130,28 +139,31 @@ function pathToSvg(path: PatternPath): string {
 // density, so the pattern tiles come out too fine. Scale them uniformly.
 export const PATTERN_SCALE = 2;
 
-// Multiply every number in a path's data by the pattern scale.
-function scalePathData(d: string): string {
-    return d.replace(/-?\d*\.?\d+(?:[eE][+-]?\d+)?/g, (token) => `${parseFloat(token) * PATTERN_SCALE}`);
+// Multiply every number in a path's data by the given scale.
+function scalePathData(d: string, scale: number): string {
+    return d.replace(/-?\d*\.?\d+(?:[eE][+-]?\d+)?/g, (token) => `${parseFloat(token) * scale}`);
 }
 
 // The pattern with the scale baked into its tile size and path data.
 // Baking instead of patternTransform keeps the WebKit print pipeline aligned
-// with the on-screen renderer.
-export function scaledPatternDef(def: PatternDef): PatternDef {
+// with the on-screen renderer. `extraScale` multiplies one render only.
+export function scaledPatternDef(def: PatternDef, extraScale = 1): PatternDef {
+    const scale = PATTERN_SCALE * (def.scale ?? 1) * extraScale;
     return {
         ...def,
-        width: def.width * PATTERN_SCALE,
-        height: def.height * PATTERN_SCALE,
-        paths: def.paths.map((path) => ({ ...path, d: scalePathData(path.d) })),
+        width: def.width * scale,
+        height: def.height * scale,
+        paths: def.paths.map((path) => ({ ...path, d: scalePathData(path.d, scale) })),
     };
 }
 
 // Render the full set of <pattern> + <mask> defs as an inline SVG string.
-export function renderPatternDefsSvg(): string {
+// `scaleOverrides` multiplies a named pattern's size for this render only, so
+// the printed card can tune one motif without touching the on-screen artwork.
+export function renderPatternDefsSvg(scaleOverrides: Record<string, number> = {}): string {
     return patternDefs
         .map((pattern) => {
-            const scaled = scaledPatternDef(pattern);
+            const scaled = scaledPatternDef(pattern, scaleOverrides[pattern.id] ?? 1);
             const paths = scaled.paths.map(pathToSvg).join('');
             const tile = `<pattern id="${pattern.id}" patternUnits="userSpaceOnUse" width="${scaled.width}" height="${scaled.height}">${paths}</pattern>`;
             const mask = `<mask id="${pattern.id}-mask" x="0" y="0" width="1" height="1"><rect x="0" y="0" width="100%" height="100%" fill="url(#${pattern.id})"/></mask>`;

@@ -15,13 +15,14 @@ export function frequencyLabelName(frequency: MeasurementFrequency): string {
     return frequency.category;
 }
 
-// The approximate advance of one character of the 12px label; SVG cannot
-// measure text at build time, so the truncation point is an estimate and an
-// ellipsis marks the cut.
-const LABEL_CHAR_WIDTH = 6.5;
+// The approximate advance of one character as a fraction of the font size; SVG
+// cannot measure text at build time, so the truncation point is an estimate and
+// an ellipsis marks the cut.
+const LABEL_CHAR_RATIO = 0.542;
 
-// Truncate a provider name to fit the given width, ending with an ellipsis.
-export function truncateLabel(label: string, availableWidth: number): string {
-    const maxChars = Math.max(1, Math.floor(availableWidth / LABEL_CHAR_WIDTH));
+// Truncate a provider name to fit the given width at the given font size, ending
+// with an ellipsis.
+export function truncateLabel(label: string, availableWidth: number, fontSize: number): string {
+    const maxChars = Math.max(1, Math.floor(availableWidth / (LABEL_CHAR_RATIO * fontSize)));
     return label.length <= maxChars ? label : `${label.slice(0, maxChars - 1)}…`;
 }

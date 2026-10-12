@@ -19,14 +19,23 @@ export const A7_HEIGHT = 298;
 // The leaf fills: red for US-hosted dependencies, blue for everything else.
 const LEAF_BLUE = '#0000FF';
 const LEAF_RED = '#FF0000';
-const LEAF_BASE = '#F6F6FF';
+const LEAF_BASE = '#FFFFFF';
 
 // The card's ink and frame colours.
 const INK = '#000066';
 const CARD_BORDER = '#0000AD';
 
-// The label plate on the largest tile (Colors.blue[50] on screen).
-const LABEL_PLATE = '#F1F1F8';
+// The plate behind the largest tile's name, matching the screen plate.
+const LABEL_PLATE = '#FFFFFF';
+const LABEL_FONT_SIZE = 14;
+
+// The hard offset shadow the border casts, matching the screen's Shadows.box.
+const CARD_SHADOW = '#0000A1';
+const SHADOW_OFFSET = 4;
+
+// The Amazon arrows print a touch large, so the printed card scales that one
+// motif down below its on-screen size (0.8 × 0.85).
+const PRINT_SCALE_OVERRIDES: Record<string, number> = { 'zwaa-amazon': 0.85 };
 
 // Card layout: two constants, everything else is derived from them and the
 // page size, so the mosaic always fills the space the header leaves over.
@@ -60,20 +69,20 @@ function escapeXml(value: string): string {
 function tileToSvg(rect: TreemapRect, index: number, label: string | null): string {
     const us = isUSFrequency(rect.frequency);
     const mask = PatternMatcher(rect.frequency);
-    // The label plate: spans the tile, pale blue, with the name centred and
+    // The label plate: spans the tile, white, with the name centred and
     // truncated to fit so it never exceeds the background.
     const centerX = rect.x + rect.width / 2;
     const centerY = rect.y + rect.height / 2;
     const plateX = rect.x + 16;
     const plateY = centerY - 12;
     const plateWidth = rect.width - 32;
-    const fittedLabel = label ? truncateLabel(label, plateWidth - 8) : null;
+    const fittedLabel = label ? truncateLabel(label, plateWidth - 8, LABEL_FONT_SIZE) : null;
     const plate = fittedLabel
         ? `<clipPath id="plate-${index}"><rect x="${plateX}" y="${plateY}" width="${plateWidth}" height="24" rx="4"/></clipPath>` +
           `<rect x="${plateX}" y="${plateY}" width="${plateWidth}" height="24" rx="4" fill="${LABEL_PLATE}" clip-path="url(#clip-${index})"/>`
         : '';
     const text = fittedLabel
-        ? `<text x="${centerX}" y="${centerY + 4}" font-family="Familjen Grotesk" font-size="12" font-weight="400" fill="${INK}" text-anchor="middle" clip-path="url(#plate-${index})">${escapeXml(fittedLabel)}</text>`
+        ? `<text x="${centerX}" y="${centerY + 4}" font-family="Familjen Grotesk" font-size="${LABEL_FONT_SIZE}" font-weight="400" fill="${INK}" text-anchor="middle" clip-path="url(#plate-${index})">${escapeXml(fittedLabel)}</text>`
         : '';
     return (
         `<clipPath id="clip-${index}"><rect x="${rect.x}" y="${rect.y}" width="${rect.width}" height="${rect.height}"/></clipPath>` +
@@ -149,9 +158,11 @@ export function buildCardHtml(frequencies: MeasurementFrequency[], context: Card
         `<style>html,body{margin:0;padding:0}${fontFaces()}svg{display:block}</style>` +
         `</head><body>` +
         `<svg ${SVG_NS} width="${A7_WIDTH}" height="${A7_HEIGHT}" viewBox="0 0 ${A7_WIDTH} ${A7_HEIGHT}">` +
-        `<defs>${renderPatternDefsSvg()}</defs>` +
-        // Card body and navy border.
+        `<defs>${renderPatternDefsSvg(PRINT_SCALE_OVERRIDES)}</defs>` +
+        // Card body, the border's hard offset shadow, and the navy border.
         `<rect width="${A7_WIDTH}" height="${A7_HEIGHT}" rx="16" fill="#FFFFFF"/>` +
+        `<rect x="${border.x + SHADOW_OFFSET}" y="${border.y + SHADOW_OFFSET}" width="${border.width}" height="${border.height}" rx="15" fill="${CARD_SHADOW}"/>` +
+        `<rect x="${border.x}" y="${border.y}" width="${border.width}" height="${border.height}" rx="15" fill="#FFFFFF"/>` +
         `<rect x="${border.x}" y="${border.y}" width="${border.width}" height="${border.height}" rx="15" fill="none" stroke="${CARD_BORDER}" stroke-width="2"/>` +
         // Header: title and the visitor's place, then the navy rule.
         `<text x="${content.x}" y="${titleY}" font-family="Familjen Grotesk" font-size="18" font-weight="700" fill="${INK}">${escapeXml(title)}</text>` +

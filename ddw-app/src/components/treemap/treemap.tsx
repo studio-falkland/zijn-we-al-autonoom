@@ -16,7 +16,14 @@ import TreemapPatterns from './patterns';
 // The leaf fills: red for US-hosted dependencies, blue for everything else.
 const LEAF_BLUE = '#0000FF';
 const LEAF_RED = '#FF0000';
-const LEAF_BASE = '#F6F6FF';
+const LEAF_BASE = '#FFFFFF';
+
+// The single provider label the card keeps (the largest provider) and its plate.
+const LABEL_FONT_SIZE = 14;
+
+// The hard offset shadow the border casts, matching the theme's Shadows.box.
+const CARD_SHADOW = Colors.shadow;
+const SHADOW_OFFSET = 4;
 
 // Card layout: two constants, everything else is derived from them and the
 // page size, so the mosaic always fills the space the header leaves over.
@@ -44,7 +51,7 @@ function Tile({ rect, index, label }: { rect: TreemapRect; index: number; label:
     const plateX = rect.x + 16;
     const plateY = centerY - 12;
     const plateWidth = rect.width - 32;
-    const fittedLabel = label ? truncateLabel(label, plateWidth - 8) : null;
+    const fittedLabel = label ? truncateLabel(label, plateWidth - 8, LABEL_FONT_SIZE) : null;
 
     return (
         <G>
@@ -64,14 +71,14 @@ function Tile({ rect, index, label }: { rect: TreemapRect; index: number; label:
                         y={plateY}
                         width={plateWidth}
                         height={24}
-                        fill={Colors.blue[50]}
+                        fill={Colors.white}
                         clipPath={`url(#clip-${index})`}
                         rx={4}
                     />
                     <Text
                         x={centerX}
                         y={centerY + 4}
-                        fontSize={12}
+                        fontSize={LABEL_FONT_SIZE}
                         fontWeight="400"
                         fill={Colors.blue[900]}
                         textAnchor="middle"
@@ -140,8 +147,10 @@ export function Treemap({
     return (
         <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
             <TreemapPatterns />
-            {/* Card body and navy border. */}
+            {/* Card body, then the hard offset shadow the border casts. */}
             <Rect width={width} height={height} rx={16} fill={Colors.white} />
+            <Rect x={border.x + SHADOW_OFFSET} y={border.y + SHADOW_OFFSET} width={border.width} height={border.height} rx={15} fill={CARD_SHADOW} />
+            <Rect x={border.x} y={border.y} width={border.width} height={border.height} rx={15} fill={Colors.white} />
             <Rect x={border.x} y={border.y} width={border.width} height={border.height} rx={15} fill="none" stroke={Colors.blue[800]} strokeWidth={2} />
             {/* Header: title and the visitor's place, then the navy rule. */}
             <Text x={content.x} y={titleY} fontSize={18} fontWeight="700" fill={Colors.blue[900]} fontFamily={Fonts.family}>

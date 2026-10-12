@@ -17,6 +17,7 @@ export const Colors = {
         textbox: '#6468AA',
     },
     red: '#FB2C36',
+    shadow: '#0000A1',
     grey: {
         700: '#595969',
         200: '#c4c4d4',
@@ -73,7 +74,7 @@ export const Shadows = StyleSheet.create({
         elevation: 4,
     },
     box: {
-        shadowColor: '#0000A1',
+        shadowColor: Colors.shadow,
         shadowOffset: { width: 4, height: 4 },
         shadowRadius: 0,
         shadowOpacity: 1,
@@ -81,7 +82,7 @@ export const Shadows = StyleSheet.create({
     },
     // The website's smaller hard shadow, used on inputs.
     boxSmall: {
-        shadowColor: '#0000A1',
+        shadowColor: Colors.shadow,
         shadowOffset: { width: 2, height: 2 },
         shadowRadius: 0,
         shadowOpacity: 1,
