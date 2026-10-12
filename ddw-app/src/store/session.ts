@@ -6,6 +6,7 @@ import { create } from 'zustand';
 import type { PdokDoc } from '@/data/places';
 import type { SelectedService } from '@/data/services';
 import { resolveUtilities, type Utilities } from '@/data/utilities';
+import { DEFAULT_LANGUAGE, type Language } from '@/i18n';
 
 // The generated A7 card, including the on-device PDF path.
 export type GeneratedCard = {
@@ -26,6 +27,8 @@ export type Location = {
 
 // Session state and actions for a single visitor.
 export type SessionState = {
+    // The visitor's chosen UI language, picked on the start screen.
+    language: Language;
     // The visitor's location, chosen in the gather section's first step.
     location: Location | null;
     // The utility providers serving the location, resolved from the PDOK document.
@@ -33,6 +36,7 @@ export type SessionState = {
     selectedServices: SelectedService[];
     generatedCard: GeneratedCard | null;
     printStatus: PrintStatus;
+    setLanguage(language: Language): void;
     setLocation(location: Location): void;
     setUtilities(utilities: Utilities | null): void;
     toggleService(service: SelectedService): void;
@@ -44,11 +48,15 @@ export type SessionState = {
 
 // The single source of truth for the visitor session.
 export const useSessionStore = create<SessionState>()((set, get) => ({
+    language: DEFAULT_LANGUAGE,
     location: null,
     utilities: null,
     selectedServices: [],
     generatedCard: null,
     printStatus: 'idle',
+
+    // Switch the UI language (the start screen's 🧀/🍔 tabs).
+    setLanguage: (language) => set({ language }),
 
     // Record the visitor's location and resolve its utility providers. Without a
     // PDOK document there is nothing to resolve against, so utilities stay null.
@@ -90,8 +98,10 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
     setPrintStatus: (printStatus) => set({ printStatus }),
 
     // Explicit end-of-flow action: clear the session for the next visitor.
+    // The language resets too, so the next visitor picks their own on the start.
     resetSession: () =>
         set({
+            language: DEFAULT_LANGUAGE,
             location: null,
             utilities: null,
             selectedServices: [],

@@ -9,9 +9,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Logo from '@/assets/images/logo.svg';
 import MapArt from '@/assets/images/nl-map-art.png';
 import { Button } from '@/components/button';
+import { LanguageTabs } from '@/components/language-tabs';
+import { useTranslation } from '@/i18n/use-translation';
 import { Spacing, Theme, Type } from '@/theme/tokens';
 
 export default function StartScreen() {
+    const { t } = useTranslation();
+
     return (
         <SafeAreaView style={styles.screen}>
             <View style={styles.row}>
@@ -21,14 +25,11 @@ export default function StartScreen() {
                 </View>
                 {/* Right third: wordmark, copy, and action as one centered column. */}
                 <View style={styles.panel}>
+                    <LanguageTabs />
                     <Image source={Logo} style={styles.logo} contentFit="contain" />
-                    <Text style={styles.sub}>
-                        Our society relies deeply on digital infrastructures.
-                    </Text>
-                    <Text style={styles.sub}>
-                        Do you want to know how your daily life is influenced by these dependencies?
-                    </Text>
-                    <Button label="Start to explore" onPress={() => router.push('/gather')} />
+                    <Text style={styles.sub}>{t('intro.body1')}</Text>
+                    <Text style={styles.sub}>{t('intro.body2')}</Text>
+                    <Button label={t('intro.start')} onPress={() => router.push('/gather')} />
                 </View>
             </View>
         </SafeAreaView>
