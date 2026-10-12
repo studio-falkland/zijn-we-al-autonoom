@@ -106,7 +106,11 @@ export default function GovernmentScreen() {
                 {scale > 0 && (
                     <View style={[styles.grid, { height: GRID_HEIGHT, width: GRID_WIDTH, transform: [{ scale }] }]}>
                         {(organisations ?? []).map((organisation) => (
-                            <Pressable key={organisation.slug} onPress={() => toggleService(organisation)}>
+                            <Pressable
+                                key={organisation.slug}
+                                onPress={() => toggleService(organisation)}
+                                style={styles.backdrop}
+                            >
                                 <OrganisationCard
                                     organisation={organisation}
                                     size="small"
@@ -153,14 +157,17 @@ const styles = StyleSheet.create({
         right: '37%',
         top: Spacing.lg,
     },
-    // The grid: laid out at its natural size, over a white backdrop so a dimmed
-    // card fades to the backdrop rather than to the map, then scaled to fit.
+    // The grid: laid out at its natural size, then scaled to fit.
     grid: {
-        backgroundColor: Colors.white,
-        borderRadius: Radii.lg,
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap: GAP,
+    },
+    // A white backdrop behind each card, so a dimmed card fades to white rather
+    // than to the map. One per card, sized to the card it backs.
+    backdrop: {
+        backgroundColor: Colors.white,
+        borderRadius: Radii.lg,
     },
     // The right third: the search over the floating panel.
     column: {
