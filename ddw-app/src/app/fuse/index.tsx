@@ -10,6 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { FailureState } from '@/components/failure-state';
 import { FuseStage } from '@/components/fuse/fuse-stage';
+import { translate } from '@/i18n';
 import { cardKey, useSessionStore } from '@/store/session';
 import { Theme } from '@/theme/tokens';
 
@@ -32,7 +33,7 @@ export default function FuseScreen() {
         try {
             await Print.printAsync({ uri: generatedCard.pdfUri });
         } catch (failure) {
-            setPrintError(failure instanceof Error ? failure.message : 'Printen is mislukt.');
+            setPrintError(failure instanceof Error ? failure.message : translate(useSessionStore.getState().language, 'print.printError'));
         } finally {
             setPrinting(false);
         }

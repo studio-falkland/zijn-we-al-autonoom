@@ -26,6 +26,7 @@ import { CARD_DIMENSIONS } from '@/components/organisation-card';
 import { SERVICE_CATEGORIES } from '@/data/categories';
 import { getLocationProviders, type LocationProviders } from '@/data/organisations';
 import type { SelectedService } from '@/data/services';
+import { useTranslation } from '@/i18n/use-translation';
 import { useSessionStore } from '@/store/session';
 import { Colors, Radii, Shadows, Spacing, Theme, Type } from '@/theme/tokens';
 
@@ -95,6 +96,7 @@ export default function ServicesScreen() {
     const location = useSessionStore((state) => state.location);
     const utilities = useSessionStore((state) => state.utilities);
     const addServices = useSessionStore((state) => state.addServices);
+    const { t } = useTranslation();
     const [providers, setProviders] = useState<LocationProviders | null>(null);
     // How many cards have been dealt into the hand so far.
     const [revealed, setRevealed] = useState(0);
@@ -238,14 +240,17 @@ export default function ServicesScreen() {
             {/* The right third: the explanation and the action. */}
             <View style={styles.column}>
                 <View style={styles.panel}>
-                    <Text style={styles.heading}>These come with where you live</Text>
+                    <Text style={styles.heading}>{t('services.heading')}</Text>
                     {location && <Text style={styles.subtitle}>{formatPostcode(location.postcode)}</Text>}
                     <Text style={styles.body}>
-                        {cards.length === 0
-                            ? 'Finding your providers…'
-                            : "Where you live decides which service providers you're using. "}
+                        {cards.length === 0 ? t('services.finding') : t('services.explainer')}
                     </Text>
-                    <Button label="Continue" onPress={handleContinue} disabled={cards.length === 0} size="small" />
+                    <Button
+                        label={t('common.continue')}
+                        onPress={handleContinue}
+                        disabled={cards.length === 0}
+                        size="small"
+                    />
                 </View>
             </View>
         </SafeAreaView>

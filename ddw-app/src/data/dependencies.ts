@@ -10,7 +10,7 @@ import { In } from 'typeorm';
 import { db, ensureDb } from './db';
 import type { SelectedService } from './services';
 
-// One treemap leaf: an AS organisation (or "Onbekend") and its share.
+// One treemap leaf: an AS organisation (or the caller's unknown label) and its share.
 export type MeasurementFrequency = {
     category: string;
     frequency: number;
@@ -28,6 +28,7 @@ const DEPENDENCY_TYPES = [DestinationDataset.WebhostingAS, DestinationDataset.Em
 // The share of hosted URLs per AS organisation for the selected services.
 export async function getDependencyFrequencies(
     services: SelectedService[],
+    unknownLabel: string,
 ): Promise<MeasurementFrequency[]> {
     await ensureDb();
     const slugs = services.map((service) => service.slug);
@@ -60,7 +61,7 @@ export async function getDependencyFrequencies(
     let total = 0;
     for (const measurement of latest.values()) {
         if (measurement.asn == null) continue; // unmeasured instances are excluded
-        const label = measurement.as_organisation ?? 'Onbekend';
+        const label = measurement.as_organisation ?? unknownLabel;
         const entry = counts.get(label) ?? {
             category: label,
             frequency: 0,
@@ -90,7 +91,10 @@ export type ServiceProviders = {
 
 // Every selected service with its per-service providers, in the selection order.
 // A service with no measured URLs still gets an entry, with an empty breakdown.
-export async function getServiceProviders(services: SelectedService[]): Promise<ServiceProviders[]> {
+export async function getServiceProviders(
+    services: SelectedService[],
+    unknownLabel: string,
+): Promise<ServiceProviders[]> {
     await ensureDb();
     const slugs = services.map((service) => service.slug);
     if (slugs.length === 0) return [];
@@ -117,12 +121,12 @@ export async function getServiceProviders(services: SelectedService[]): Promise<
     // Per service: the single latest measurement per dataset type, as its leaves.
     return services.map((service) => ({
         service,
-        frequencies: toServiceFrequencies(bySlug.get(service.slug) ?? []),
+        frequencies: toServiceFrequencies(bySlug.get(service.slug) ?? [], unknownLabel),
     }));
 }
 
 // The latest measurement of each hosting dataset type, as equal-share leaves.
-function toServiceFrequencies(measurements: Measurement[]): MeasurementFrequency[] {
+function toServiceFrequencies(measurements: Measurement[], unknownLabel: string): MeasurementFrequency[] {
     // Keep only the most recent measurement per dataset type we measure.
     const latest = new Map<string, Measurement>();
     for (const measurement of measurements) {
@@ -136,7 +140,7 @@ function toServiceFrequencies(measurements: Measurement[]): MeasurementFrequency
     // Two providers (email + webhosting) share the mosaic evenly; one fills it.
     const leaves = [...latest.values()];
     return leaves.map((measurement) => ({
-        category: measurement.as_organisation ?? 'Onbekend',
+        category: measurement.as_organisation ?? unknownLabel,
         frequency: 1,
         ratio: leaves.length > 0 ? 1 / leaves.length : 0,
         asn: measurement.asn ?? null,

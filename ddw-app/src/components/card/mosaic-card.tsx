@@ -11,6 +11,7 @@ import { MosaicTile } from '@/components/treemap/mosaic';
 import { isUSFrequency } from '@/components/treemap/patternDefs';
 import TreemapPatterns from '@/components/treemap/patterns';
 import type { MeasurementFrequency } from '@/data/dependencies';
+import { useTranslation } from '@/i18n/use-translation';
 import { buildTreemapLayout } from '@/treemap/layout';
 import { Spacing } from '@/theme/tokens';
 
@@ -33,9 +34,14 @@ export function MosaicCard({
     /** How many red slots have been revealed so far. */
     revealedUS?: number;
 }) {
+    const { t } = useTranslation();
     const innerWidth = width - MOSAIC_INSET;
     const innerHeight = height - MOSAIC_INSET;
-    const rects = useMemo(() => buildTreemapLayout(frequencies, innerWidth, innerHeight), [frequencies, innerWidth, innerHeight]);
+    const othersLabel = t('card.others');
+    const rects = useMemo(
+        () => buildTreemapLayout(frequencies, innerWidth, innerHeight, othersLabel),
+        [frequencies, innerWidth, innerHeight, othersLabel],
+    );
 
     // Without a caller-provided order, every US tile is red from the start.
     const order = useMemo(() => tileOrder ?? rects.map((rect) => (isUSFrequency(rect.frequency) ? 0 : null)), [tileOrder, rects]);

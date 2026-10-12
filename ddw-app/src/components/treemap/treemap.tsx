@@ -6,6 +6,7 @@ import { ClipPath, G, Line, Rect, Svg, Text } from 'react-native-svg';
 
 import type { CardContext } from '@/card/cardHtml';
 import type { MeasurementFrequency } from '@/data/dependencies';
+import { translate } from '@/i18n';
 import { buildTreemapLayout, type TreemapRect } from '@/treemap/layout';
 import { frequencyLabelName, truncateLabel } from '@/treemap/label';
 import { Colors, Fonts } from '@/theme/tokens';
@@ -131,10 +132,10 @@ export function Treemap({
 
     // The mosaic is laid out in its own region, then shifted into the card.
     const tiles = useMemo(
-        () => buildTreemapLayout(frequencies, mosaic.width, mosaic.height),
-        [frequencies, mosaic.width, mosaic.height],
+        () => buildTreemapLayout(frequencies, mosaic.width, mosaic.height, translate(context.language, 'card.others')),
+        [frequencies, mosaic.width, mosaic.height, context.language],
     );
-    const place = context.place ?? 'jouw buurt';
+    const place = context.place ?? translate(context.language, 'card.yourNeighbourhood');
 
     return (
         <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
@@ -144,10 +145,10 @@ export function Treemap({
             <Rect x={border.x} y={border.y} width={border.width} height={border.height} rx={15} fill="none" stroke={Colors.blue[800]} strokeWidth={2} />
             {/* Header: title and the visitor's place, then the navy rule. */}
             <Text x={content.x} y={titleY} fontSize={18} fontWeight="700" fill={Colors.blue[900]} fontFamily={Fonts.family}>
-                Jij
+                {translate(context.language, 'card.visitorTitle')}
             </Text>
             <Text x={content.x} y={subtitleY} fontSize={12} fontWeight="400" fill={Colors.blue[900]} fontFamily={Fonts.family}>
-                Woont in {place}
+                {translate(context.language, 'card.livesIn', { place })}
             </Text>
             <Line x1={border.x} y1={subtitleY + 11} x2={border.x + border.width} y2={subtitleY + 11} stroke={Colors.blue[900]} />
             {/* The treemap mosaic, filling the space the header leaves over. */}

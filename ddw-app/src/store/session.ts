@@ -12,7 +12,7 @@ import {
 import type { PdokDoc } from '@/data/places';
 import type { SelectedService } from '@/data/services';
 import { resolveUtilities, type Utilities } from '@/data/utilities';
-import { DEFAULT_LANGUAGE, type Language } from '@/i18n';
+import { DEFAULT_LANGUAGE, translate, type Language } from '@/i18n';
 
 // The generated A7 card, including the on-device PDF path.
 export type GeneratedCard = {
@@ -131,22 +131,24 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
     // providers, the combined frequencies, the place, and the A7 PDF. A stale run
     // is dropped, and any failure surfaces as an error the screens show.
     refreshCardData: async () => {
-        const { selectedServices, location } = get();
+        const { selectedServices, location, language } = get();
         const key = cardKey(selectedServices, location);
         const token = ++latestRequest;
+        // Resolve the language once, so every message in this run agrees.
+        const unknown = translate(language, 'card.unknown');
         set({ cardStatus: 'loading', cardError: null });
 
         try {
             const [providers, frequencies] = await Promise.all([
-                getServiceProviders(selectedServices),
-                getDependencyFrequencies(selectedServices),
+                getServiceProviders(selectedServices, unknown),
+                getDependencyFrequencies(selectedServices, unknown),
             ]);
             // The place comes straight from the PDOK document held in the session.
             const place = location?.pdok?.woonplaatsnaam ?? location?.pdok?.gemeentenaam ?? null;
-            if (frequencies.length === 0) throw new Error('Geen meetgegevens voor deze selectie.');
+            if (frequencies.length === 0) throw new Error(translate(language, 'common.noMeasurements'));
             // The print document pulls in the embedded fonts, so load it lazily.
             const { generateCardPdf } = await import('@/card/generate');
-            const { uri } = await generateCardPdf(frequencies, { place });
+            const { uri } = await generateCardPdf(frequencies, { place, language });
             if (token !== latestRequest) return;
             set({
                 cardData: { key, providers, frequencies, place },
@@ -158,7 +160,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
             if (token !== latestRequest) return;
             set({
                 cardStatus: 'error',
-                cardError: error instanceof Error ? error.message : 'De kaart kon niet worden gemaakt.',
+                cardError: error instanceof Error ? error.message : translate(language, 'card.buildError'),
             });
         }
     },

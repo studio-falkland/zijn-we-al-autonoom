@@ -12,6 +12,7 @@ import Installation from '@/assets/images/installation-visualisation.svg';
 import { MosaicCard } from '@/components/card/mosaic-card';
 import { Treemap } from '@/components/treemap/treemap';
 import type { MeasurementFrequency } from '@/data/dependencies';
+import { useTranslation } from '@/i18n/use-translation';
 import { Colors, Radii, Spacing } from '@/theme/tokens';
 import { StepPill } from './step-pill';
 
@@ -25,27 +26,34 @@ const FIT = ICON.width / A7.width;
 const STEP_DELAY = 220;
 
 export function StepDiagram({ frequencies, place }: { frequencies: MeasurementFrequency[]; place: string | null }) {
+    const { t, language } = useTranslation();
+
     const steps: { key: string; label: string; icon: ReactNode }[] = [
-        { key: 'guidance', label: 'Follow guidance', icon: <GuidanceCard /> },
+        { key: 'guidance', label: t('steps.guidance'), icon: <GuidanceCard /> },
         {
             key: 'personal',
-            label: 'Stick on personal card',
+            label: t('steps.personal'),
             icon: (
                 <ScaledCard>
-                    <Treemap frequencies={frequencies} width={A7.width} height={A7.height} context={{ place }} />
+                    <Treemap
+                        frequencies={frequencies}
+                        width={A7.width}
+                        height={A7.height}
+                        context={{ place, language }}
+                    />
                 </ScaledCard>
             ),
         },
         {
             key: 'pin',
-            label: 'Pin on the map',
+            label: t('steps.pin'),
             icon: (
                 <ScaledCard>
                     <MosaicCard frequencies={frequencies} width={A7.width} height={A7.height} />
                 </ScaledCard>
             ),
         },
-        { key: 'share', label: 'Share your thoughts', icon: <InstallationScene /> },
+        { key: 'share', label: t('steps.share'), icon: <InstallationScene /> },
     ];
 
     return (

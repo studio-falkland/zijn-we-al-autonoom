@@ -12,6 +12,8 @@ import { MosaicCard } from '@/components/card/mosaic-card';
 import { CARD_DIMENSIONS } from '@/components/organisation-card';
 import { Treemap } from '@/components/treemap/treemap';
 import type { MeasurementFrequency, ServiceProviders } from '@/data/dependencies';
+import type { Language } from '@/i18n';
+import { useTranslation } from '@/i18n/use-translation';
 import { Spacing, Theme, Type } from '@/theme/tokens';
 
 // The incoming card box, and the grid spacing around it.
@@ -44,6 +46,7 @@ export function FuseStage({
     onPrint: () => void;
     onContinue: () => void;
 }) {
+    const { t, language } = useTranslation();
     const [area, setArea] = useState<{ width: number; height: number } | null>(null);
     const [fused, setFused] = useState(false);
     const [ready, setReady] = useState(false);
@@ -82,28 +85,26 @@ export function FuseStage({
                                 order={index}
                             />
                         ))}
-                        <PersonalCard frequencies={frequencies} place={place} fused={fused} />
+                        <PersonalCard frequencies={frequencies} place={place} language={language} fused={fused} />
                     </>
                 )}
             </View>
             {/* Right third: the copy and the two actions. */}
             <View style={styles.panel}>
                 <View style={styles.copy}>
-                    <Text style={styles.heading}>Dit is jouw kaart</Text>
-                    <Text style={styles.line}>Al je diensten, samengevat op één kaart.</Text>
+                    <Text style={styles.heading}>{t('fuse.heading')}</Text>
+                    <Text style={styles.line}>{t('fuse.line')}</Text>
                 </View>
-                <Button label={printLabel(printing, printed)} onPress={onPrint} disabled={printing || !ready} />
-                <Button label="Continue" onPress={onContinue} disabled={!ready} />
+                <Button
+                    label={printing ? t('fuse.printing') : printed ? t('fuse.reprint') : t('fuse.print')}
+                    onPress={onPrint}
+                    disabled={printing || !ready}
+                />
+                <Button label={t('common.continue')} onPress={onContinue} disabled={!ready} />
                 {error && <Text style={styles.error}>{error}</Text>}
             </View>
         </View>
     );
-}
-
-// The interim print button's label, until printing is automated in Phase 3.
-function printLabel(printing: boolean, printed: boolean): string {
-    if (printing) return 'Printen…';
-    return printed ? 'Opnieuw printen' : 'Print kaart';
 }
 
 // One incoming card: it holds its slot, then shrinks and fades into the centre.
@@ -155,10 +156,12 @@ function FuseCard({
 function PersonalCard({
     frequencies,
     place,
+    language,
     fused,
 }: {
     frequencies: MeasurementFrequency[];
     place: string | null;
+    language: Language;
     fused: boolean;
 }) {
     const opacity = useSharedValue(0);
@@ -174,7 +177,7 @@ function PersonalCard({
 
     return (
         <Animated.View style={[styles.absolute, styles.centered, motion]}>
-            <Treemap frequencies={frequencies} width={A7_WIDTH} height={A7_HEIGHT} context={{ place }} />
+            <Treemap frequencies={frequencies} width={A7_WIDTH} height={A7_HEIGHT} context={{ place, language }} />
         </Animated.View>
     );
 }

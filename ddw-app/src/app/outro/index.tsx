@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/button';
 import { FailureState } from '@/components/failure-state';
 import { StepDiagram } from '@/components/outro/step-diagram';
+import { useTranslation } from '@/i18n/use-translation';
 import { cardKey, useSessionStore } from '@/store/session';
 import { Spacing, Theme, Type } from '@/theme/tokens';
 
@@ -23,6 +24,7 @@ export default function OutroScreen() {
     const cardError = useSessionStore((state) => state.cardError);
     const refreshCardData = useSessionStore((state) => state.refreshCardData);
     const resetSession = useSessionStore((state) => state.resetSession);
+    const { t } = useTranslation();
     const [seconds, setSeconds] = useState(RESET_SECONDS);
     const restarted = useRef(false);
 
@@ -59,11 +61,11 @@ export default function OutroScreen() {
             <View style={styles.content}>
                 {cardData && ready && <StepDiagram frequencies={cardData.frequencies} place={cardData.place} />}
                 <View style={styles.copy}>
-                    <Text style={styles.line}>You can find any guidance on your guidance card.</Text>
-                    <Text style={styles.line}>Let’s depict our society’s dependency together!</Text>
-                    <Text style={styles.line}>Thank you for participating!</Text>
+                    <Text style={styles.line}>{t('outro.guidance')}</Text>
+                    <Text style={styles.line}>{t('outro.together')}</Text>
+                    <Text style={styles.line}>{t('outro.thanks')}</Text>
                 </View>
-                <Button label={`Return to start (${seconds}s)`} onPress={restart} />
+                <Button label={t('outro.returnToStart', { seconds })} onPress={restart} />
             </View>
         </SafeAreaView>
     );

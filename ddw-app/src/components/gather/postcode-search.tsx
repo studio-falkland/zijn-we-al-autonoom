@@ -10,13 +10,15 @@ import { Circle, Line, Svg } from 'react-native-svg';
 import { Input } from '@/components/input';
 import { usePlaceSearch, type PlaceSuggestion } from '@/data/places';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
+import type { MessageKey } from '@/i18n';
+import { useTranslation } from '@/i18n/use-translation';
 import { Colors, Radii, Spacing, Type } from '@/theme/tokens';
 
-// PDOK's result types, shown in the app's language.
-const TYPE_LABELS: Record<string, string> = {
-    gemeente: 'Municipality',
-    woonplaats: 'Place',
-    postcode: 'Postcode',
+// PDOK's result types as i18n keys, shown in the visitor's language.
+const TYPE_KEYS: Record<string, MessageKey> = {
+    gemeente: 'search.types.gemeente',
+    woonplaats: 'search.types.woonplaats',
+    postcode: 'search.types.postcode',
 };
 
 // How long to wait after the last keystroke before querying PDOK.
@@ -35,6 +37,7 @@ function SearchIcon() {
 export function PostcodeSearch({ onSelect }: { onSelect: (place: PlaceSuggestion) => void }) {
     const [input, setInput] = useState('');
     const inputRef = useRef<TextInput>(null);
+    const { t } = useTranslation();
 
     // The debounced copy of `input` that actually drives the request.
     const query = useDebouncedValue(input, DEBOUNCE_MS);
@@ -58,7 +61,7 @@ export function PostcodeSearch({ onSelect }: { onSelect: (place: PlaceSuggestion
                 icon={<SearchIcon />}
                 value={input}
                 onChangeText={setInput}
-                placeholder="Search for places or postcodes…"
+                placeholder={t('search.placeholder')}
                 placeholderTextColor={Colors.blue.textbox}
                 autoCorrect={false}
                 returnKeyType="search"
@@ -70,17 +73,20 @@ export function PostcodeSearch({ onSelect }: { onSelect: (place: PlaceSuggestion
                         data={places}
                         keyExtractor={(place) => place.id}
                         keyboardShouldPersistTaps="handled"
-                        renderItem={({ item }) => (
-                            <Pressable
-                                onPress={() => handleSelect(item)}
-                                style={({ pressed }) => [styles.item, pressed && styles.itemPressed]}
-                            >
-                                <Text style={styles.itemLabel} numberOfLines={1}>
-                                    {item.label}
-                                </Text>
-                                <Text style={styles.itemType}>{TYPE_LABELS[item.type] ?? item.type}</Text>
-                            </Pressable>
-                        )}
+                        renderItem={({ item }) => {
+                            const typeKey = TYPE_KEYS[item.type];
+                            return (
+                                <Pressable
+                                    onPress={() => handleSelect(item)}
+                                    style={({ pressed }) => [styles.item, pressed && styles.itemPressed]}
+                                >
+                                    <Text style={styles.itemLabel} numberOfLines={1}>
+                                        {item.label}
+                                    </Text>
+                                    <Text style={styles.itemType}>{typeKey ? t(typeKey) : item.type}</Text>
+                                </Pressable>
+                            );
+                        }}
                     />
                 </View>
             )}

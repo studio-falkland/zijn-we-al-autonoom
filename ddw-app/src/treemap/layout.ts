@@ -20,9 +20,10 @@ export type TreemapRect = {
     frequency: MeasurementFrequency;
 };
 
-// The "Others" roll-up tile: no AS attribution of its own.
-const othersLeaf = (): MeasurementFrequency => ({
-    category: 'Others',
+// The "Others" roll-up tile: no AS attribution of its own. Its label comes from
+// the caller (translated), so this module stays language-free.
+const othersLeaf = (label: string): MeasurementFrequency => ({
+    category: label,
     frequency: 0,
     ratio: 0,
     asn: null,
@@ -35,6 +36,7 @@ export function buildTreemapLayout(
     frequencies: MeasurementFrequency[],
     width: number,
     height: number,
+    othersLabel: string,
 ): TreemapRect[] {
     // Group the small shares into an "Others" accumulator, like the web app.
     const { main, other } = frequencies.reduce(
@@ -47,7 +49,7 @@ export function buildTreemapLayout(
             }
             return acc;
         },
-        { main: [] as MeasurementFrequency[], other: othersLeaf() },
+        { main: [] as MeasurementFrequency[], other: othersLeaf(othersLabel) },
     );
 
     // Only append "Others" when it actually absorbed any frequencies.

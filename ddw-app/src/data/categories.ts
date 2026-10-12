@@ -1,25 +1,27 @@
 // The service categories the visitor reviews after the locked-in step, in order.
 //
-// Each maps to a hierarchy category and carries its step's question. Keeping the
-// order and copy here means adding a category (supermarkets, say) is one entry.
+// Each maps to a hierarchy category and carries the message key of its step's
+// question, so the copy itself lives (translated) in the i18n dictionaries.
 import { Category } from '@are-we-dependent/data';
+
+import type { MessageKey } from '@/i18n';
 
 export type ServiceCategory = {
     key: string;
     category: Category;
-    question: string;
+    questionKey: MessageKey;
 };
 
 export const SERVICE_CATEGORIES: ServiceCategory[] = [
     {
         key: 'education',
         category: Category.Education,
-        question: 'Does one of your family members go to one of these educational facilities?',
+        questionKey: 'categories.education',
     },
     {
         key: 'healthcare',
         category: Category.Healthcare,
-        question: 'Do you or your family members use any of these healthcare providers?',
+        questionKey: 'categories.healthcare',
     },
 ];
 

@@ -19,6 +19,7 @@ import { CARD_DIMENSIONS } from '@/components/organisation-card';
 import { findCategory, nextCategory } from '@/data/categories';
 import { getCategoryOrganisations } from '@/data/organisations';
 import { type PlaceSuggestion } from '@/data/places';
+import { useTranslation } from '@/i18n/use-translation';
 import { useSessionStore } from '@/store/session';
 import { Colors, Radii, Shadows, Spacing, Theme, Type } from '@/theme/tokens';
 
@@ -58,6 +59,7 @@ export default function CategoryScreen() {
     const location = useSessionStore((state) => state.location);
     const selected = useSessionStore((state) => state.selectedServices);
     const toggleService = useSessionStore((state) => state.toggleService);
+    const { t } = useTranslation();
     const cameraRef = useRef<CameraRef>(null);
     const [organisations, setOrganisations] = useState<Organisation[] | null>(null);
 
@@ -151,10 +153,10 @@ export default function CategoryScreen() {
             <View style={styles.column}>
                 <PostcodeSearch onSelect={handleSearchSelect} />
                 <View style={styles.panel}>
-                    <Text style={styles.question}>{current.question}</Text>
-                    <Text style={styles.body}>Select them on the map.</Text>
+                    <Text style={styles.question}>{t(current.questionKey)}</Text>
+                    <Text style={styles.body}>{t('services.selectOnMap')}</Text>
                     <Button
-                        label={picked ? 'Continue' : "I don't use any"}
+                        label={picked ? t('common.continue') : t('services.skip')}
                         onPress={handleAdvance}
                         size="small"
                     />

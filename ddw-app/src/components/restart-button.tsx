@@ -8,6 +8,7 @@ import { Alert, Pressable, StyleSheet } from 'react-native';
 import { Path, Svg } from 'react-native-svg';
 
 import { useSessionStore } from '@/store/session';
+import { useTranslation } from '@/i18n/use-translation';
 import { Colors, Radii, Spacing } from '@/theme/tokens';
 
 // The button's own size, and the horizontal space it reserves at the top-left
@@ -17,13 +18,14 @@ export const RESTART_BUTTON_GUTTER = Spacing.md + BUTTON_SIZE + Spacing.md;
 
 export function RestartButton() {
     const resetSession = useSessionStore((state) => state.resetSession);
+    const { t } = useTranslation();
 
     // Confirm first: a restart throws away the current visitor's choices.
     const handlePress = () => {
-        Alert.alert('Restart?', 'This clears your choices and returns to the start.', [
-            { text: 'Cancel', style: 'cancel' },
+        Alert.alert(t('restart.title'), t('restart.message'), [
+            { text: t('common.cancel'), style: 'cancel' },
             {
-                text: 'Restart',
+                text: t('restart.confirm'),
                 style: 'destructive',
                 onPress: () => {
                     resetSession();

@@ -9,7 +9,7 @@ import { Path, Svg } from 'react-native-svg';
 import { CardBody, CardIcon, CardPatternedBackground } from '@/components/card/card-body';
 import { CardContainer } from '@/components/card/card-container';
 import { CardHeader, CardSubtitle, CardTitle } from '@/components/card/card-header';
-import { SectorIcon, sectorLabel } from '@/components/sectors';
+import { SectorIcon, useSectorLabel } from '@/components/sectors';
 import type { SelectedService } from '@/data/services';
 import { Colors, Radii, Spacing, Theme } from '@/theme/tokens';
 
@@ -95,6 +95,7 @@ export function OrganisationCard({
     size?: OrganisationCardSize;
 }) {
     const sector = organisation.classifications?.[0]?.sector;
+    const sectorLabel = useSectorLabel();
     const metrics = SIZES[size];
     const trash = Math.round(metrics.remove * 0.6);
 

@@ -14,6 +14,8 @@ import { CARD_DIMENSIONS } from '@/components/organisation-card';
 import { RECOLOR_DURATION } from '@/components/treemap/mosaic';
 import { isUSFrequency } from '@/components/treemap/patternDefs';
 import type { ServiceProviders } from '@/data/dependencies';
+import type { MessageKey } from '@/i18n';
+import { useTranslation } from '@/i18n/use-translation';
 import { buildTreemapLayout } from '@/treemap/layout';
 import { Spacing, Theme, Type } from '@/theme/tokens';
 import { RevealCard, type RevealPosition } from './reveal-card';
@@ -38,22 +40,20 @@ const POST_FLIP_HOLD = 500;
 const RECOLOR_STAGGER = 360;
 const POST_RECOLOR_HOLD = 600;
 
-// The copy per phase. The visitor moves between phases with the panel's button.
-const COPY = {
-    preTurn: [
-        'Your daily life relies so much on these services.',
-        'These services themselves also rely on digital infrastructures.',
-        'Let’s reveal how they depend on these infrastructures.',
-    ],
-    preColor: ['Have you seen some familiar names? What if someone turned them off?'],
-    postColor: ['How much of your daily life remains?'],
-} as const;
+// The copy per phase, as i18n keys. The visitor moves between phases with the
+// panel's button.
+const COPY: { preTurn: MessageKey[]; preColor: MessageKey[]; postColor: MessageKey[] } = {
+    preTurn: ['reveal.preTurn1', 'reveal.preTurn2', 'reveal.preTurn3'],
+    preColor: ['reveal.preColor'],
+    postColor: ['reveal.postColor'],
+};
 
 // The phase the reveal is in: settling, waiting on Reveal, turning, waiting on
 // Shut them down, recolouring, or finished.
 type Stage = 'grid' | 'ready-reveal' | 'turning' | 'ready-shutdown' | 'shutting' | 'done';
 
 export function RevealStage({ cards, onContinue }: { cards: ServiceProviders[]; onContinue: () => void }) {
+    const { t } = useTranslation();
     const [screen, setScreen] = useState<{ width: number; height: number } | null>(null);
     const [stageArea, setStageArea] = useState<{ width: number; height: number } | null>(null);
     const [stage, setStage] = useState<Stage>('grid');
@@ -63,8 +63,8 @@ export function RevealStage({ cards, onContinue }: { cards: ServiceProviders[]; 
 
     // Each card's tiles, the US recolour order, and the fan/grid slots.
     const plan = useMemo(
-        () => (screen && stageArea ? planReveal(cards, screen, stageArea) : null),
-        [cards, screen, stageArea],
+        () => (screen && stageArea ? planReveal(cards, screen, stageArea, t('card.others')) : null),
+        [cards, screen, stageArea, t],
     );
     const usCount = plan?.usCount ?? 0;
 
@@ -132,13 +132,13 @@ export function RevealStage({ cards, onContinue }: { cards: ServiceProviders[]; 
                 <View style={styles.stage} onLayout={handleStageLayout} />
                 <View style={styles.panel}>
                     <View style={styles.copy}>
-                        {panel.copy.map((line) => (
-                            <Text key={line} style={styles.line}>
-                                {line}
+                        {panel.copy.map((key) => (
+                            <Text key={key} style={styles.line}>
+                                {t(key)}
                             </Text>
                         ))}
                     </View>
-                    <Button label={panel.label} onPress={panel.onPress} disabled={panel.disabled} />
+                    <Button label={t(panel.label)} onPress={panel.onPress} disabled={panel.disabled} />
                 </View>
             </View>
         </View>
@@ -149,27 +149,32 @@ export function RevealStage({ cards, onContinue }: { cards: ServiceProviders[]; 
 function panelFor(
     stage: Stage,
     actions: { reveal: () => void; shutdown: () => void; onContinue: () => void },
-): { copy: readonly string[]; label: string; onPress: () => void; disabled: boolean } {
+): { copy: MessageKey[]; label: MessageKey; onPress: () => void; disabled: boolean } {
     if (stage === 'done') {
-        return { copy: COPY.postColor, label: 'Continue', onPress: actions.onContinue, disabled: false };
+        return { copy: COPY.postColor, label: 'common.continue', onPress: actions.onContinue, disabled: false };
     }
     if (stage === 'ready-shutdown' || stage === 'shutting') {
         return {
             copy: COPY.preColor,
-            label: 'Shut them down',
+            label: 'reveal.shutdown',
             onPress: actions.shutdown,
             disabled: stage !== 'ready-shutdown',
         };
     }
-    return { copy: COPY.preTurn, label: 'Reveal', onPress: actions.reveal, disabled: stage !== 'ready-reveal' };
+    return { copy: COPY.preTurn, label: 'reveal.reveal', onPress: actions.reveal, disabled: stage !== 'ready-reveal' };
 }
 
 // Each card's mosaic, the global US recolour order, and its fan/grid slots.
-function planReveal(cards: ServiceProviders[], screen: { width: number; height: number }, stageArea: { width: number; height: number }) {
+function planReveal(
+    cards: ServiceProviders[],
+    screen: { width: number; height: number },
+    stageArea: { width: number; height: number },
+    othersLabel: string,
+) {
     // A running counter hands each US tile its slot in the blue-to-red sequence.
     let usCount = 0;
     const laid = cards.map((card) => {
-        const rects = buildTreemapLayout(card.frequencies, CARD.width - MOSAIC_INSET, CARD.height - MOSAIC_INSET);
+        const rects = buildTreemapLayout(card.frequencies, CARD.width - MOSAIC_INSET, CARD.height - MOSAIC_INSET, othersLabel);
         const tileOrder = rects.map((rect) => (isUSFrequency(rect.frequency) ? usCount++ : null));
         return { tileOrder };
     });

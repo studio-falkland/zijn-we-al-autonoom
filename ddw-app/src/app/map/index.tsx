@@ -14,8 +14,11 @@ import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
+import { useSectorLabel } from '@/components/sectors';
 import { getMapOrganisations, mapSortKey } from '@/data/organisations';
 import type { SelectedService } from '@/data/services';
+import { translate } from '@/i18n';
+import { useTranslation } from '@/i18n/use-translation';
 import { mapStyle } from '@/map/style';
 import { useSessionStore } from '@/store/session';
 import { Colors, Spacing, Theme, Type } from '@/theme/tokens';
@@ -23,33 +26,6 @@ import { Colors, Spacing, Theme, Type } from '@/theme/tokens';
 // The Netherlands with margin; the camera never leaves the country.
 const NL_BOUNDS: [number, number, number, number] = [3.2, 50.7, 7.3, 53.6];
 const NL_MAX_BOUNDS: [number, number, number, number] = [2.5, 50.2, 8.0, 54.1];
-
-// Dutch sector labels (mirrors the web app's labels, plus utilities).
-const SECTOR_LABELS: Record<string, string> = {
-    government_ministry: 'Ministerie',
-    government_province: 'Provincie',
-    government_municipality: 'Gemeente',
-    government_water_board: 'Waterschap',
-    government_other: 'Overig',
-    healthcare_hospital: 'Ziekenhuis',
-    healthcare_pharmacy: 'Apotheek',
-    healthcare_dentist: 'Tandarts',
-    healthcare_physiotherapist: 'Fysiotherapeut',
-    healthcare_nursing_home: 'Verzorgingstehuis',
-    healthcare_other: 'Overig',
-    education_daycare: 'Kinderopvang',
-    education_primary: 'Basisschool',
-    education_secondary: 'Middelbaar onderwijs',
-    education_higher: 'Hoger onderwijs',
-    utilities_power: 'Energie',
-    utilities_water: 'Drinkwater',
-};
-
-// The sector of the provider's first classification, in Dutch.
-function sectorLabel(org: SelectedService): string {
-    const sector = org.classifications?.[0]?.sector;
-    return sector ? SECTOR_LABELS[sector] ?? sector : '';
-}
 
 // Providers become GeoJSON points; each carries the icon its button needs.
 function toFeatures(
@@ -79,8 +55,16 @@ export default function MapScreen() {
     const setLocation = useSessionStore((state) => state.setLocation);
     const selected = useSessionStore((state) => state.selectedServices);
     const toggleService = useSessionStore((state) => state.toggleService);
+    const { t } = useTranslation();
+    const sectorLabel = useSectorLabel();
     const [organisations, setOrganisations] = useState<Organisation[] | null>(null);
     const [loadError, setLoadError] = useState<string | null>(null);
+
+    // The sector label of an organisation's first classification.
+    const orgSectorLabel = (org: SelectedService) => {
+        const sector = org.classifications?.[0]?.sector;
+        return sector ? sectorLabel(sector) : '';
+    };
 
     // Load the map organisations once on mount.
     useEffect(() => {
@@ -88,7 +72,7 @@ export default function MapScreen() {
             .then(setOrganisations)
             .catch((error) => {
                 console.error('Failed to load map organisations', error);
-                setLoadError(error instanceof Error ? error.message : 'De kaart kon niet worden geladen.');
+                setLoadError(error instanceof Error ? error.message : translate(useSessionStore.getState().language, 'map.loadError'));
             });
     }, []);
 
@@ -118,11 +102,11 @@ export default function MapScreen() {
         <SafeAreaView style={styles.screen}>
             <View style={styles.header}>
                 <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-                    <Text style={styles.backLabel}>‹ Terug</Text>
+                    <Text style={styles.backLabel}>{`‹ ${t('common.back')}`}</Text>
                 </Pressable>
                 <View style={styles.headerText}>
-                    <Text style={Type.page}>Waar woon je?</Text>
-                    <Text style={styles.hint}>Zoom in op de kaart en tik op diensten om ze te selecteren.</Text>
+                    <Text style={Type.page}>{t('map.title')}</Text>
+                    <Text style={styles.hint}>{t('map.hint')}</Text>
                 </View>
             </View>
 
@@ -175,7 +159,7 @@ export default function MapScreen() {
                 </View>
 
                 <View style={styles.panel}>
-                    <Text style={styles.panelTitle}>Geselecteerd ({selected.length})</Text>
+                    <Text style={styles.panelTitle}>{t('map.selectedCount', { count: selected.length })}</Text>
                     <FlatList
                         data={selected}
                         keyExtractor={(item) => item.slug}
@@ -187,7 +171,7 @@ export default function MapScreen() {
                                     <Text style={Type.body} numberOfLines={1}>
                                         {item.name}
                                     </Text>
-                                    <Text style={styles.rowMeta}>{sectorLabel(item)}</Text>
+                                    <Text style={styles.rowMeta}>{orgSectorLabel(item)}</Text>
                                 </View>
                                 <Pressable
                                     onPress={() => toggleService(item)}
@@ -199,11 +183,11 @@ export default function MapScreen() {
                             </View>
                         )}
                         ListEmptyComponent={
-                            <Text style={styles.empty}>Tik op de kaart op diensten om ze toe te voegen.</Text>
+                            <Text style={styles.empty}>{t('map.empty')}</Text>
                         }
                     />
                     <Button
-                        label="Doorgaan"
+                        label={t('common.continue')}
                         disabled={selected.length === 0}
                         onPress={() => router.push('/generate')}
                     />

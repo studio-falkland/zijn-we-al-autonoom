@@ -18,6 +18,7 @@ import { BaseMap } from '@/components/gather/base-map';
 import { PostcodeSearch } from '@/components/gather/postcode-search';
 import { PersonIcon } from '@/components/icons';
 import { reversePlace, type PlaceSuggestion } from '@/data/places';
+import { useTranslation } from '@/i18n/use-translation';
 import { useSessionStore } from '@/store/session';
 import { Colors, Radii, Shadows, Spacing, Theme, Type } from '@/theme/tokens';
 
@@ -35,6 +36,7 @@ function pointFeature(point: [number, number] | null): GeoJSON.FeatureCollection
 export default function PostcodeScreen() {
     const location = useSessionStore((state) => state.location);
     const setLocation = useSessionStore((state) => state.setLocation);
+    const { t } = useTranslation();
     const cameraRef = useRef<CameraRef>(null);
     // The just-tapped point, drawn at once (in map coordinates) while it resolves.
     const [pendingLngLat, setPendingLngLat] = useState<[number, number] | null>(null);
@@ -92,10 +94,14 @@ export default function PostcodeScreen() {
             <View style={styles.column}>
                 <PostcodeSearch onSelect={handleSearchSelect} />
                 <View style={styles.panel}>
-                    <Text style={styles.body}>Let&apos;s start from our surroundings.</Text>
-                    <Text style={styles.body}>Zoom to where you live or stay, then tap the map.</Text>
+                    <Text style={styles.body}>{t('gather.lead1')}</Text>
+                    <Text style={styles.body}>{t('gather.lead2')}</Text>
                     <Button
-                        label={location ? `Explore ${formatPostcode(location.postcode)}` : 'Explore'}
+                        label={
+                            location
+                                ? t('gather.explorePostcode', { postcode: formatPostcode(location.postcode) })
+                                : t('gather.explore')
+                        }
                         disabled={!location}
                         onPress={handleConfirm}
                         size="small"
@@ -105,9 +111,11 @@ export default function PostcodeScreen() {
                     panel with the visitor's icon. */}
                 <CardContainer style={styles.cardBody}>
                     <CardHeader>
-                        <CardTitle>You</CardTitle>
+                        <CardTitle>{t('gather.you')}</CardTitle>
                         <CardSubtitle>
-                            {location ? `Live in ${formatPostcode(location.postcode)}` : 'Where do you live?'}
+                            {location
+                                ? t('gather.liveIn', { postcode: formatPostcode(location.postcode) })
+                                : t('gather.whereDoYouLive')}
                         </CardSubtitle>
                     </CardHeader>
                     <CardBody>

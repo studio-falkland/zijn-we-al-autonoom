@@ -6,6 +6,7 @@
 
 import { isUSFrequency, PatternMatcher, renderPatternDefsSvg } from '@/components/treemap/patternDefs';
 import type { MeasurementFrequency } from '@/data/dependencies';
+import { translate, type Language } from '@/i18n';
 import { buildTreemapLayout, type TreemapRect } from '@/treemap/layout';
 import { frequencyLabelName, truncateLabel } from '@/treemap/label';
 
@@ -42,6 +43,7 @@ const MOSAIC_TOP = SUBTITLE_TOP + PADDING + 8;
 // Visitor context that personalises the header.
 export type CardContext = {
     place: string | null;
+    language: Language;
 };
 
 // Namespace prefix used by the inlined SVG so `<mask url(#..)>` links resolve.
@@ -124,9 +126,10 @@ function fontFaces(): string {
 // The full A7 card document: header and the dependency mosaic.
 export function buildCardHtml(frequencies: MeasurementFrequency[], context: CardContext): string {
     const { border, content, titleY, subtitleY, mosaic } = cardLayout(A7_WIDTH, A7_HEIGHT);
+    const { language } = context;
 
     // The mosaic is laid out in its own region, then shifted into the card.
-    const tiles = buildTreemapLayout(frequencies, mosaic.width, mosaic.height)
+    const tiles = buildTreemapLayout(frequencies, mosaic.width, mosaic.height, translate(language, 'card.others'))
         .map((rect, index) =>
             tileToSvg(
                 { ...rect, x: rect.x + mosaic.x, y: rect.y + mosaic.y },
@@ -137,11 +140,12 @@ export function buildCardHtml(frequencies: MeasurementFrequency[], context: Card
         .join('');
 
     // The personalised copy: title and the visitor's place.
-    const title = 'Jij';
-    const subtitle = `Woont in ${escapeXml(context.place ?? 'jouw buurt')}`;
+    const title = translate(language, 'card.visitorTitle');
+    const place = context.place ?? translate(language, 'card.yourNeighbourhood');
+    const subtitle = translate(language, 'card.livesIn', { place });
 
     return (
-        `<!doctype html><html lang="nl"><head><meta charset="utf-8"/>` +
+        `<!doctype html><html lang="${language}"><head><meta charset="utf-8"/>` +
         `<style>html,body{margin:0;padding:0}${fontFaces()}svg{display:block}</style>` +
         `</head><body>` +
         `<svg ${SVG_NS} width="${A7_WIDTH}" height="${A7_HEIGHT}" viewBox="0 0 ${A7_WIDTH} ${A7_HEIGHT}">` +
