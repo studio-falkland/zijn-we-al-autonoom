@@ -1,6 +1,6 @@
 // Map-facing query: every active local organisation with coordinates.
-import { GovernmentSector, Organisation, Region } from '@are-we-dependent/data';
-import { IsNull, Not } from 'typeorm';
+import { Category, GovernmentSector, Organisation, Region } from '@are-we-dependent/data';
+import { Between, IsNull, Not } from 'typeorm';
 
 import { db, ensureDb } from './db';
 
@@ -50,4 +50,95 @@ export async function getPlaceName(postcode: string): Promise<string | null> {
         select: { city: true },
     });
     return organisation?.city ?? null;
+}
+
+// The location-bound providers we measure: the visitor's municipality and their
+// water authority. A field is null when its name matches no organisation.
+export type LocationProviders = {
+    municipality: Organisation | null;
+    waterschap: Organisation | null;
+};
+
+// Strip the leading type word and case, so PDOK and RIO names compare equal:
+// PDOK says "Waterschap Amstel, Gooi en Vecht", the database "Amstel, Gooi en
+// Vecht"; "Hoogheemraadschap van Rijnland" reduces to "rijnland" on both sides.
+function normaliseProviderName(name: string): string {
+    return name
+        .toLowerCase()
+        .replace(/^(gemeente|waterschap|hoogheemraadschap)\s+/, '')
+        .replace(/^van\s+/, '')
+        .trim();
+}
+
+// Every active local organisation of one government sector, for name matching.
+async function getLocalSectorOrganisations(sector: GovernmentSector): Promise<Organisation[]> {
+    await ensureDb();
+
+    // The classification join narrows to the sector; relations load the rows.
+    return db.getRepository(Organisation).find({
+        where: { active: true, classifications: { region: Region.Local, sector } },
+        relations: { classifications: true },
+    });
+}
+
+// The box (degrees) and cap for a category's local providers: roughly the fixed
+// map viewport, so the pins stay legible.
+const CATEGORY_SPAN = 0.15;
+const CATEGORY_LIMIT = 40;
+
+// Active local organisations in a category within a box around the visitor,
+// nearest first — the pool a category step pins on the map.
+export async function getCategoryOrganisations(
+    center: [number, number],
+    category: Category,
+): Promise<Organisation[]> {
+    await ensureDb();
+    const [lng, lat] = center;
+
+    const organisations = await db.getRepository(Organisation).find({
+        where: {
+            active: true,
+            lat: Between(lat - CATEGORY_SPAN, lat + CATEGORY_SPAN),
+            lng: Between(lng - CATEGORY_SPAN, lng + CATEGORY_SPAN),
+            classifications: { region: Region.Local, category },
+        },
+        relations: { classifications: true },
+    });
+
+    // Squared distance to the visitor is enough to order the results.
+    const distance = (organisation: Organisation) =>
+        ((organisation.lat ?? lat) - lat) ** 2 + ((organisation.lng ?? lng) - lng) ** 2;
+
+    return organisations.sort((a, b) => distance(a) - distance(b)).slice(0, CATEGORY_LIMIT);
+}
+
+// Resolve the visitor's municipality and water authority. Both names come from
+// their location: the municipality from the PDOK document, the water authority
+// from the utility lookup. Names are matched with the type word stripped.
+export async function getLocationProviders(names: {
+    gemeente?: string;
+    waterschap?: string;
+}): Promise<LocationProviders> {
+    const [municipalities, waterschappen] = await Promise.all([
+        names.gemeente ? getLocalSectorOrganisations(GovernmentSector.Municipality) : [],
+        names.waterschap ? getLocalSectorOrganisations(GovernmentSector.WaterBoard) : [],
+    ]);
+
+    // The first organisation whose normalised name matches the looked-up name,
+    // with a contains fallback for small registry spelling differences.
+    const match = (organisations: Organisation[], name?: string) => {
+        if (!name) return null;
+        const target = normaliseProviderName(name);
+        if (!target) return null;
+        return (
+            organisations.find((org) => normaliseProviderName(org.name) === target) ??
+            organisations.find((org) => normaliseProviderName(org.name).includes(target)) ??
+            null
+        );
+    };
+
+    return {
+        municipality: match(municipalities, names.gemeente),
+        waterschap: match(waterschappen, names.waterschap),
+    };
 }

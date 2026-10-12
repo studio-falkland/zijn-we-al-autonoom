@@ -4,18 +4,20 @@
 // Tapping the map resolves the tapped point to a postcode (via PDOK); the search
 // box flies the camera to a municipality or postcode.
 import { GeoJSONSource, Layer, type CameraRef, type MapProps } from '@maplibre/maplibre-react-native';
+import { router } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
 import { CardBody, CardIcon, CardPatternedBackground } from '@/components/card/card-body';
 import { CardContainer } from '@/components/card/card-container';
 import { CardHeader, CardSubtitle, CardTitle } from '@/components/card/card-header';
-import { BaseMap, NL_BOUNDS } from '@/components/gather/base-map';
+import { BaseMap } from '@/components/gather/base-map';
 import { MapPanel } from '@/components/gather/map-panel';
 import { PostcodeSearch } from '@/components/gather/postcode-search';
 import { PersonIcon } from '@/components/icons';
+import { RESTART_BUTTON_GUTTER } from '@/components/restart-button';
 import { reversePlace, type PlaceSuggestion } from '@/data/places';
 import { useSessionStore } from '@/store/session';
 import { Colors, Radii, Spacing, Theme, Type } from '@/theme/tokens';
@@ -67,14 +69,9 @@ export default function PostcodeScreen() {
         if (place.center) cameraRef.current?.flyTo({ center: place.center, zoom: 13, duration: 500 });
     }, []);
 
-    // The reset control returns the camera to the whole country.
-    const handleReset = useCallback(() => {
-        cameraRef.current?.fitBounds(NL_BOUNDS, { duration: 400 });
-    }, []);
-
-    // Confirming the postcode advances to service gathering (the next step).
+    // Confirming the postcode advances to the locked-in providers (the next step).
     const handleConfirm = useCallback(() => {
-        // TODO: advance to the services step once it exists.
+        router.push('/services');
     }, []);
 
     // The dot sits on the pending tap first, then on the stored location.
@@ -100,15 +97,11 @@ export default function PostcodeScreen() {
                                 />
                             </GeoJSONSource>
                         </BaseMap>
-                        {/* Top bar: reset the view, and the selected postcode card. */}
-                        <View style={styles.topBar}>
-                            <Pressable
-                                onPress={handleReset}
-                                hitSlop={8}
-                                style={({ pressed }) => [styles.reset, pressed && styles.pressed]}
-                            >
-                                <Text style={styles.resetLabel}>↺</Text>
-                            </Pressable>
+                        {/* Top overlay: the search beside the restart button, the card beneath. */}
+                        <View style={styles.topOverlay}>
+                            <View style={styles.searchWrap}>
+                                <PostcodeSearch onSelect={handleSearchSelect} />
+                            </View>
                             {(resolving || location) && (
                                 <CardContainer style={styles.postcodeCard}>
                                     <Text style={styles.selectedLabel}>Currently selected postcode</Text>
@@ -117,10 +110,6 @@ export default function PostcodeScreen() {
                                     </Text>
                                 </CardContainer>
                             )}
-                        </View>
-                        {/* Search pinned to the bottom edge of the map. */}
-                        <View style={styles.search}>
-                            <PostcodeSearch onSelect={handleSearchSelect} />
                         </View>
                     </View>
                 }
@@ -165,14 +154,16 @@ const styles = StyleSheet.create({
         flex: 1,
         position: 'relative',
     },
-    topBar: {
-        alignItems: 'flex-start',
-        flexDirection: 'row',
+    topOverlay: {
         gap: Spacing.md,
-        left: Spacing.lg,
+        left: 0,
         position: 'absolute',
-        right: Spacing.lg,
-        top: Spacing.lg,
+        right: 0,
+        top: Spacing.md,
+    },
+    searchWrap: {
+        marginLeft: RESTART_BUTTON_GUTTER,
+        marginRight: Spacing.lg,
     },
     reset: {
         alignItems: 'center',
@@ -192,12 +183,6 @@ const styles = StyleSheet.create({
         color: Colors.blue[800],
         lineHeight: 28,
     },
-    search: {
-        bottom: Spacing.lg,
-        left: Spacing.lg,
-        position: 'absolute',
-        right: Spacing.lg,
-    },
     panel: {
         alignItems: 'flex-start',
         gap: Spacing.lg,
@@ -205,7 +190,7 @@ const styles = StyleSheet.create({
     postcodeCard: {
         marginHorizontal: 'auto',
         flexShrink: 1,
-        gap: Spacing.xs,
+        gap: Spacing.md,
         padding: Spacing.md,
     },
     selectedLabel: {
@@ -214,6 +199,7 @@ const styles = StyleSheet.create({
     },
     selectedValue: {
         ...Type.sub,
+        textAlign: 'center',
     },
     cardBody: {
         alignSelf: 'stretch',

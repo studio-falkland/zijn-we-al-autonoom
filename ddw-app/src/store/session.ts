@@ -36,6 +36,7 @@ export type SessionState = {
     setLocation(location: Location): void;
     setUtilities(utilities: Utilities | null): void;
     toggleService(service: Organisation): void;
+    addServices(services: Organisation[]): void;
     setGeneratedCard(card: GeneratedCard): void;
     setPrintStatus(status: PrintStatus): void;
     resetSession(): void;
@@ -73,6 +74,14 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
                 ? state.selectedServices.filter((s) => s.slug !== service.slug)
                 : [...state.selectedServices, service],
         })),
+
+    // Add services that are not selected yet, keyed by slug (idempotent).
+    addServices: (services) =>
+        set((state) => {
+            const selected = new Set(state.selectedServices.map((s) => s.slug));
+            const additions = services.filter((s) => !selected.has(s.slug));
+            return additions.length > 0 ? { selectedServices: [...state.selectedServices, ...additions] } : {};
+        }),
 
     // Store the generated card once the PDF exists on device.
     setGeneratedCard: (generatedCard) => set({ generatedCard }),

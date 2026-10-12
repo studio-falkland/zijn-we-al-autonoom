@@ -63,7 +63,7 @@ export function PostcodeSearch({ onSelect }: { onSelect: (place: PlaceSuggestion
                 autoCorrect={false}
                 returnKeyType="search"
             />
-            {/* Suggestions open upward: the box sits at the bottom of the map. */}
+            {/* Suggestions open downward: the box sits at the top of the map. */}
             {showSuggestions && (
                 <View style={styles.dropdown}>
                     <FlatList
@@ -98,13 +98,13 @@ const styles = StyleSheet.create({
         borderColor: Colors.blue[800],
         borderRadius: Radii.md,
         borderWidth: 1,
-        bottom: '100%',
         left: 0,
-        marginBottom: Spacing.xs,
+        marginTop: Spacing.xs,
         maxHeight: 280,
         overflow: 'hidden',
         position: 'absolute',
         right: 0,
+        top: '100%',
     },
     item: {
         alignItems: 'center',

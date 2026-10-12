@@ -53,17 +53,28 @@ async function fetchNetbeheerder(discipline: Discipline, rd: [number, number]): 
 }
 
 // Resolve all four providers for a PDOK location document. The two centroids are
-// independent, so the four lookups run concurrently.
+// independent, so the four lookups run concurrently. They are also settled
+// independently, so one failing source (the WFS going unreachable, say) does not
+// discard the providers the others did resolve.
 export async function resolveUtilities(pdok: PdokDoc): Promise<Utilities> {
     const rd = parsePoint(pdok.centroide_rd);
     const ll = parsePoint(pdok.centroide_ll);
 
-    const [netbeheerderElektra, netbeheerderGas, drinkwater, waterschap] = await Promise.all([
+    const [elektra, gas, water, waterschap] = await Promise.allSettled([
         rd ? fetchNetbeheerder('elektriciteit', rd) : Promise.resolve(null),
         rd ? fetchNetbeheerder('gas', rd) : Promise.resolve(null),
         rd ? fetchNetbeheerder('water', rd) : Promise.resolve(null),
         ll ? reverseWaterschap(ll[0], ll[1]) : Promise.resolve(null),
     ]);
 
-    return { netbeheerderElektra, netbeheerderGas, drinkwater, waterschap };
+    // A rejected lookup is a missing provider, same as a null answer.
+    const value = (result: PromiseSettledResult<string | null>) =>
+        result.status === 'fulfilled' ? result.value : null;
+
+    return {
+        netbeheerderElektra: value(elektra),
+        netbeheerderGas: value(gas),
+        drinkwater: value(water),
+        waterschap: value(waterschap),
+    };
 }
