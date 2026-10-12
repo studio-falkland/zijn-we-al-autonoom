@@ -1,79 +1,54 @@
-// Generate screen: a preview of the visitor's A7 card, rendered from the
-// dependency breakdown of their selected services.
+// Generate screen: the reveal. The services the visitor gathered are dealt in as
+// cards, animated into a grid, turned over one by one onto each service's own
+// email and web hosting providers, and the US providers are recoloured red.
 
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button } from '@/components/button';
-import { Treemap } from '@/components/treemap/treemap';
-import { A7_HEIGHT, A7_WIDTH } from '@/card/cardHtml';
-import { getDependencyFrequencies, type MeasurementFrequency } from '@/data/dependencies';
-import { getPlaceName } from '@/data/organisations';
+import { RevealStage } from '@/components/reveal/reveal-stage';
+import { getServiceProviders, type ServiceProviders } from '@/data/dependencies';
 import { useSessionStore } from '@/store/session';
-import { Colors, Radii, Shadows, Spacing, Theme, Type } from '@/theme/tokens';
+import { Spacing, Theme, Type } from '@/theme/tokens';
 
 export default function GenerateScreen() {
-    const location = useSessionStore((state) => state.location);
     const selected = useSessionStore((state) => state.selectedServices);
-    const [frequencies, setFrequencies] = useState<MeasurementFrequency[] | null>(null);
-    const [place, setPlace] = useState<string | null>(null);
+    const [cards, setCards] = useState<ServiceProviders[] | null>(null);
 
-    // Compute the dependency breakdown and the place name for the selection once.
+    // Resolve each service's own providers once, for the per-card mosaics.
     useEffect(() => {
         let cancelled = false;
-        getDependencyFrequencies(selected).then((result) => {
-            if (!cancelled) setFrequencies(result);
-        });
-        getPlaceName(location?.postcode ?? '').then((result) => {
-            if (!cancelled) setPlace(result);
+        getServiceProviders(selected).then((result) => {
+            if (!cancelled) setCards(result);
         });
         return () => {
             cancelled = true;
         };
-    }, [selected, location]);
+    }, [selected]);
 
-    const empty = frequencies !== null && frequencies.length === 0;
+    // The reveal closes on this: on to the print step.
+    const handleContinue = useCallback(() => router.push('/print'), []);
 
     return (
         <SafeAreaView style={styles.screen}>
-            <View style={styles.content}>
-                <Text style={Type.page}>Jouw kaart</Text>
-                {frequencies === null ? (
-                    <Text style={Type.body}>Diensten analyseren…</Text>
-                ) : empty ? (
-                    <Text style={Type.body}>Geen meetgegevens voor deze selectie.</Text>
-                ) : (
-                    <View>
-                        <Treemap
-                            frequencies={frequencies}
-                            width={A7_WIDTH}
-                            height={A7_HEIGHT}
-                            context={{ place }}
-                        />
-                    </View>
-                )}
-                <Button label="Naar printen" onPress={() => router.push('/print')} />
-            </View>
+            {cards === null ? (
+                <Text style={styles.waiting}>Diensten analyseren…</Text>
+            ) : (
+                <RevealStage cards={cards} onContinue={handleContinue} />
+            )}
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
     screen: {
-        flex: 1,
         backgroundColor: Theme.background,
-        justifyContent: 'center',
+        flex: 1,
     },
-    content: {
-        alignItems: 'center',
-        gap: Spacing.lg,
+    waiting: {
+        ...Type.body,
         paddingHorizontal: Spacing.xxxl,
-    },
-    card: {
-        backgroundColor: Colors.white,
-        borderRadius: Radii.sm,
-        ...Shadows.drop,
+        paddingTop: Spacing.xxxl,
     },
 });

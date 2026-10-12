@@ -79,3 +79,67 @@ export async function getDependencyFrequencies(
         .map((entry) => ({ ...entry, ratio: entry.frequency / total }))
         .sort((a, b) => b.frequency - a.frequency);
 }
+
+// One service's own dependency breakdown: the latest measurement of each hosting
+// dataset (webhosting-as, email-as), so each service card reveals its own email
+// and web hosting providers rather than the combined footprint of the selection.
+export type ServiceProviders = {
+    service: SelectedService;
+    frequencies: MeasurementFrequency[];
+};
+
+// Every selected service with its per-service providers, in the selection order.
+// A service with no measured URLs still gets an entry, with an empty breakdown.
+export async function getServiceProviders(services: SelectedService[]): Promise<ServiceProviders[]> {
+    await ensureDb();
+    const slugs = services.map((service) => service.slug);
+    if (slugs.length === 0) return [];
+
+    // Load every URL of the selection with its organisation and hosting measurements.
+    const urls = await db.getRepository(URL).find({
+        where: {
+            organisation: { slug: In(slugs) },
+            measurements: { type: In(DEPENDENCY_TYPES) },
+        },
+        relations: { measurements: true, organisation: true },
+    });
+
+    // Bucket each hosting measurement under its URL's organisation slug.
+    const bySlug = new Map<string, Measurement[]>();
+    for (const url of urls) {
+        const slug = url.organisation?.slug;
+        if (!slug) continue;
+        const list = bySlug.get(slug) ?? [];
+        for (const measurement of url.measurements ?? []) list.push(measurement);
+        bySlug.set(slug, list);
+    }
+
+    // Per service: the single latest measurement per dataset type, as its leaves.
+    return services.map((service) => ({
+        service,
+        frequencies: toServiceFrequencies(bySlug.get(service.slug) ?? []),
+    }));
+}
+
+// The latest measurement of each dataset type, as equal-share treemap leaves.
+function toServiceFrequencies(measurements: Measurement[]): MeasurementFrequency[] {
+    // Keep only the most recent measurement per dataset type.
+    const latest = new Map<string, Measurement>();
+    for (const measurement of measurements) {
+        const previous = latest.get(measurement.type);
+        if (!previous || new Date(measurement.created_at) > new Date(previous.created_at)) {
+            latest.set(measurement.type, measurement);
+        }
+    }
+
+    // Two providers (email + webhosting) share the mosaic evenly; one fills it.
+    const leaves = [...latest.values()];
+    return leaves.map((measurement) => ({
+        category: measurement.as_organisation ?? 'Onbekend',
+        frequency: 1,
+        ratio: leaves.length > 0 ? 1 / leaves.length : 0,
+        asn: measurement.asn ?? null,
+        as_country_code: measurement.as_country_code ?? null,
+        as_organisation: measurement.as_organisation ?? null,
+    }));
+}
