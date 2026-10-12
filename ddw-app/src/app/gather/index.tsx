@@ -91,6 +91,16 @@ export default function PostcodeScreen() {
             {/* The right third: the search, the visitor's card, and the actions. */}
             <View style={styles.column}>
                 <PostcodeSearch onSelect={handleSearchSelect} />
+                <View style={styles.panel}>
+                    <Text style={styles.body}>Let&apos;s start from our surroundings.</Text>
+                    <Text style={styles.body}>Zoom to where you live or stay, then tap the map.</Text>
+                    <Button
+                        label={location ? `Explore ${formatPostcode(location.postcode)}` : 'Explore'}
+                        disabled={!location}
+                        onPress={handleConfirm}
+                        size="small"
+                    />
+                </View>
                 {/* The "You" card: the question (or the answer), over a hatched
                     panel with the visitor's icon. */}
                 <CardContainer style={styles.cardBody}>
@@ -107,16 +117,6 @@ export default function PostcodeScreen() {
                         </CardIcon>
                     </CardBody>
                 </CardContainer>
-                <View style={styles.panel}>
-                    <Text style={styles.body}>Let&apos;s start from our surroundings.</Text>
-                    <Text style={styles.body}>Zoom to where you live or stay, then tap the map.</Text>
-                    <Button
-                        label={location ? `Explore ${formatPostcode(location.postcode)}` : 'Explore'}
-                        disabled={!location}
-                        onPress={handleConfirm}
-                        size="small"
-                    />
-                </View>
             </View>
         </SafeAreaView>
     );
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
         width: '33%',
     },
     cardBody: {
-        alignSelf: 'center',
+        alignSelf: 'flex-end',
         minHeight: 280,
         width: 190,
     },
