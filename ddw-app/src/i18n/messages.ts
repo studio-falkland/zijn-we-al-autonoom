@@ -138,12 +138,12 @@ export const nl = {
         utilities_water: 'Drinkwater',
     },
 
-    // Print screen (the interim manual print path).
+    // Print screen (direct printing to the kiosk's selected printer).
     print: {
         title: 'Printen',
         making: 'Kaart maken…',
         ready: 'De kaart staat klaar.',
-        testPrint: 'Testprint (AirPrint)',
+        print: 'Printen',
         done: 'Klaar',
         generateError: 'Fout bij het maken van de kaart.',
         printError: 'Printen is mislukt.',
@@ -290,7 +290,7 @@ export const en: Messages = {
         title: 'Printing',
         making: 'Creating card…',
         ready: 'Your card is ready.',
-        testPrint: 'Test print (AirPrint)',
+        print: 'Print',
         done: 'Done',
         generateError: 'Could not create the card.',
         printError: 'Printing failed.',

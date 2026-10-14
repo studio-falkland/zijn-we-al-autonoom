@@ -1,9 +1,8 @@
 // Fuse screen: the gathered service cards merge into the single personal A7 card.
-// The card and its PDF are prepared in the background; the interim AirPrint button
-// lives alongside the continue action until automatic printing (Phase 3) lands.
+// The card and its PDF are prepared in the background; the print button sends the
+// PDF straight to the kiosk's selected printer, alongside the continue action.
 
 import { router } from 'expo-router';
-import * as Print from 'expo-print';
 import { useCallback, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,6 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { FailureState } from '@/components/failure-state';
 import { FuseStage } from '@/components/fuse/fuse-stage';
 import { translate } from '@/i18n';
+import { usePrinterStore } from '@/store/printer';
 import { cardKey, useSessionStore } from '@/store/session';
 import { Theme } from '@/theme/tokens';
 
@@ -22,22 +22,23 @@ export default function FuseScreen() {
     const cardError = useSessionStore((state) => state.cardError);
     const generatedCard = useSessionStore((state) => state.generatedCard);
     const refreshCardData = useSessionStore((state) => state.refreshCardData);
+    const printPdf = usePrinterStore((state) => state.printPdf);
     const [printing, setPrinting] = useState(false);
     const [printError, setPrintError] = useState<string | null>(null);
 
-    // Interim path: send the PDF to AirPrint with a confirm-tap dialog.
+    // Send the PDF straight to the selected printer (no dialog).
     const handlePrint = useCallback(async () => {
         if (!generatedCard) return;
         setPrinting(true);
         setPrintError(null);
         try {
-            await Print.printAsync({ uri: generatedCard.pdfUri });
+            await printPdf(generatedCard.pdfUri);
         } catch (failure) {
             setPrintError(failure instanceof Error ? failure.message : translate(useSessionStore.getState().language, 'print.printError'));
         } finally {
             setPrinting(false);
         }
-    }, [generatedCard]);
+    }, [generatedCard, printPdf]);
 
     // On to the outro, which closes the kiosk loop for the next visitor.
     const handleContinue = useCallback(() => router.push('/outro'), []);

@@ -3,16 +3,26 @@
 import { Colors } from '@/theme/tokens';
 import { Stack, usePathname } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { RestartButton } from '@/components/restart-button';
 import { useWarmCardData } from '@/hooks/use-warm-card-data';
+import { usePrinterStore } from '@/store/printer';
 
 export default function RootLayout() {
     const pathname = usePathname();
     // Recompute the derived card data in the background as the visitor chooses.
     useWarmCardData();
+
+    // Pick the target printer once per cold start. The selection lives in memory
+    // only, so relaunching re-runs the picker: the operator force-closes the app
+    // to choose a different printer.
+    useEffect(() => {
+        if (usePrinterStore.getState().printer) return;
+        usePrinterStore.getState().selectPrinter();
+    }, []);
 
     return (
         <View style={styles.container}>

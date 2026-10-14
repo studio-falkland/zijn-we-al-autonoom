@@ -1,6 +1,6 @@
 // The fuse stage. The gathered service cards converge from a grid and merge into
-// the single personal A7 card. The panel carries the short copy, the interim
-// print button (until printing is automated) and the continue action.
+// the single personal A7 card. The panel carries the short copy, the print button
+// and the continue action.
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
