@@ -2,8 +2,8 @@
 // legend) and the dependency mosaic, rendered with the shared vector patterns.
 // The layout comes from geometry.ts, so the preview matches the printed sheet.
 
-import { useMemo } from 'react';
-import { ClipPath, G, Line, Rect, Svg, Text } from 'react-native-svg';
+import { useMemo, type ReactNode } from 'react';
+import { ClipPath, G, Line, Path, Rect, Svg, Text } from 'react-native-svg';
 
 import type { CardContext } from '@/card/cardHtml';
 import {
@@ -27,7 +27,7 @@ import { buildTreemapLayout, type TreemapRect } from '@/treemap/layout';
 import { frequencyLabelName, truncateLabel } from '@/treemap/label';
 import { buildLegend, type LegendEntry } from '@/treemap/legend';
 import { Colors, Fonts } from '@/theme/tokens';
-import { isUSFrequency, PatternMatcher } from './patternDefs';
+import { isUSFrequency, PatternMatcher, patternDefs, scaledPatternDef, type PatternDef } from './patternDefs';
 import TreemapPatterns from './patterns';
 
 // The leaf fills: red for US-hosted dependencies, blue for everything else.
@@ -97,26 +97,57 @@ function Tile({ rect, index, label }: { rect: TreemapRect; index: number; label:
     );
 }
 
-// One legend row: a patterned swatch, the provider name, and its share.
+// One legend swatch: the pattern drawn directly, as a small tiling of its tile.
+// The mask+pattern route reads as a solid block at this size in the print
+// pipeline, so the motif's own paths are emitted instead, clipped to the swatch.
+function LegendSwatch({ tile, tint, x, y, index }: { tile: PatternDef; tint: string; x: number; y: number; index: number }) {
+    const hatched = tile.paths.every((path) => path.stroke !== undefined);
+    const scale = LEGEND_SWATCH / ((hatched ? 3 : 1) * Math.max(tile.width, tile.height));
+    const cols = Math.ceil(LEGEND_SWATCH / (tile.width * scale));
+    const rows = Math.ceil(LEGEND_SWATCH / (tile.height * scale));
+
+    const tiles: ReactNode[] = [];
+    for (let row = 0; row < rows; row += 1) {
+        for (let col = 0; col < cols; col += 1) {
+            tiles.push(
+                <G key={`${row}-${col}`} transform={`translate(${col * tile.width} ${row * tile.height})`}>
+                    {tile.paths.map((path, i) =>
+                        path.stroke !== undefined ? (
+                            <Path key={i} d={path.d} fill="none" stroke={tint} strokeWidth={1 / scale} />
+                        ) : (
+                            <Path key={i} d={path.d} fill={tint} fillRule={path.fillRule ? 'evenodd' : 'nonzero'} />
+                        ),
+                    )}
+                </G>,
+            );
+        }
+    }
+
+    return (
+        <G clipPath={`url(#legend-swatch-${index})`}>
+            <ClipPath id={`legend-swatch-${index}`}>
+                <Rect x={x} y={y} width={LEGEND_SWATCH} height={LEGEND_SWATCH} rx={2} />
+            </ClipPath>
+            <G transform={`translate(${x} ${y}) scale(${scale})`}>{tiles}</G>
+        </G>
+    );
+}
+
+// One legend row: the patterned swatch, the provider name, and its share.
 function LegendRow({ entry, index, content }: { entry: LegendEntry; index: number; content: { x: number; width: number; y: number } }) {
     const right = content.x + content.width;
     const left = right - LEGEND_WIDTH;
     const baseline = content.y + LEGEND_FIRST_BASELINE + index * LEGEND_ROW_HEIGHT;
     const nameWidth = LEGEND_WIDTH - LEGEND_SWATCH - 5 - LEGEND_PERCENT_WIDTH;
     const name = truncateLabel(entry.category, nameWidth, LEGEND_FONT_SIZE);
+    const tint = entry.us ? LEAF_RED : LEAF_BLUE;
+    const def = patternDefs.find((pattern) => pattern.id === entry.patternId);
+    const swatchY = baseline - LEGEND_SWATCH + 1;
 
     return (
         <G>
-            <Rect x={left} y={baseline - LEGEND_SWATCH + 1} width={LEGEND_SWATCH} height={LEGEND_SWATCH} rx={2} fill={LEAF_BASE} />
-            <Rect
-                x={left}
-                y={baseline - LEGEND_SWATCH + 1}
-                width={LEGEND_SWATCH}
-                height={LEGEND_SWATCH}
-                rx={2}
-                fill={entry.us ? LEAF_RED : LEAF_BLUE}
-                mask={entry.mask}
-            />
+            <Rect x={left} y={swatchY} width={LEGEND_SWATCH} height={LEGEND_SWATCH} rx={2} fill={LEAF_BASE} />
+            {def && <LegendSwatch tile={scaledPatternDef(def)} tint={tint} x={left} y={swatchY} index={index} />}
             <Text x={left + LEGEND_SWATCH + 5} y={baseline} fontSize={LEGEND_FONT_SIZE} fill={Colors.blue[900]} fontFamily={Fonts.family}>
                 {name}
             </Text>

@@ -3,7 +3,7 @@
 // and the direct submission live in src/store/printer.ts.
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Share, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
@@ -19,6 +19,7 @@ export default function PrintScreen() {
     const location = useSessionStore((s) => s.location);
     const selected = useSessionStore((s) => s.selectedServices);
     const generatedCard = useSessionStore((s) => s.generatedCard);
+    const previewPdf = useSessionStore((s) => s.previewPdf);
     const setGeneratedCard = useSessionStore((s) => s.setGeneratedCard);
     const setPrintStatus = useSessionStore((s) => s.setPrintStatus);
     const resetSession = useSessionStore((s) => s.resetSession);
@@ -80,6 +81,21 @@ export default function PrintScreen() {
         }
     };
 
+    // Dev path (the "preview PDF" setting): open the generated PDF in the OS
+    // preview instead of the print dialog, so the card can be checked on device.
+    const handlePreview = async () => {
+        if (!generatedCard) return;
+        try {
+            await Share.share({ url: generatedCard.pdfUri });
+        } catch (failure) {
+            setError(
+                failure instanceof Error
+                    ? failure.message
+                    : translate(useSessionStore.getState().language, 'print.printError'),
+            );
+        }
+    };
+
     // Reset the session and return to the start for the next visitor.
     const handleDone = () => {
         resetSession();
@@ -97,7 +113,11 @@ export default function PrintScreen() {
                 ) : (
                     <>
                         <Text style={Type.body}>{t('print.ready')}</Text>
-                        <Button label={t('print.print')} onPress={handlePrint} disabled={printing} />
+                        {previewPdf ? (
+                            <Button label={t('print.preview')} onPress={handlePreview} />
+                        ) : (
+                            <Button label={t('print.testPrint')} onPress={handlePrint} disabled={printing} />
+                        )}
                     </>
                 )}
                 <Button label={t('print.done')} onPress={handleDone} />

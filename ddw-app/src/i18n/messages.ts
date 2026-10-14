@@ -84,6 +84,7 @@ export const nl = {
         print: 'Print kaart',
         printing: 'Printen…',
         reprint: 'Opnieuw printen',
+        preview: 'PDF bekijken',
     },
 
     // The outro: the four-step guidance diagram's copy and the closing lines.
@@ -143,10 +144,17 @@ export const nl = {
         title: 'Printen',
         making: 'Kaart maken…',
         ready: 'De kaart staat klaar.',
-        print: 'Printen',
+        testPrint: 'Testprint (AirPrint)',
+        preview: 'PDF bekijken',
         done: 'Klaar',
         generateError: 'Fout bij het maken van de kaart.',
         printError: 'Printen is mislukt.',
+    },
+
+    // The start screen's small settings window (dev options).
+    settings: {
+        title: 'Instellingen',
+        previewPdf: 'PDF bekijken',
     },
 
     // The restart confirmation dialog.
@@ -237,6 +245,7 @@ export const en: Messages = {
         print: 'Print card',
         printing: 'Printing…',
         reprint: 'Print again',
+        preview: 'Preview PDF',
     },
 
     outro: {
@@ -290,10 +299,17 @@ export const en: Messages = {
         title: 'Printing',
         making: 'Creating card…',
         ready: 'Your card is ready.',
-        print: 'Print',
+        testPrint: 'Test print (AirPrint)',
+        preview: 'Preview PDF',
         done: 'Done',
         generateError: 'Could not create the card.',
         printError: 'Printing failed.',
+    },
+
+    // The start screen's small settings window (dev options).
+    settings: {
+        title: 'Settings',
+        previewPdf: 'Preview PDF',
     },
 
     restart: {

@@ -33,6 +33,7 @@ export function FuseStage({
     place,
     printing,
     printed,
+    preview,
     error,
     onPrint,
     onContinue,
@@ -42,6 +43,8 @@ export function FuseStage({
     place: string | null;
     printing: boolean;
     printed: boolean;
+    /** The "preview PDF" setting: the print button previews instead of printing. */
+    preview: boolean;
     error: string | null;
     onPrint: () => void;
     onContinue: () => void;
@@ -96,7 +99,7 @@ export function FuseStage({
                     <Text style={styles.line}>{t('fuse.line')}</Text>
                 </View>
                 <Button
-                    label={printing ? t('fuse.printing') : printed ? t('fuse.reprint') : t('fuse.print')}
+                    label={preview ? t('fuse.preview') : printing ? t('fuse.printing') : printed ? t('fuse.reprint') : t('fuse.print')}
                     onPress={onPrint}
                     disabled={printing || !ready}
                 />

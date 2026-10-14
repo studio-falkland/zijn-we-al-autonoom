@@ -68,6 +68,8 @@ export type SessionState = {
     cardError: string | null;
     generatedCard: GeneratedCard | null;
     printStatus: PrintStatus;
+    // Dev setting: preview the PDF (OS preview) instead of the print dialog.
+    previewPdf: boolean;
     setLanguage(language: Language): void;
     setLocation(location: Location): void;
     setUtilities(utilities: Utilities | null): void;
@@ -76,6 +78,7 @@ export type SessionState = {
     refreshCardData(): Promise<void>;
     setGeneratedCard(card: GeneratedCard): void;
     setPrintStatus(status: PrintStatus): void;
+    setPreviewPdf(previewPdf: boolean): void;
     resetSession(): void;
 };
 
@@ -90,6 +93,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
     cardError: null,
     generatedCard: null,
     printStatus: 'idle',
+    previewPdf: false,
 
     // Switch the UI language (the start screen's NL/EN tabs).
     setLanguage: (language) => set({ language }),
@@ -170,6 +174,9 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
 
     // Track the print pipeline state.
     setPrintStatus: (printStatus) => set({ printStatus }),
+
+    // Toggle the dev preview setting (kept across visitors, cleared on restart).
+    setPreviewPdf: (previewPdf) => set({ previewPdf }),
 
     // Explicit end-of-flow action: clear the session for the next visitor.
     // The language resets too, so the next visitor picks their own on the start.

@@ -38,11 +38,12 @@ export const PLATE_HEIGHT = 26;
 export const PLATE_WIDTH_RATIO = 0.8;
 export const PLATE_PADDING = 10;
 
-// The legend band, in the header's top-right: three rows, right-aligned.
+// The legend band, in the header's top-right: three rows, right-aligned. The
+// swatch is big enough to show a whole pattern motif (the same mask as the tile).
 export const LEGEND_WIDTH = 80;
-export const LEGEND_ROW_HEIGHT = 11;
+export const LEGEND_ROW_HEIGHT = 12;
 export const LEGEND_FIRST_BASELINE = 11;
-export const LEGEND_SWATCH = 7;
+export const LEGEND_SWATCH = 10;
 export const LEGEND_PERCENT_WIDTH = 20;
 export const LEGEND_FONT_SIZE = 9;
 

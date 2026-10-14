@@ -3,7 +3,7 @@
 // and the provider legend), the navy rule, and the treemap mosaic. It reuses the
 // shared treemap layout and the single source of truth for the artwork.
 
-import { isUSFrequency, PatternMatcher, renderPatternDefsSvg } from '@/components/treemap/patternDefs';
+import { isUSFrequency, PatternMatcher, patternDefs, renderPatternDefsSvg, scaledPatternDef } from '@/components/treemap/patternDefs';
 import type { MeasurementFrequency } from '@/data/dependencies';
 import { translate, type Language } from '@/i18n';
 import { buildTreemapLayout } from '@/treemap/layout';
@@ -39,9 +39,12 @@ const LEAF_BLUE = '#0000FF';
 const LEAF_RED = '#FF0000';
 const LEAF_BASE = '#FFFFFF';
 
-// The motifs print at the same scale the screen shows them; no per-motif
-// overrides are needed now that the shared MOTIF_SCALE is tuned.
-const PRINT_SCALE_OVERRIDES: Record<string, number> = {};
+// The printed patterns read too large beside the on-screen ones, so the print
+// document renders every pattern at half the on-screen size.
+const PRINT_PATTERN_SCALE = 0.5;
+const PRINT_SCALE_OVERRIDES: Record<string, number> = Object.fromEntries(
+    patternDefs.map((def) => [def.id, PRINT_PATTERN_SCALE]),
+);
 
 // Visitor context that personalises the header.
 export type CardContext = {
@@ -75,7 +78,47 @@ function tileToSvg(rect: { x: number; y: number; width: number; height: number; 
     );
 }
 
-// One legend row: a patterned swatch, the provider name, and its share.
+// One legend swatch: the pattern drawn directly, as a small tiling of its tile.
+// The mask+pattern route reads as a solid block at this size in WebKit's print,
+// so the motif's own paths are emitted instead, clipped to the swatch.
+function legendSwatchToSvg(entry: LegendEntry, index: number, x: number, y: number): string {
+    const tint = entry.us ? LEAF_RED : LEAF_BLUE;
+    const plate = `<rect x="${x}" y="${y}" width="${LEGEND_SWATCH}" height="${LEGEND_SWATCH}" rx="2" fill="${LEAF_BASE}"/>`;
+    const def = patternDefs.find((pattern) => pattern.id === entry.patternId);
+    if (!def) return plate + `<rect x="${x}" y="${y}" width="${LEGEND_SWATCH}" height="${LEGEND_SWATCH}" rx="2" fill="${tint}"/>`;
+
+    const tile = scaledPatternDef(def, PRINT_PATTERN_SCALE);
+    // The hatches tile densely; a logo reads best as a single motif.
+    const hatched = tile.paths.every((path) => path.stroke !== undefined);
+    const scale = LEGEND_SWATCH / ((hatched ? 3 : 1) * Math.max(tile.width, tile.height));
+    const cols = Math.ceil(LEGEND_SWATCH / (tile.width * scale));
+    const rows = Math.ceil(LEGEND_SWATCH / (tile.height * scale));
+
+    const paths = tile.paths
+        .map((path) =>
+            path.stroke !== undefined
+                ? `<path d="${path.d}" fill="none" stroke="${tint}" stroke-width="${1 / scale}"/>`
+                : `<path d="${path.d}" fill="${tint}"${path.fillRule ? ' fill-rule="evenodd"' : ''}/>`,
+        )
+        .join('');
+
+    let motif = '';
+    for (let row = 0; row < rows; row += 1) {
+        for (let col = 0; col < cols; col += 1) {
+            motif += `<g transform="translate(${col * tile.width} ${row * tile.height})">${paths}</g>`;
+        }
+    }
+
+    return (
+        plate +
+        `<clipPath id="legend-swatch-${index}"><rect x="${x}" y="${y}" width="${LEGEND_SWATCH}" height="${LEGEND_SWATCH}" rx="2"/></clipPath>` +
+        // The clip is referenced by an untransformed group so it stays in root
+        // coordinates; the motif is scaled inside it.
+        `<g clip-path="url(#legend-swatch-${index})"><g transform="translate(${x} ${y}) scale(${scale})">${motif}</g></g>`
+    );
+}
+
+// One legend row: the patterned swatch, the provider name, and its share.
 function legendRowToSvg(entry: LegendEntry, index: number, content: { x: number; width: number; y: number }): string {
     const right = content.x + content.width;
     const left = right - LEGEND_WIDTH;
@@ -84,8 +127,7 @@ function legendRowToSvg(entry: LegendEntry, index: number, content: { x: number;
     const name = truncateLabel(entry.category, nameWidth, LEGEND_FONT_SIZE);
 
     return (
-        `<rect x="${left}" y="${baseline - LEGEND_SWATCH + 1}" width="${LEGEND_SWATCH}" height="${LEGEND_SWATCH}" rx="2" fill="${LEAF_BASE}"/>` +
-        `<rect x="${left}" y="${baseline - LEGEND_SWATCH + 1}" width="${LEGEND_SWATCH}" height="${LEGEND_SWATCH}" rx="2" fill="${entry.us ? LEAF_RED : LEAF_BLUE}" mask="${entry.mask}"/>` +
+        legendSwatchToSvg(entry, index, left, baseline - LEGEND_SWATCH + 1) +
         `<text x="${left + LEGEND_SWATCH + 5}" y="${baseline}" font-family="Familjen Grotesk" font-size="${LEGEND_FONT_SIZE}" fill="${INK}">${escapeXml(name)}</text>` +
         `<text x="${right}" y="${baseline}" font-family="Familjen Grotesk" font-size="${LEGEND_FONT_SIZE}" fill="${INK}" text-anchor="end">${entry.percent}%</text>`
     );

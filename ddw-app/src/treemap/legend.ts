@@ -1,7 +1,7 @@
 // The legend shown at the top of the dependency sheet: the largest providers and
 // their share. Framework-free so the print HTML and the on-screen preview agree.
 
-import { isUSFrequency, PatternMatcher } from '@/components/treemap/patternDefs';
+import { isUSFrequency, PatternId } from '@/components/treemap/patternDefs';
 import type { MeasurementFrequency } from '@/data/dependencies';
 
 // One legend row: the provider, its whole-percent share, and how it is drawn.
@@ -9,7 +9,7 @@ export type LegendEntry = {
     category: string;
     percent: number;
     us: boolean;
-    mask: string;
+    patternId: string;
 };
 
 // How many providers the legend lists.
@@ -22,6 +22,6 @@ export function buildLegend(frequencies: MeasurementFrequency[]): LegendEntry[] 
         category: frequency.category,
         percent: Math.round(frequency.ratio * 100),
         us: isUSFrequency(frequency),
-        mask: PatternMatcher(frequency),
+        patternId: PatternId(frequency),
     }));
 }

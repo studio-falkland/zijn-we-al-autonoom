@@ -11,18 +11,18 @@ export const US_AS = [
     43515, 16550,
 ];
 
-// Which mask a leaf's measurement maps to, matching the web app's matcher.
-export function PatternMatcher(frequency: MeasurementFrequency): string {
+// The pattern id a leaf's measurement maps to, matching the web app's matcher.
+export function PatternId(frequency: MeasurementFrequency): string {
     switch (frequency.asn) {
         case 8075:
         case 8096:
-            return 'url(#zwaa-microsoft-mask)';
+            return 'zwaa-microsoft';
         case 14618:
         case 7224:
         case 16509:
         case 36263:
         case 10291:
-            return 'url(#zwaa-amazon-mask)';
+            return 'zwaa-amazon';
         case 396982:
         case 139190:
         case 139070:
@@ -31,13 +31,16 @@ export function PatternMatcher(frequency: MeasurementFrequency): string {
         case 36040:
         case 43515:
         case 16550:
-            return 'url(#zwaa-google-mask)';
+            return 'zwaa-google';
         default:
-            if (frequency.as_country_code === 'US') return 'url(#zwaa-us-mask)';
-            return (frequency.asn ?? frequency.category.length) % 2 === 0
-                ? 'url(#zwaa-p1-mask)'
-                : 'url(#zwaa-p2-mask)';
+            if (frequency.as_country_code === 'US') return 'zwaa-us';
+            return (frequency.asn ?? frequency.category.length) % 2 === 0 ? 'zwaa-p1' : 'zwaa-p2';
     }
+}
+
+// Which mask a leaf's measurement maps to, matching the web app's matcher.
+export function PatternMatcher(frequency: MeasurementFrequency): string {
+    return `url(#${PatternId(frequency)}-mask)`;
 }
 
 // Whether a leaf belongs to a US-hosted dependency (red fill), matching the

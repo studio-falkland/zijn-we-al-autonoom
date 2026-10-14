@@ -4,7 +4,7 @@
 
 import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { Share, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { FailureState } from '@/components/failure-state';
@@ -21,24 +21,30 @@ export default function FuseScreen() {
     const cardStatus = useSessionStore((state) => state.cardStatus);
     const cardError = useSessionStore((state) => state.cardError);
     const generatedCard = useSessionStore((state) => state.generatedCard);
+    const previewPdf = useSessionStore((state) => state.previewPdf);
     const refreshCardData = useSessionStore((state) => state.refreshCardData);
     const printPdf = usePrinterStore((state) => state.printPdf);
     const [printing, setPrinting] = useState(false);
     const [printError, setPrintError] = useState<string | null>(null);
 
-    // Send the PDF straight to the selected printer (no dialog).
+    // The action behind the fuse button: preview the PDF (the "preview PDF"
+    // setting) or send it straight to the selected printer (no dialog).
     const handlePrint = useCallback(async () => {
         if (!generatedCard) return;
         setPrinting(true);
         setPrintError(null);
         try {
-            await printPdf(generatedCard.pdfUri);
+            if (previewPdf) {
+                await Share.share({ url: generatedCard.pdfUri });
+            } else {
+                await printPdf(generatedCard.pdfUri);
+            }
         } catch (failure) {
             setPrintError(failure instanceof Error ? failure.message : translate(useSessionStore.getState().language, 'print.printError'));
         } finally {
             setPrinting(false);
         }
-    }, [generatedCard, printPdf]);
+    }, [generatedCard, printPdf, previewPdf]);
 
     // On to the outro, which closes the kiosk loop for the next visitor.
     const handleContinue = useCallback(() => router.push('/outro'), []);
@@ -57,6 +63,7 @@ export default function FuseScreen() {
                     place={cardData.place}
                     printing={printing}
                     printed={generatedCard !== null}
+                    preview={previewPdf}
                     error={printError}
                     onPrint={handlePrint}
                     onContinue={handleContinue}
