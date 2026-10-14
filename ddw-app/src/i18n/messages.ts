@@ -7,7 +7,7 @@
 // Interpolation uses i18n-js placeholders: `%{count}`, `%{postcode}`, `%{place}`,
 // `%{seconds}`.
 
-// The languages the kiosk offers, in tab order (🧀 Dutch, 🍔 English).
+// The languages the kiosk offers, in tab order (NL Dutch, EN English).
 export const LANGUAGES = ['nl', 'en'] as const;
 export type Language = (typeof LANGUAGES)[number];
 

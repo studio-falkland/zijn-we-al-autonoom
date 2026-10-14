@@ -1,15 +1,16 @@
-// The start screen's language selector: two tabs, 🧀 for Dutch and 🍔 for
-// English. Emoji-only visually, with the language named for screen readers.
+// The start screen's language selector: two tabs, NL for Dutch and EN for
+// English. The short code is shown visually, with the full language named for
+// screen readers.
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { LANGUAGES, type Language } from '@/i18n';
 import { useTranslation } from '@/i18n/use-translation';
 import { Colors, Radii, Shadows, Spacing } from '@/theme/tokens';
 
-// The emoji and full name per language, keyed by the store's language value.
-const TABS: Record<Language, { emoji: string; label: string }> = {
-    nl: { emoji: '🧀', label: 'Nederlands' },
-    en: { emoji: '🍔', label: 'English' },
+// The short code and full name per language, keyed by the store's language value.
+const TABS: Record<Language, { code: string; label: string }> = {
+    nl: { code: 'NL', label: 'Nederlands' },
+    en: { code: 'EN', label: 'English' },
 };
 
 export function LanguageTabs() {
@@ -28,7 +29,7 @@ export function LanguageTabs() {
                         accessibilityLabel={TABS[value].label}
                         style={[styles.tab, selected && styles.tabSelected]}
                     >
-                        <Text style={styles.emoji}>{TABS[value].emoji}</Text>
+                        <Text style={styles.code}>{TABS[value].code}</Text>
                     </Pressable>
                 );
             })}
@@ -57,8 +58,10 @@ const styles = StyleSheet.create({
     tabSelected: {
         backgroundColor: Colors.blue[700],
     },
-    emoji: {
-        fontSize: 28,
-        lineHeight: 34,
+    code: {
+        color: Colors.blue[800],
+        fontSize: 18,
+        fontWeight: '700',
+        lineHeight: 22,
     },
 });

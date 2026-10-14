@@ -91,7 +91,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
     generatedCard: null,
     printStatus: 'idle',
 
-    // Switch the UI language (the start screen's 🧀/🍔 tabs).
+    // Switch the UI language (the start screen's NL/EN tabs).
     setLanguage: (language) => set({ language }),
 
     // Record the visitor's location and resolve its utility providers. Without a
