@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
         borderRadius: Radii.lg,
     },
     buttonSmall: {
-        paddingVertical: Spacing.sm,
+        paddingVertical: Spacing.smmd,
     },
     pressed: {
         backgroundColor: Colors.blue[800],
