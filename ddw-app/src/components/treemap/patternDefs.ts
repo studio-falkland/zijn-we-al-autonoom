@@ -85,9 +85,9 @@ function logo(id: string, width: number, height: number, ds: string[], scale?: n
     };
 }
 
-// The Amazon arrows read a touch large beside the other motifs, so they carry an
-// extra down-scale on top of the shared PATTERN_SCALE.
-const AMAZON_SCALE = 0.8;
+// The Amazon arrows and the Google rings read a touch large beside the other
+// motifs, so they carry an extra down-scale on top of the shared PATTERN_SCALE.
+const MOTIF_SCALE = 0.55;
 
 export const patternDefs: PatternDef[] = [
     hatch('zwaa-p1', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2'),
@@ -102,7 +102,7 @@ export const patternDefs: PatternDef[] = [
             'M0 19.4211V18.0842C0.398186 18.0316 0.806345 17.8942 1.21768 17.6608L0.172256 17.2277L0.680806 16L3.75017 17.2714L2.4788 20.3407L1.25105 19.8322L1.6148 18.954C1.09403 19.2128 0.553279 19.3716 0 19.4211Z',
             'M12 18.0842V19.4211C11.8759 19.4322 11.7512 19.4378 11.626 19.4378C10.3274 19.4378 9.08751 18.8357 8 17.7481L8.93968 16.8085C9.84552 17.7143 10.7651 18.1089 11.626 18.1089C11.7495 18.1089 11.8743 18.1007 12 18.0842Z',
         ],
-        AMAZON_SCALE,
+        MOTIF_SCALE,
     ),
     logo(
         'zwaa-microsoft',
@@ -125,6 +125,7 @@ export const patternDefs: PatternDef[] = [
             'M0 20.6667C1.24256 20.6667 2.28663 19.8168 2.58266 18.6667H0V17.3333H2.58266C2.28663 16.1832 1.24256 15.3333 0 15.3333V14C2.20914 14 4 15.7909 4 18C4 20.2091 2.20914 22 0 22V20.6667Z',
             'M8.58266 6.66667C8.28663 7.81682 7.24256 8.66667 6 8.66667C4.52724 8.66667 3.33333 7.47276 3.33333 6C3.33333 4.52724 4.52724 3.33333 6 3.33333C7.24256 3.33333 8.28663 4.18318 8.58266 5.33333H6V6.66667H8.58266ZM10 6C10 8.20914 8.20914 10 6 10C3.79086 10 2 8.20914 2 6C2 3.79086 3.79086 2 6 2C8.20914 2 10 3.79086 10 6Z',
         ],
+        MOTIF_SCALE,
     ),
 ];
 

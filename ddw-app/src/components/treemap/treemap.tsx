@@ -1,14 +1,31 @@
-// The A7 card preview: header and the dependency mosaic, rendered with the
-// shared vector patterns (screen version of the print art).
+// The A7 dependency sheet preview: the header (title, the visitor's city and the
+// legend) and the dependency mosaic, rendered with the shared vector patterns.
+// The layout comes from geometry.ts, so the preview matches the printed sheet.
 
 import { useMemo } from 'react';
 import { ClipPath, G, Line, Rect, Svg, Text } from 'react-native-svg';
 
 import type { CardContext } from '@/card/cardHtml';
+import {
+    LABEL_FONT_SIZE,
+    LEGEND_FIRST_BASELINE,
+    LEGEND_FONT_SIZE,
+    LEGEND_PERCENT_WIDTH,
+    LEGEND_ROW_HEIGHT,
+    LEGEND_SWATCH,
+    LEGEND_WIDTH,
+    PLATE_HEIGHT,
+    PLATE_PADDING,
+    PLATE_WIDTH_RATIO,
+    SUBTITLE_FONT_SIZE,
+    TITLE_FONT_SIZE,
+    sheetLayout,
+} from '@/card/geometry';
 import type { MeasurementFrequency } from '@/data/dependencies';
 import { translate } from '@/i18n';
 import { buildTreemapLayout, type TreemapRect } from '@/treemap/layout';
 import { frequencyLabelName, truncateLabel } from '@/treemap/label';
+import { buildLegend, type LegendEntry } from '@/treemap/legend';
 import { Colors, Fonts } from '@/theme/tokens';
 import { isUSFrequency, PatternMatcher } from './patternDefs';
 import TreemapPatterns from './patterns';
@@ -18,40 +35,23 @@ const LEAF_BLUE = '#0000FF';
 const LEAF_RED = '#FF0000';
 const LEAF_BASE = '#FFFFFF';
 
-// The single provider label the card keeps (the largest provider) and its plate.
-const LABEL_FONT_SIZE = 14;
-
-// The hard offset shadow the border casts, matching the theme's Shadows.box.
-const CARD_SHADOW = Colors.shadow;
-const SHADOW_OFFSET = 4;
-
-// Card layout: two constants, everything else is derived from them and the
-// page size, so the mosaic always fills the space the header leaves over.
-const MARGIN = 10; // space between the page edge and the navy border
-const PADDING = 12; // space between the navy border and the card content
-
-// The header type rhythm, measured from the content box top.
-const TITLE_TOP = 12; // title baseline
-const SUBTITLE_TOP = 28; // subtitle baseline
-
-// The mosaic follows the text with the same padding.
-const MOSAIC_TOP = SUBTITLE_TOP + PADDING + 8;
-
-// One mosaic tile: light base, patterned fill, and a clipped label.
+// One mosaic tile: light base, patterned fill, and the clipped label.
 // Only the largest provider gets a label, and it is the name only.
 function Tile({ rect, index, label }: { rect: TreemapRect; index: number; label: string | null }) {
     const { frequency } = rect;
     const us = isUSFrequency(frequency);
     const mask = PatternMatcher(frequency);
 
-    // The label plate: spans the tile, pale blue, with the name centred and
-    // truncated to fit so it never exceeds the background.
+    // The label plate spans the tile; the text is truncated to fit it.
     const centerX = rect.x + rect.width / 2;
     const centerY = rect.y + rect.height / 2;
-    const plateX = rect.x + 16;
-    const plateY = centerY - 12;
-    const plateWidth = rect.width - 32;
-    const fittedLabel = label ? truncateLabel(label, plateWidth - 8, LABEL_FONT_SIZE) : null;
+    // The label plate is capped at a fraction of the tile width, centred; the
+    // text is truncated to fit inside it.
+    const plateWidth = rect.width * PLATE_WIDTH_RATIO;
+    const plateX = rect.x + (rect.width - plateWidth) / 2;
+    const plateY = centerY - PLATE_HEIGHT / 2;
+    const textWidth = plateWidth - PLATE_PADDING * 2;
+    const fittedLabel = label ? truncateLabel(label, textWidth - 8, LABEL_FONT_SIZE) : null;
 
     return (
         <G>
@@ -64,13 +64,17 @@ function Tile({ rect, index, label }: { rect: TreemapRect; index: number; label:
                 <>
                     {/* The plate clips the name to itself, so the text can never exceed it. */}
                     <ClipPath id={`plate-${index}`}>
-                        <Rect x={plateX} y={plateY} width={plateWidth} height={24} rx={4} />
+                        <Rect x={plateX} y={plateY} width={plateWidth} height={PLATE_HEIGHT} rx={4} />
+                    </ClipPath>
+                    {/* The name is inset inside the plate, so the plate reads as padding. */}
+                    <ClipPath id={`plate-text-${index}`}>
+                        <Rect x={plateX + PLATE_PADDING} y={plateY} width={textWidth} height={PLATE_HEIGHT} rx={4} />
                     </ClipPath>
                     <Rect
                         x={plateX}
                         y={plateY}
                         width={plateWidth}
-                        height={24}
+                        height={PLATE_HEIGHT}
                         fill={Colors.white}
                         clipPath={`url(#clip-${index})`}
                         rx={4}
@@ -82,7 +86,7 @@ function Tile({ rect, index, label }: { rect: TreemapRect; index: number; label:
                         fontWeight="400"
                         fill={Colors.blue[900]}
                         textAnchor="middle"
-                        clipPath={`url(#plate-${index})`}
+                        clipPath={`url(#plate-text-${index})`}
                         fontFamily={Fonts.family}
                     >
                         {fittedLabel}
@@ -93,37 +97,37 @@ function Tile({ rect, index, label }: { rect: TreemapRect; index: number; label:
     );
 }
 
-// All positions, derived from the page size and the layout constants.
-function cardLayout(width: number, height: number) {
-    // The navy border sits inside the page by one margin.
-    const border = { x: MARGIN, y: MARGIN, width: width - MARGIN * 2, height: height - MARGIN * 2 };
+// One legend row: a patterned swatch, the provider name, and its share.
+function LegendRow({ entry, index, content }: { entry: LegendEntry; index: number; content: { x: number; width: number; y: number } }) {
+    const right = content.x + content.width;
+    const left = right - LEGEND_WIDTH;
+    const baseline = content.y + LEGEND_FIRST_BASELINE + index * LEGEND_ROW_HEIGHT;
+    const nameWidth = LEGEND_WIDTH - LEGEND_SWATCH - 5 - LEGEND_PERCENT_WIDTH;
+    const name = truncateLabel(entry.category, nameWidth, LEGEND_FONT_SIZE);
 
-    // The content box sits inside the border by one padding.
-    const content = {
-        x: border.x + PADDING,
-        y: border.y + PADDING,
-        width: border.width - PADDING * 2,
-        height: border.height - PADDING * 2,
-    };
-
-    // The header rhythm, then the mosaic fills the remaining content.
-    const mosaic = {
-        x: content.x,
-        y: content.y + MOSAIC_TOP,
-        width: content.width,
-        height: content.height - MOSAIC_TOP,
-    };
-
-    return {
-        border,
-        content,
-        titleY: content.y + TITLE_TOP,
-        subtitleY: content.y + SUBTITLE_TOP,
-        mosaic,
-    };
+    return (
+        <G>
+            <Rect x={left} y={baseline - LEGEND_SWATCH + 1} width={LEGEND_SWATCH} height={LEGEND_SWATCH} rx={2} fill={LEAF_BASE} />
+            <Rect
+                x={left}
+                y={baseline - LEGEND_SWATCH + 1}
+                width={LEGEND_SWATCH}
+                height={LEGEND_SWATCH}
+                rx={2}
+                fill={entry.us ? LEAF_RED : LEAF_BLUE}
+                mask={entry.mask}
+            />
+            <Text x={left + LEGEND_SWATCH + 5} y={baseline} fontSize={LEGEND_FONT_SIZE} fill={Colors.blue[900]} fontFamily={Fonts.family}>
+                {name}
+            </Text>
+            <Text x={right} y={baseline} fontSize={LEGEND_FONT_SIZE} fill={Colors.blue[900]} textAnchor="end" fontFamily={Fonts.family}>
+                {`${entry.percent}%`}
+            </Text>
+        </G>
+    );
 }
 
-// The full A7 card at a fixed size; frequencies come from the selection.
+// The full A7 sheet at a fixed size; frequencies come from the selection.
 export function Treemap({
     frequencies,
     width,
@@ -135,36 +139,38 @@ export function Treemap({
     height: number;
     context: CardContext;
 }) {
-    const { border, content, titleY, subtitleY, mosaic } = cardLayout(width, height);
+    const { content, body, titleY, subtitleY, ruleY } = sheetLayout(width, height);
 
-    // The mosaic is laid out in its own region, then shifted into the card.
+    // The mosaic is laid out in its own region, then shifted into the sheet.
     const tiles = useMemo(
-        () => buildTreemapLayout(frequencies, mosaic.width, mosaic.height, translate(context.language, 'card.others')),
-        [frequencies, mosaic.width, mosaic.height, context.language],
+        () => buildTreemapLayout(frequencies, body.width, body.height, translate(context.language, 'card.others')),
+        [frequencies, body.width, body.height, context.language],
     );
+    const legend = useMemo(() => buildLegend(frequencies), [frequencies]);
     const place = context.place ?? translate(context.language, 'card.yourNeighbourhood');
 
     return (
         <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
             <TreemapPatterns />
-            {/* Card body, then the hard offset shadow the border casts. */}
+            {/* A white background, no stroke or shadow (the printed sheet is
+                borderless too, see cardHtml.ts). */}
             <Rect width={width} height={height} rx={16} fill={Colors.white} />
-            <Rect x={border.x + SHADOW_OFFSET} y={border.y + SHADOW_OFFSET} width={border.width} height={border.height} rx={15} fill={CARD_SHADOW} />
-            <Rect x={border.x} y={border.y} width={border.width} height={border.height} rx={15} fill={Colors.white} />
-            <Rect x={border.x} y={border.y} width={border.width} height={border.height} rx={15} fill="none" stroke={Colors.blue[800]} strokeWidth={2} />
-            {/* Header: title and the visitor's place, then the navy rule. */}
-            <Text x={content.x} y={titleY} fontSize={18} fontWeight="700" fill={Colors.blue[900]} fontFamily={Fonts.family}>
+            {/* Header: title and the visitor's place on the left, the legend on the right. */}
+            <Text x={content.x} y={titleY} fontSize={TITLE_FONT_SIZE} fontWeight="700" fill={Colors.blue[900]} fontFamily={Fonts.family}>
                 {translate(context.language, 'card.visitorTitle')}
             </Text>
-            <Text x={content.x} y={subtitleY} fontSize={12} fontWeight="400" fill={Colors.blue[900]} fontFamily={Fonts.family}>
+            <Text x={content.x} y={subtitleY} fontSize={SUBTITLE_FONT_SIZE} fontWeight="400" fill={Colors.blue[900]} fontFamily={Fonts.family}>
                 {translate(context.language, 'card.livesIn', { place })}
             </Text>
-            <Line x1={border.x} y1={subtitleY + 11} x2={border.x + border.width} y2={subtitleY + 11} stroke={Colors.blue[900]} />
+            {legend.map((entry, index) => (
+                <LegendRow key={index} entry={entry} index={index} content={content} />
+            ))}
+            <Line x1={content.x} y1={ruleY} x2={content.x + content.width} y2={ruleY} stroke={Colors.blue[900]} />
             {/* The treemap mosaic, filling the space the header leaves over. */}
             {tiles.map((rect, index) => (
                 <Tile
                     key={index}
-                    rect={{ ...rect, x: rect.x + mosaic.x, y: rect.y + mosaic.y }}
+                    rect={{ ...rect, x: rect.x + body.x, y: rect.y + body.y }}
                     index={index}
                     label={index === 0 ? frequencyLabelName(rect.frequency) : null}
                 />

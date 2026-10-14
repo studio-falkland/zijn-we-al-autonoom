@@ -72,6 +72,9 @@ export default function PostcodeScreen() {
     // The dot sits on the pending tap first, then on the stored location.
     const markerPoint = pendingLngLat ?? location?.center ?? null;
 
+    // The card shows the city from the PDOK document, falling back to the postcode.
+    const place = location?.pdok?.woonplaatsnaam ?? location?.pdok?.gemeentenaam ?? null;
+
     return (
         <SafeAreaView style={styles.screen}>
             {/* The map fills the whole screen; the column floats over it. */}
@@ -114,7 +117,7 @@ export default function PostcodeScreen() {
                         <CardTitle>{t('gather.you')}</CardTitle>
                         <CardSubtitle>
                             {location
-                                ? t('gather.liveIn', { postcode: formatPostcode(location.postcode) })
+                                ? t('gather.liveIn', { place: place ?? formatPostcode(location.postcode) })
                                 : t('gather.whereDoYouLive')}
                         </CardSubtitle>
                     </CardHeader>

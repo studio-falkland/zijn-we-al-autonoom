@@ -35,7 +35,7 @@ export const nl = {
         explore: 'Verken',
         explorePostcode: 'Verken %{postcode}',
         you: 'Jij',
-        liveIn: 'Woont in %{postcode}',
+        liveIn: 'Woont in %{place}',
         whereDoYouLive: 'Waar woon je?',
     },
 
@@ -193,7 +193,7 @@ export const en: Messages = {
         explore: 'Explore',
         explorePostcode: 'Explore %{postcode}',
         you: 'You',
-        liveIn: 'Live in %{postcode}',
+        liveIn: 'Live in %{place}',
         whereDoYouLive: 'Where do you live?',
     },
 
@@ -304,7 +304,7 @@ export const en: Messages = {
 
     card: {
         visitorTitle: 'You',
-        livesIn: 'Lives in %{place}',
+        livesIn: 'Live in %{place}',
         yourNeighbourhood: 'your neighbourhood',
         unknown: 'Unknown',
         others: 'Other',

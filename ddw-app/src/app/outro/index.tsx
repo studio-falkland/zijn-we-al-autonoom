@@ -59,7 +59,13 @@ export default function OutroScreen() {
     return (
         <SafeAreaView style={styles.screen}>
             <View style={styles.content}>
-                {cardData && ready && <StepDiagram frequencies={cardData.frequencies} place={cardData.place} />}
+                {cardData && ready && (
+                    <StepDiagram
+                        frequencies={cardData.frequencies}
+                        place={cardData.place}
+                        center={location?.center ?? null}
+                    />
+                )}
                 <View style={styles.copy}>
                     <Text style={styles.line}>{t('outro.guidance')}</Text>
                     <Text style={styles.line}>{t('outro.together')}</Text>

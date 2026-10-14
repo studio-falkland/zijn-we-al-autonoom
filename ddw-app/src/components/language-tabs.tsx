@@ -29,7 +29,9 @@ export function LanguageTabs() {
                         accessibilityLabel={TABS[value].label}
                         style={[styles.tab, selected && styles.tabSelected]}
                     >
-                        <Text style={styles.code}>{TABS[value].code}</Text>
+                        <Text style={[styles.code, selected && styles.codeSelected]}>
+                            {TABS[value].code}
+                        </Text>
                     </Pressable>
                 );
             })}
@@ -63,5 +65,9 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '700',
         lineHeight: 22,
+    },
+    // On the selected tab the fill is the brand blue, so the code goes white.
+    codeSelected: {
+        color: Colors.white,
     },
 });

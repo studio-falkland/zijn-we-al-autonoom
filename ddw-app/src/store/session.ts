@@ -148,7 +148,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
             if (frequencies.length === 0) throw new Error(translate(language, 'common.noMeasurements'));
             // The print document pulls in the embedded fonts, so load it lazily.
             const { generateCardPdf } = await import('@/card/generate');
-            const { uri } = await generateCardPdf(frequencies, { place, language });
+            const { uri } = await generateCardPdf(frequencies, { place, center: location?.center ?? null, language });
             if (token !== latestRequest) return;
             set({
                 cardData: { key, providers, frequencies, place },

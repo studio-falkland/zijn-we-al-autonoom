@@ -10,7 +10,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/button';
 import { generateCardPdf } from '@/card/generate';
 import { getDependencyFrequencies } from '@/data/dependencies';
-import { getPlaceName } from '@/data/organisations';
 import { translate } from '@/i18n';
 import { useTranslation } from '@/i18n/use-translation';
 import { useSessionStore } from '@/store/session';
@@ -46,9 +45,8 @@ export default function PrintScreen() {
                     setError(translate(language, 'common.noMeasurements'));
                     return;
                 }
-                const place = await getPlaceName(location?.postcode ?? '');
-                if (cancelled) return;
-                const { uri } = await generateCardPdf(frequencies, { place, language });
+                const place = location?.pdok?.woonplaatsnaam ?? location?.pdok?.gemeentenaam ?? null;
+                const { uri } = await generateCardPdf(frequencies, { place, center: location?.center ?? null, language });
                 if (cancelled) return;
                 setGeneratedCard({ pdfUri: uri });
                 setPrintStatus('done');

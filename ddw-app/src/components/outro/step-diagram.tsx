@@ -9,8 +9,8 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Path, Polygon, Svg } from 'react-native-svg';
 
 import Installation from '@/assets/images/installation-visualisation.svg';
+import { MapCard } from '@/components/card/map-card';
 import { MosaicCard } from '@/components/card/mosaic-card';
-import { Treemap } from '@/components/treemap/treemap';
 import type { MeasurementFrequency } from '@/data/dependencies';
 import { useTranslation } from '@/i18n/use-translation';
 import { Colors, Radii, Spacing } from '@/theme/tokens';
@@ -25,7 +25,15 @@ const FIT = ICON.width / A7.width;
 // How long after one item appears the next one follows.
 const STEP_DELAY = 220;
 
-export function StepDiagram({ frequencies, place }: { frequencies: MeasurementFrequency[]; place: string | null }) {
+export function StepDiagram({
+    frequencies,
+    place,
+    center,
+}: {
+    frequencies: MeasurementFrequency[];
+    place: string | null;
+    center: [number, number] | null;
+}) {
     const { t, language } = useTranslation();
 
     const steps: { key: string; label: string; icon: ReactNode }[] = [
@@ -35,12 +43,7 @@ export function StepDiagram({ frequencies, place }: { frequencies: MeasurementFr
             label: t('steps.personal'),
             icon: (
                 <ScaledCard>
-                    <Treemap
-                        frequencies={frequencies}
-                        width={A7.width}
-                        height={A7.height}
-                        context={{ place, language }}
-                    />
+                    <MapCard width={A7.width} height={A7.height} place={place} center={center} language={language} />
                 </ScaledCard>
             ),
         },
