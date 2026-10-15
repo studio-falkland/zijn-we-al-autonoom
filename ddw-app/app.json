@@ -8,7 +8,7 @@
         "scheme": "zwaa-ddw-app",
         "userInterfaceStyle": "light",
         "ios": {
-            "icon": "./assets/expo.icon",
+            "icon": "./assets/zwaa-app-icon.icon",
             "bundleIdentifier": "studio.falkland.zijnwealautonoom.ddw",
             "supportsTablet": true
         },

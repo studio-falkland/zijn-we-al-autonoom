@@ -4,7 +4,7 @@
 // dependency instance of its AS organisation — the web app's per-dataset
 // semantics, but with both hosting dimensions combined into one card.
 
-import { DestinationDataset, Measurement, URL } from '@are-we-dependent/data';
+import { DestinationDataset, Measurement, Organisation, URL } from '@are-we-dependent/data';
 import { In } from 'typeorm';
 
 import { db, ensureDb } from './db';
@@ -25,13 +25,56 @@ export type MeasurementFrequency = {
 // datasets and would double-count a URL's web or email dependency.
 const DEPENDENCY_TYPES = [DestinationDataset.WebhostingAS, DestinationDataset.EmailAS];
 
+// The stored rows a service's data may live on, and which service each belongs to.
+type ServiceRows = {
+    rowsByService: Map<string, string[]>;
+    serviceByRow: Map<string, string>;
+};
+
+// The extraction can spread one organisation over several stored rows: the same
+// name appearing again (in another source dataset, or as another branch) gets a
+// "-1"/"-2" slug suffix, and the measurements may sit on a row other than the one
+// the app selected. Group every row that shares a selected service's name, so the
+// data is found wherever it was stored.
+async function groupServiceRows(services: SelectedService[]): Promise<ServiceRows> {
+    await ensureDb();
+    const slugs = services.map((service) => service.slug);
+    const names = [...new Set(services.map((service) => service.name))];
+
+    // One query for both the selected rows (so a stored service is told apart
+    // from a runtime provider, which has no row of its own) and same-name rows.
+    const rows = names.length > 0
+        ? await db.getRepository(Organisation).find({
+            where: [{ slug: In(slugs) }, { name: In(names) }],
+            select: { slug: true, name: true },
+        })
+        : [];
+
+    const slugsByName = new Map<string, string[]>();
+    for (const row of rows) {
+        slugsByName.set(row.name, [...(slugsByName.get(row.name) ?? []), row.slug]);
+    }
+
+    // Only a stored service gets its same-name siblings; a runtime provider (the
+    // grid operators, the water company) stays data-less as before.
+    const stored = new Set(rows.map((row) => row.slug));
+    const result: ServiceRows = { rowsByService: new Map(), serviceByRow: new Map() };
+    for (const service of services) {
+        const serviceRows = stored.has(service.slug) ? slugsByName.get(service.name) ?? [] : [];
+        result.rowsByService.set(service.slug, serviceRows.length > 0 ? serviceRows : [service.slug]);
+        for (const slug of serviceRows) result.serviceByRow.set(slug, service.slug);
+    }
+    return result;
+}
+
 // The share of hosted URLs per AS organisation for the selected services.
 export async function getDependencyFrequencies(
     services: SelectedService[],
     unknownLabel: string,
 ): Promise<MeasurementFrequency[]> {
-    await ensureDb();
-    const slugs = services.map((service) => service.slug);
+    // Every stored row the selection's data may live on, siblings included.
+    const { rowsByService } = await groupServiceRows(services);
+    const slugs = [...new Set([...rowsByService.values()].flat())];
     if (slugs.length === 0) return [];
 
     // Load every URL of the selected organisations with only their web/email
@@ -95,8 +138,9 @@ export async function getServiceProviders(
     services: SelectedService[],
     unknownLabel: string,
 ): Promise<ServiceProviders[]> {
-    await ensureDb();
-    const slugs = services.map((service) => service.slug);
+    // Every stored row the selection's data may live on, siblings included.
+    const { rowsByService, serviceByRow } = await groupServiceRows(services);
+    const slugs = [...new Set([...rowsByService.values()].flat())];
     if (slugs.length === 0) return [];
 
     // Load every URL of the selection with its organisation and hosting measurements.
@@ -108,14 +152,15 @@ export async function getServiceProviders(
         relations: { measurements: true, organisation: true },
     });
 
-    // Bucket each hosting measurement under its URL's organisation slug.
+    // Bucket each hosting measurement under the selected service that owns the
+    // row the URL belongs to, so a sibling row still counts for its service.
     const bySlug = new Map<string, Measurement[]>();
     for (const url of urls) {
-        const slug = url.organisation?.slug;
-        if (!slug) continue;
-        const list = bySlug.get(slug) ?? [];
+        const serviceSlug = serviceByRow.get(url.organisation?.slug ?? '');
+        if (!serviceSlug) continue;
+        const list = bySlug.get(serviceSlug) ?? [];
         for (const measurement of url.measurements ?? []) list.push(measurement);
-        bySlug.set(slug, list);
+        bySlug.set(serviceSlug, list);
     }
 
     // Per service: the single latest measurement per dataset type, as its leaves.
