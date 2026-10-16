@@ -18,6 +18,7 @@ export const nl = {
         continue: 'Doorgaan',
         back: 'Terug',
         cancel: 'Annuleren',
+        loading: 'Kaart maken…',
         noMeasurements: 'Geen meetgegevens voor deze selectie.',
     },
 
@@ -186,6 +187,7 @@ export const en: Messages = {
         continue: 'Continue',
         back: 'Back',
         cancel: 'Cancel',
+        loading: 'Creating card…',
         noMeasurements: 'No measurement data for this selection.',
     },
 

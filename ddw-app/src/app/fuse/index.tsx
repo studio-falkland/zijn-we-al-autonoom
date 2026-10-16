@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { FailureState } from '@/components/failure-state';
 import { FuseStage } from '@/components/fuse/fuse-stage';
+import { LoadingState } from '@/components/loading-state';
 import { translate } from '@/i18n';
 import { usePrinterStore } from '@/store/printer';
 import { cardKey, useSessionStore } from '@/store/session';
@@ -68,7 +69,9 @@ export default function FuseScreen() {
                     onPrint={handlePrint}
                     onContinue={handleContinue}
                 />
-            ) : null}
+            ) : (
+                <LoadingState />
+            )}
         </SafeAreaView>
     );
 }

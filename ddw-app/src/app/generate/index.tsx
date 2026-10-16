@@ -8,6 +8,7 @@ import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { FailureState } from '@/components/failure-state';
+import { LoadingState } from '@/components/loading-state';
 import { RevealStage } from '@/components/reveal/reveal-stage';
 import { cardKey, useSessionStore } from '@/store/session';
 import { Theme } from '@/theme/tokens';
@@ -32,7 +33,9 @@ export default function GenerateScreen() {
                 <FailureState message={cardError} onRetry={refreshCardData} />
             ) : cardData && ready ? (
                 <RevealStage cards={cardData.providers} onContinue={handleContinue} />
-            ) : null}
+            ) : (
+                <LoadingState />
+            )}
         </SafeAreaView>
     );
 }

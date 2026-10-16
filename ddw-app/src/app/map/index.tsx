@@ -55,6 +55,7 @@ export default function MapScreen() {
     const setLocation = useSessionStore((state) => state.setLocation);
     const selected = useSessionStore((state) => state.selectedServices);
     const toggleService = useSessionStore((state) => state.toggleService);
+    const refreshCardData = useSessionStore((state) => state.refreshCardData);
     const { t } = useTranslation();
     const sectorLabel = useSectorLabel();
     const [organisations, setOrganisations] = useState<Organisation[] | null>(null);
@@ -97,6 +98,13 @@ export default function MapScreen() {
         },
         [organisations, location, setLocation, toggleService],
     );
+
+    // Continue: start the card computation right away (rather than waiting on the
+    // background debounce) and move on, so the reveal only waits on the render.
+    const handleContinue = useCallback(() => {
+        refreshCardData();
+        router.push('/generate');
+    }, [refreshCardData]);
 
     return (
         <SafeAreaView style={styles.screen}>
@@ -189,7 +197,7 @@ export default function MapScreen() {
                     <Button
                         label={t('common.continue')}
                         disabled={selected.length === 0}
-                        onPress={() => router.push('/generate')}
+                        onPress={handleContinue}
                     />
                 </View>
             </View>

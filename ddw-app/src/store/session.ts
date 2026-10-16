@@ -56,6 +56,10 @@ export function cardKey(services: SelectedService[], location: Location | null):
 // The newest background run; earlier runs bail so their results never land.
 let latestRequest = 0;
 
+// The in-flight background run and the inputs it was started for. A repeat
+// request for the same inputs joins it instead of rendering a second PDF.
+let inFlight: { key: string; promise: Promise<void> } | null = null;
+
 // Session state and actions for a single visitor.
 export type SessionState = {
     // The visitor's chosen UI language, picked on the start screen.
@@ -136,39 +140,55 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
     // Recompute the derived card data in the background: the per-service
     // providers, the combined frequencies, the place, and the A7 PDF. A stale run
     // is dropped, and any failure surfaces as an error the screens show.
-    refreshCardData: async () => {
-        const { selectedServices, location, language } = get();
+    refreshCardData: () => {
+        const { selectedServices, location, cardData, cardStatus, language } = get();
         const key = cardKey(selectedServices, location);
+        // Nothing to do when the data already matches, or a run for the same
+        // inputs is already under way — so an eager call never re-renders.
+        if (cardStatus === 'ready' && cardData?.key === key) return Promise.resolve();
+        if (inFlight?.key === key) return inFlight.promise;
+
         const token = ++latestRequest;
         // Resolve the language once, so every message in this run agrees.
         const unknown = translate(language, 'card.unknown');
         set({ cardStatus: 'loading', cardError: null });
 
-        try {
-            const [providers, frequencies] = await Promise.all([
-                getServiceProviders(selectedServices, unknown),
-                getDependencyFrequencies(selectedServices, unknown),
-            ]);
-            // The place comes straight from the PDOK document held in the session.
-            const place = location?.pdok?.woonplaatsnaam ?? location?.pdok?.gemeentenaam ?? null;
-            if (frequencies.length === 0) throw new Error(translate(language, 'common.noMeasurements'));
-            // The print document pulls in the embedded fonts, so load it lazily.
-            const { generateCardPdf } = await import('@/card/generate');
-            const { uri } = await generateCardPdf(frequencies, { place, center: location?.center ?? null, language });
-            if (token !== latestRequest) return;
-            set({
-                cardData: { key, providers, frequencies, place },
-                cardStatus: 'ready',
-                generatedCard: { pdfUri: uri },
-                printStatus: 'done',
-            });
-        } catch (error) {
-            if (token !== latestRequest) return;
-            set({
-                cardStatus: 'error',
-                cardError: error instanceof Error ? error.message : translate(language, 'card.buildError'),
-            });
-        }
+        // The run itself, kept as a promise so a duplicate request can join it.
+        const run = async () => {
+            try {
+                const [providers, frequencies] = await Promise.all([
+                    getServiceProviders(selectedServices, unknown),
+                    getDependencyFrequencies(selectedServices, unknown),
+                ]);
+                // The place comes straight from the PDOK document held in the session.
+                const place = location?.pdok?.woonplaatsnaam ?? location?.pdok?.gemeentenaam ?? null;
+                if (frequencies.length === 0) throw new Error(translate(language, 'common.noMeasurements'));
+                // The print document pulls in the embedded fonts, so load it lazily.
+                const { generateCardPdf } = await import('@/card/generate');
+                const { uri } = await generateCardPdf(frequencies, { place, center: location?.center ?? null, language });
+                if (token !== latestRequest) return;
+                set({
+                    cardData: { key, providers, frequencies, place },
+                    cardStatus: 'ready',
+                    generatedCard: { pdfUri: uri },
+                    printStatus: 'done',
+                });
+            } catch (error) {
+                if (token !== latestRequest) return;
+                set({
+                    cardStatus: 'error',
+                    cardError: error instanceof Error ? error.message : translate(language, 'card.buildError'),
+                });
+            }
+        };
+
+        const promise = run();
+        inFlight = { key, promise };
+        // Clear the marker once the run settles, so a failure can be retried.
+        promise.finally(() => {
+            if (inFlight?.promise === promise) inFlight = null;
+        });
+        return promise;
     },
 
     // Store the generated card once the PDF exists on device.
@@ -184,6 +204,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
     // The language resets too, so the next visitor picks their own on the start.
     resetSession: () => {
         latestRequest += 1;
+        inFlight = null;
         set({
             language: DEFAULT_LANGUAGE,
             location: null,

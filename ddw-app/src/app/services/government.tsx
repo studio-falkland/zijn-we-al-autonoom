@@ -46,6 +46,7 @@ export default function GovernmentScreen() {
     const location = useSessionStore((state) => state.location);
     const selected = useSessionStore((state) => state.selectedServices);
     const toggleService = useSessionStore((state) => state.toggleService);
+    const refreshCardData = useSessionStore((state) => state.refreshCardData);
     const { t } = useTranslation();
     const cameraRef = useRef<CameraRef>(null);
     const [organisations, setOrganisations] = useState<Organisation[] | null>(null);
@@ -94,8 +95,12 @@ export default function GovernmentScreen() {
         if (place.center) cameraRef.current?.flyTo({ center: place.center, zoom: 13, duration: 500 });
     }, []);
 
-    // On to the reveal once the visitor has reviewed the national services.
-    const handleAdvance = useCallback(() => router.push('/generate'), []);
+    // On to the reveal: start the card computation at once rather than waiting on
+    // the background debounce, so the reveal only waits on the render.
+    const handleAdvance = useCallback(() => {
+        refreshCardData();
+        router.push('/generate');
+    }, [refreshCardData]);
 
     return (
         <SafeAreaView style={styles.screen}>
