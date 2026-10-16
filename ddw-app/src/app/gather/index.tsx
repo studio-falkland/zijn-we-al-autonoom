@@ -41,20 +41,29 @@ export default function PostcodeScreen() {
     // The just-tapped point, drawn at once (in map coordinates) while it resolves.
     const [pendingLngLat, setPendingLngLat] = useState<[number, number] | null>(null);
 
-    // Tapping the map marks the point at once, then resolves its postcode.
+    // Tapping the map marks the point at once, then resolves its postcode. The
+    // lookup is bounded (see `reversePlace`), so a slow or unreachable PDOK
+    // silently falls back to the tapped point instead of blocking the visitor.
     const handleMapPress = useCallback<NonNullable<MapProps['onPress']>>(
         (event) => {
             const [lng, lat] = event.nativeEvent.lngLat;
             const point: [number, number] = [lng, lat];
             setPendingLngLat(point);
-            // Clear the optimistic point in the SAME update that stores it, so
-            // the two never render together (no double-dot flash).
+
+            // Keep the tapped point when the postcode could not be resolved, so
+            // the visitor can still explore. Clears the optimistic point in the
+            // SAME update that stores it, so the two never render together.
+            const fallback = () => {
+                setLocation({ center: point });
+                setPendingLngLat(null);
+            };
             reversePlace(lng, lat)
                 .then((place) => {
-                    if (place?.postcode) setLocation({ postcode: place.postcode, center: point, pdok: place });
+                    if (!place?.postcode) return fallback();
+                    setLocation({ postcode: place.postcode, center: point, pdok: place });
                     setPendingLngLat(null);
                 })
-                .catch(() => setPendingLngLat(null));
+                .catch(fallback);
         },
         [setLocation],
     );
@@ -101,7 +110,7 @@ export default function PostcodeScreen() {
                     <Text style={styles.body}>{t('gather.lead2')}</Text>
                     <Button
                         label={
-                            location
+                            location?.postcode
                                 ? t('gather.explorePostcode', { postcode: formatPostcode(location.postcode) })
                                 : t('gather.explore')
                         }
@@ -117,7 +126,13 @@ export default function PostcodeScreen() {
                         <CardTitle>{t('gather.you')}</CardTitle>
                         <CardSubtitle>
                             {location
-                                ? t('gather.liveIn', { place: place ?? formatPostcode(location.postcode) })
+                                ? t('gather.liveIn', {
+                                      place:
+                                          place ??
+                                          (location.postcode
+                                              ? formatPostcode(location.postcode)
+                                              : t('card.yourNeighbourhood')),
+                                  })
                                 : t('gather.whereDoYouLive')}
                         </CardSubtitle>
                     </CardHeader>

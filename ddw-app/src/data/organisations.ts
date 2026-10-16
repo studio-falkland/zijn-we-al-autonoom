@@ -128,33 +128,61 @@ export async function getGovernmentServices(): Promise<Organisation[]> {
     return organisations.sort((a, b) => (order.get(a.slug) ?? 0) - (order.get(b.slug) ?? 0));
 }
 
-// Resolve the visitor's municipality and water authority. Both names come from
-// their location: the municipality from the PDOK document, the water authority
-// from the utility lookup. Names are matched with the type word stripped.
+// Match a looked-up name to a local organisation of one sector, with a contains
+// fallback for small registry spelling differences.
+async function matchLocalOrganisation(
+    sector: GovernmentSector,
+    name?: string,
+): Promise<Organisation | null> {
+    if (!name) return null;
+    const target = normaliseProviderName(name);
+    if (!target) return null;
+
+    const organisations = await getLocalSectorOrganisations(sector);
+    return (
+        organisations.find((org) => normaliseProviderName(org.name) === target) ??
+        organisations.find((org) => normaliseProviderName(org.name).includes(target)) ??
+        null
+    );
+}
+
+// The municipality pin nearest to a point. Used when the PDOK lookup did not
+// resolve a name (an offline fallback location), so the locked-in step still
+// knows which municipality the visitor answers to. Null when none has
+// coordinates.
+async function getNearestMunicipality(center: [number, number]): Promise<Organisation | null> {
+    const [lng, lat] = center;
+    const municipalities = await getLocalSectorOrganisations(GovernmentSector.Municipality);
+
+    let nearest: Organisation | null = null;
+    let best = Infinity;
+    for (const org of municipalities) {
+        if (org.lat == null || org.lng == null) continue;
+        const distance = (org.lat - lat) ** 2 + (org.lng - lng) ** 2;
+        if (distance < best) {
+            best = distance;
+            nearest = org;
+        }
+    }
+    return nearest;
+}
+
+// Resolve the visitor's municipality and water authority. The municipality comes
+// from the PDOK name, or — when that name is missing (an offline fallback
+// location) — from the nearest local municipality pin to the visitor's point.
+// The water authority comes from the utility lookup. Names are matched with the
+// type word stripped.
 export async function getLocationProviders(names: {
     gemeente?: string;
     waterschap?: string;
+    center?: [number, number];
 }): Promise<LocationProviders> {
-    const [municipalities, waterschappen] = await Promise.all([
-        names.gemeente ? getLocalSectorOrganisations(GovernmentSector.Municipality) : [],
-        names.waterschap ? getLocalSectorOrganisations(GovernmentSector.WaterBoard) : [],
-    ]);
+    const municipality = names.gemeente
+        ? await matchLocalOrganisation(GovernmentSector.Municipality, names.gemeente)
+        : names.center
+          ? await getNearestMunicipality(names.center)
+          : null;
 
-    // The first organisation whose normalised name matches the looked-up name,
-    // with a contains fallback for small registry spelling differences.
-    const match = (organisations: Organisation[], name?: string) => {
-        if (!name) return null;
-        const target = normaliseProviderName(name);
-        if (!target) return null;
-        return (
-            organisations.find((org) => normaliseProviderName(org.name) === target) ??
-            organisations.find((org) => normaliseProviderName(org.name).includes(target)) ??
-            null
-        );
-    };
-
-    return {
-        municipality: match(municipalities, names.gemeente),
-        waterschap: match(waterschappen, names.waterschap),
-    };
+    const waterschap = await matchLocalOrganisation(GovernmentSector.WaterBoard, names.waterschap);
+    return { municipality, waterschap };
 }

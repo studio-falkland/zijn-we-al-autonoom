@@ -24,9 +24,11 @@ export type PrintStatus = 'idle' | 'printing' | 'done' | 'error';
 
 // The visitor's location: the postcode, the tapped point (for the map marker)
 // and the full PDOK document. The document's centroids drive the utility
-// lookups, so it is stored alongside the postcode.
+// lookups, so it is stored alongside the postcode. Both the postcode and the
+// document are absent when PDOK could not be reached: the tapped point alone
+// still lets the visitor continue.
 export type Location = {
-    postcode: string;
+    postcode?: string;
     center: [number, number]; // [longitude, latitude] of the chosen point
     pdok?: PdokDoc;
 };

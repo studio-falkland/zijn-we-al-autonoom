@@ -177,34 +177,57 @@ export function usePlaceSearch(query: string) {
 const PLACE_FIELDS =
     'id type weergavenaam postcode woonplaatsnaam gemeentenaam gemeentecode provincienaam provinciecode centroide_ll centroide_rd';
 
+// A PDOK lookup must not strand the visitor on a silent dot. Bound every request
+// with a deadline, so an unreachable network fails into the offline fallback
+// instead of waiting on the platform's much longer default timeout.
+const PDOK_TIMEOUT_MS = 5000;
+
+// Run a PDOK request under a deadline, aborting its fetch when the time is up.
+async function withDeadline<T>(run: (signal: AbortSignal) => Promise<T>): Promise<T> {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), PDOK_TIMEOUT_MS);
+    try {
+        return await run(controller.signal);
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
 // The postcode-area document at a coordinate — the value behind "where do you
 // live?". A two-step PDOK lookup: `reverse` finds the nearest postcode object to
 // the point, then `lookup` fetches that same object by id with the fields we read
 // (the reverse envelope omits some of them, e.g. the clean `postcode`).
-// Returns null when the point has no postcode object or a request fails.
+// Returns null when the point has no postcode object; rejects on timeout/failure
+// so the caller can fall back to the tapped point.
 export async function reversePlace(lng: number, lat: number): Promise<PdokDoc | null> {
-    // Step 1: nearest postcode object to the tapped point (lon/lat in WGS84).
-    const reverse = await reverseGeocoder({ lon: lng, lat, type: 'postcode', rows: 1 });
-    if (reverse.status !== 200) return null;
+    return withDeadline(async (signal) => {
+        // Step 1: nearest postcode object to the tapped point (lon/lat in WGS84).
+        const reverse = await reverseGeocoder({ lon: lng, lat, type: 'postcode', rows: 1 }, { signal });
+        if (reverse.status !== 200) return null;
 
-    // The object id is what step 2 needs; without it there is nothing to resolve.
-    const id = (reverse.data.response?.docs ?? []).map(asPdokDoc)[0]?.id;
-    if (!id) return null;
+        // The object id is what step 2 needs; without it there is nothing to resolve.
+        const id = (reverse.data.response?.docs ?? []).map(asPdokDoc)[0]?.id;
+        if (!id) return null;
 
-    // Step 2: resolve the object to the fields we read, including both centroids.
-    const detail = await lookup({ id, fl: PLACE_FIELDS });
-    if (detail.status !== 200) return null;
+        // Step 2: resolve the object to the fields we read, including both centroids.
+        const detail = await lookup({ id, fl: PLACE_FIELDS }, { signal });
+        if (detail.status !== 200) return null;
 
-    return (detail.data.response?.docs ?? []).map(asPdokDoc)[0] ?? null;
+        return (detail.data.response?.docs ?? []).map(asPdokDoc)[0] ?? null;
+    });
 }
 
 // The waterschap (water authority) that covers a coordinate.
 // Unlike the postcode, the reverse geocoder returns the waterschap polygon and
 // its name directly, so one `reverse` call is enough — no `lookup` follow-up.
-// Returns null when the point has no waterschap or a request fails.
+// Bounded like `reversePlace`: a hung request resolves to null rather than
+// holding the utility resolution open. Returns null when the point has no
+// waterschap or a request fails or times out.
 export async function reverseWaterschap(lng: number, lat: number): Promise<string | null> {
-    const reverse = await reverseGeocoder({ lon: lng, lat, type: 'waterschap', rows: 1 });
-    if (reverse.status !== 200) return null;
+    return withDeadline(async (signal) => {
+        const reverse = await reverseGeocoder({ lon: lng, lat, type: 'waterschap', rows: 1 }, { signal });
+        if (reverse.status !== 200) return null;
 
-    return (reverse.data.response?.docs ?? []).map(asPdokDoc)[0]?.waterschapsnaam ?? null;
+        return (reverse.data.response?.docs ?? []).map(asPdokDoc)[0]?.waterschapsnaam ?? null;
+    });
 }

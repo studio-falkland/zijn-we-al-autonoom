@@ -101,11 +101,17 @@ export default function ServicesScreen() {
     // How many cards have been dealt into the hand so far.
     const [revealed, setRevealed] = useState(0);
 
-    // Resolve the municipality and water authority once their names are known
-    // (the water authority arrives with the utility lookup, a moment later).
+    // Resolve the municipality and water authority. The municipality name comes
+    // from the PDOK document, or from the nearest local pin when PDOK was
+    // unreachable (the offline fallback location); the water authority arrives
+    // with the utility lookup, a moment later.
     useEffect(() => {
-        const names = { gemeente: location?.pdok?.gemeentenaam, waterschap: utilities?.waterschap ?? undefined };
-        if (!names.gemeente && !names.waterschap) return;
+        if (!location) return;
+        const names = {
+            gemeente: location.pdok?.gemeentenaam,
+            waterschap: utilities?.waterschap ?? undefined,
+            center: location.center,
+        };
 
         let cancelled = false;
         getLocationProviders(names)
@@ -241,7 +247,7 @@ export default function ServicesScreen() {
             <View style={styles.column}>
                 <View style={styles.panel}>
                     <Text style={styles.heading}>{t('services.heading')}</Text>
-                    {location && <Text style={styles.subtitle}>{formatPostcode(location.postcode)}</Text>}
+                    {location?.postcode && <Text style={styles.subtitle}>{formatPostcode(location.postcode)}</Text>}
                     <Text style={styles.body}>
                         {cards.length === 0 ? t('services.finding') : t('services.explainer')}
                     </Text>
