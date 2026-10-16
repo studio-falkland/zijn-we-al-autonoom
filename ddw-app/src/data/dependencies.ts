@@ -3,12 +3,15 @@
 // measurement per dataset type (webhosting-as, email-as) and count each as one
 // dependency instance of its AS organisation — the web app's per-dataset
 // semantics, but with both hosting dimensions combined into one card.
+// The grid operators and the drinkwater company have no stored rows, so their
+// leaves come from the hardcoded table in ./utility-measurements instead.
 
 import { DestinationDataset, Measurement, Organisation, URL } from '@are-we-dependent/data';
 import { In } from 'typeorm';
 
 import { db, ensureDb } from './db';
 import type { SelectedService } from './services';
+import { UTILITY_MEASUREMENTS } from './utility-measurements';
 
 // One treemap leaf: an AS organisation (or the caller's unknown label) and its share.
 export type MeasurementFrequency = {
@@ -56,7 +59,8 @@ async function groupServiceRows(services: SelectedService[]): Promise<ServiceRow
     }
 
     // Only a stored service gets its same-name siblings; a runtime provider (the
-    // grid operators, the water company) stays data-less as before.
+    // grid operators, the water company) keeps its own slug and its hardcoded
+    // measurements instead.
     const stored = new Set(rows.map((row) => row.slug));
     const result: ServiceRows = { rowsByService: new Map(), serviceByRow: new Map() };
     for (const service of services) {
@@ -99,10 +103,14 @@ export async function getDependencyFrequencies(
         }
     }
 
+    // The hardcoded utility leaves join the measured instances; both carry the
+    // same asn / as_organisation / as_country_code fields the loop reads.
+    const utilities = services.flatMap((service) => utilityFrequencies(service) ?? []);
+
     // Count how often each AS organisation hosts one of the dependency instances.
     const counts = new Map<string, MeasurementFrequency>();
     let total = 0;
-    for (const measurement of latest.values()) {
+    for (const measurement of [...latest.values(), ...utilities]) {
         if (measurement.asn == null) continue; // unmeasured instances are excluded
         const label = measurement.as_organisation ?? unknownLabel;
         const entry = counts.get(label) ?? {
@@ -163,10 +171,32 @@ export async function getServiceProviders(
         bySlug.set(serviceSlug, list);
     }
 
-    // Per service: the single latest measurement per dataset type, as its leaves.
+    // Per service: the hardcoded utility leaves where the provider has no row of
+    // its own, otherwise the latest measurement per dataset type.
     return services.map((service) => ({
         service,
-        frequencies: toServiceFrequencies(bySlug.get(service.slug) ?? [], unknownLabel),
+        frequencies: utilityFrequencies(service)
+            ?? toServiceFrequencies(bySlug.get(service.slug) ?? [], unknownLabel),
+    }));
+}
+
+// The hardcoded leaves for a utility provider (the grid operators and the
+// drinkwater company), which have no organisation row of their own. A stored
+// service has no entry here, so it keeps its measured frequencies instead.
+function utilityFrequencies(service: SelectedService): MeasurementFrequency[] | null {
+    const measurement = UTILITY_MEASUREMENTS[service.name];
+    if (!measurement) return null;
+
+    // Its two hosting datasets share the mosaic evenly, exactly like a stored
+    // service's measured web + email pair.
+    const leaves = [measurement.web, measurement.email];
+    return leaves.map((leaf) => ({
+        category: leaf.as_organisation,
+        frequency: 1,
+        ratio: 1 / leaves.length,
+        asn: leaf.asn,
+        as_country_code: leaf.as_country_code,
+        as_organisation: leaf.as_organisation,
     }));
 }
 
