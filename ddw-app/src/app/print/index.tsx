@@ -37,13 +37,11 @@ export default function PrintScreen() {
             // Read the language imperatively: the effect must not re-run on a
             // language switch (it would regenerate the PDF).
             const language = useSessionStore.getState().language;
-            setPrintStatus('printing');
             try {
                 const unknown = translate(language, 'card.unknown');
                 const frequencies = await getDependencyFrequencies(selected, unknown);
                 if (cancelled) return;
                 if (frequencies.length === 0) {
-                    setPrintStatus('error');
                     setError(translate(language, 'common.noMeasurements'));
                     return;
                 }
@@ -51,10 +49,8 @@ export default function PrintScreen() {
                 const { uri } = await generateCardPdf(frequencies, { place, center: location?.center ?? null, language });
                 if (cancelled) return;
                 setGeneratedCard({ pdfUri: uri });
-                setPrintStatus('done');
             } catch (failure) {
                 if (cancelled) return;
-                setPrintStatus('error');
                 setError(failure instanceof Error ? failure.message : translate(language, 'print.generateError'));
             }
         })();
@@ -62,15 +58,18 @@ export default function PrintScreen() {
         return () => {
             cancelled = true;
         };
-    }, [generatedCard, selected, location, setGeneratedCard, setPrintStatus]);
+    }, [generatedCard, selected, location, setGeneratedCard]);
 
     // Send the PDF straight to the selected printer (no dialog).
     const handlePrint = async () => {
         if (!generatedCard) return;
         setPrinting(true);
+        setPrintStatus('printing');
         try {
             await printPdf(generatedCard.pdfUri);
+            setPrintStatus('done');
         } catch (failure) {
+            setPrintStatus('error');
             setError(
                 failure instanceof Error
                     ? failure.message

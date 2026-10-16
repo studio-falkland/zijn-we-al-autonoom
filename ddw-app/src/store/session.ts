@@ -167,11 +167,13 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
                 const { generateCardPdf } = await import('@/card/generate');
                 const { uri } = await generateCardPdf(frequencies, { place, center: location?.center ?? null, language });
                 if (token !== latestRequest) return;
+                // A freshly generated card is unprinted, so the flag resets here.
+                // The print pipeline (the fuse screen) sets its own status.
                 set({
                     cardData: { key, providers, frequencies, place },
                     cardStatus: 'ready',
                     generatedCard: { pdfUri: uri },
-                    printStatus: 'done',
+                    printStatus: 'idle',
                 });
             } catch (error) {
                 if (token !== latestRequest) return;

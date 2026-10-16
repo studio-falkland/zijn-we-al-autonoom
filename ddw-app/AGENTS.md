@@ -65,13 +65,12 @@ This app runs on an iPad built into an installation at Dutch Design Week. The in
 - WebKit may rasterize the SVG at print scale — accepted. HTML text remains vector glyphs in the PDF.
 - Deferred spike items (resolve before final sign-off): pattern/mask fidelity in WKWebView; custom font actually applied (no silent system fallback); page geometry; zoom-test the printed PDF.
 
-## 3. Printing — direct IPP to the Epson ET-8550
+## 3. Printing — expo-print, automatic (AirPrint)
 
-- Use the `ipp` npm package (pure JS) to POST a `Print-Job` with the A7 PDF to the printer's IPP endpoint on the venue network (`http://<printer-ip>:631/...`; confirm the exact queue URI on the device).
-- Fully automatic — no print dialog. A confirm-tap is acceptable during development only.
-- Media: A7 via `media-col` (`iso_a7_105x74mm`). Vanilla Epson settings; resolve quality/color issues later, not up front.
-- iOS prerequisites in `app.json`: `NSLocalNetworkUsageDescription` (local-network prompt) and `NSAllowsLocalNetworking` (ATS exception for plain-HTTP port 631).
-- **Build the IPP layer last.** Until it exists, expo-print's manual print path is the development fallback.
+- Submit the A7 PDF with `Print.printAsync({ uri, printerUrl })`. Passing `printerUrl` sends the job straight to that printer with no print dialog; without it, iOS shows the system print window.
+- The printer is picked once per cold start with `Print.selectPrinterAsync()`. The choice lives in memory only (`src/store/printer.ts`), so the operator force-closes the app to pick a different printer.
+- **Fully automatic:** the job fires as soon as the card's PDF is ready, on the reveal screen — no confirm-tap. The fuse screen's button is a manual reprint.
+- A7 geometry comes from the PDF built in §2; media and colour settings are the printer's own defaults. Resolve quality issues later, not up front.
 
 ## 4. Wizard state — Zustand, in-memory only
 
@@ -98,8 +97,7 @@ This app runs on an iPad built into an installation at Dutch Design Week. The in
 - Card generator: A7 HTML from the treemap; layout logic shared with the screen renderer (one source of truth for the artwork).
 
 **Phase 3 — Printing integration + essential kiosk behavior**
-- Manual print via expo-print (confirm-tap) as the interim path.
-- IPP layer: `ipp` package, `Print-Job` with A7 `media-col`, `NSLocalNetworkUsageDescription` + `NSAllowsLocalNetworking`, automatic submission.
+- Automatic print via expo-print (`printAsync` with the selected printer): the job fires on the reveal screen as soon as the card's PDF is ready.
 - Printer-offline error state; session reset after print (kiosk loop ready for the next visitor).
 
 **Phase 4 — Nice-to-haves (only if time permits)**
