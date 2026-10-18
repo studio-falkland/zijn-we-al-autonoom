@@ -1,6 +1,6 @@
 // Map-facing query: every active local organisation with coordinates.
 import { Category, GovernmentSector, Organisation, Region } from '@are-we-dependent/data';
-import { Between, In, IsNull, Not } from 'typeorm';
+import { In, IsNull, Not } from 'typeorm';
 
 import { db, ensureDb } from './db';
 import { GOVERNMENT_SERVICE_SLUGS } from './government-services';
@@ -82,13 +82,10 @@ async function getLocalSectorOrganisations(sector: GovernmentSector): Promise<Or
     });
 }
 
-// The box (degrees) and cap for a category's local providers: roughly the fixed
-// map viewport, so the pins stay legible.
-const CATEGORY_SPAN = 0.15;
-const CATEGORY_LIMIT = 40;
-
-// Active local organisations in a category within a box around the visitor,
-// nearest first — the pool a category step pins on the map.
+// Every local organisation in a category, nearest to the visitor first — the
+// pool a category step pins on the map. All of them are loaded, regardless of
+// the `active` flag; MapLibre culls to the viewport and settles label
+// collisions (the nearest features sort first, so they win those collisions).
 export async function getCategoryOrganisations(
     center: [number, number],
     category: Category,
@@ -98,9 +95,6 @@ export async function getCategoryOrganisations(
 
     const organisations = await db.getRepository(Organisation).find({
         where: {
-            active: true,
-            lat: Between(lat - CATEGORY_SPAN, lat + CATEGORY_SPAN),
-            lng: Between(lng - CATEGORY_SPAN, lng + CATEGORY_SPAN),
             classifications: { region: Region.Local, category },
         },
         relations: { classifications: true },
@@ -110,7 +104,7 @@ export async function getCategoryOrganisations(
     const distance = (organisation: Organisation) =>
         ((organisation.lat ?? lat) - lat) ** 2 + ((organisation.lng ?? lng) - lng) ** 2;
 
-    return organisations.sort((a, b) => distance(a) - distance(b)).slice(0, CATEGORY_LIMIT);
+    return organisations.sort((a, b) => distance(a) - distance(b));
 }
 
 // The predefined national government services, as stored rows. Membership and
