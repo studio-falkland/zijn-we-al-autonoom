@@ -98,7 +98,7 @@ export default function PrintScreen() {
     // Reset the session and return to the start for the next visitor.
     const handleDone = () => {
         resetSession();
-        router.replace('/');
+        router.dismissAll();
     };
 
     return (

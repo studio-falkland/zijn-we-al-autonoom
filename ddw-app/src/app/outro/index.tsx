@@ -33,7 +33,7 @@ export default function OutroScreen() {
         if (restarted.current) return;
         restarted.current = true;
         resetSession();
-        router.replace('/');
+        router.dismissAll();
     }, [resetSession]);
 
     // Count down to the automatic reset.

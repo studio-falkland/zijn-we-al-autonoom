@@ -29,7 +29,7 @@ export function RestartButton() {
                 style: 'destructive',
                 onPress: () => {
                     resetSession();
-                    router.replace('/');
+                    router.dismissAll();
                 },
             },
         ]);

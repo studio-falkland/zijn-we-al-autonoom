@@ -74,6 +74,9 @@ export type SessionState = {
     cardError: string | null;
     generatedCard: GeneratedCard | null;
     printStatus: PrintStatus;
+    // The card signature whose print job has already been submitted, so the
+    // reveal's auto-print fires once per card however often its screen mounts.
+    printedKey: string | null;
     // Dev setting: preview the PDF (OS preview) instead of the print dialog.
     previewPdf: boolean;
     setLanguage(language: Language): void;
@@ -84,6 +87,7 @@ export type SessionState = {
     refreshCardData(): Promise<void>;
     setGeneratedCard(card: GeneratedCard): void;
     setPrintStatus(status: PrintStatus): void;
+    claimCardPrint(key: string): boolean;
     setPreviewPdf(previewPdf: boolean): void;
     resetSession(): void;
 };
@@ -99,6 +103,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
     cardError: null,
     generatedCard: null,
     printStatus: 'idle',
+    printedKey: null,
     previewPdf: false,
 
     // Switch the UI language (the start screen's NL/EN tabs).
@@ -174,6 +179,8 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
                     cardStatus: 'ready',
                     generatedCard: { pdfUri: uri },
                     printStatus: 'idle',
+                    // A freshly generated card has not been printed yet.
+                    printedKey: null,
                 });
             } catch (error) {
                 if (token !== latestRequest) return;
@@ -199,6 +206,15 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
     // Track the print pipeline state.
     setPrintStatus: (printStatus) => set({ printStatus }),
 
+    // Claim the one auto-print for a card. The reveal calls this before
+    // submitting, so exactly one job goes out per card even when several copies
+    // of that screen are mounted (the stack keeps them alive across visitors).
+    claimCardPrint: (key) => {
+        if (get().printedKey === key) return false;
+        set({ printedKey: key });
+        return true;
+    },
+
     // Toggle the dev preview setting (kept across visitors, cleared on restart).
     setPreviewPdf: (previewPdf) => set({ previewPdf }),
 
@@ -217,6 +233,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
             cardError: null,
             generatedCard: null,
             printStatus: 'idle',
+            printedKey: null,
         });
     },
 }));

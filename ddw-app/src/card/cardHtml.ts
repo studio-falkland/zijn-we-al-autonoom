@@ -3,7 +3,7 @@
 // and the provider legend), the navy rule, and the treemap mosaic. It reuses the
 // shared treemap layout and the single source of truth for the artwork.
 
-import { isUSFrequency, PatternMatcher, patternDefs, renderPatternDefsSvg, scaledPatternDef } from '@/components/treemap/patternDefs';
+import { isUSFrequency, PatternId, patternDefs, renderPatternDefsSvg, scaledPatternDef } from '@/components/treemap/patternDefs';
 import type { MeasurementFrequency } from '@/data/dependencies';
 import { translate, type Language } from '@/i18n';
 import { buildTreemapLayout } from '@/treemap/layout';
@@ -56,7 +56,11 @@ export type CardContext = {
 // Only the largest provider gets a label, and it is the name only.
 function tileToSvg(rect: { x: number; y: number; width: number; height: number; frequency: MeasurementFrequency }, label: string | null): string {
     const us = isUSFrequency(rect.frequency);
-    const mask = PatternMatcher(rect.frequency);
+    // The motif is painted in the leaf's colour and filled directly, so the tile
+    // carries no mask (see renderPatternDefsSvg for why the print document avoids
+    // them). The pattern is still anchored to user space, so the mosaic reads as
+    // one continuous texture across the tiles.
+    const fill = `url(#${PatternId(rect.frequency)}-${us ? 'red' : 'blue'})`;
 
     // The label plate is capped at a fraction of the tile width, centred; the
     // browser measures and ellipsises the text inside the foreignObject, so no
@@ -73,7 +77,7 @@ function tileToSvg(rect: { x: number; y: number; width: number; height: number; 
 
     return (
         `<rect x="${rect.x}" y="${rect.y}" width="${rect.width}" height="${rect.height}" rx="4" fill="${LEAF_BASE}"/>` +
-        `<rect x="${rect.x}" y="${rect.y}" width="${rect.width}" height="${rect.height}" rx="4" fill="${us ? LEAF_RED : LEAF_BLUE}" mask="${mask}"/>` +
+        `<rect x="${rect.x}" y="${rect.y}" width="${rect.width}" height="${rect.height}" rx="4" fill="${fill}"/>` +
         `${plate}`
     );
 }
@@ -171,7 +175,7 @@ export function buildDependencySheetSvg(frequencies: MeasurementFrequency[], con
 
     return (
         `<svg ${SVG_NS} width="${A7_WIDTH_MM}mm" height="${A7_HEIGHT_MM}mm" viewBox="0 0 ${A7_WIDTH} ${A7_HEIGHT}">` +
-        `<defs>${renderPatternDefsSvg(PRINT_SCALE_OVERRIDES)}</defs>` +
+        `<defs>${renderPatternDefsSvg(PRINT_SCALE_OVERRIDES, { red: LEAF_RED, blue: LEAF_BLUE })}</defs>` +
         // Header: title and the visitor's place on the left, the legend on the right.
         `<text x="${content.x}" y="${titleY}" font-family="Familjen Grotesk" font-size="${TITLE_FONT_SIZE}" font-weight="700" fill="${INK}">${escapeXml(title)}</text>` +
         `<text x="${content.x}" y="${subtitleY}" font-family="Familjen Grotesk" font-size="${SUBTITLE_FONT_SIZE}" font-weight="400" fill="${INK}">${escapeXml(subtitle)}</text>` +

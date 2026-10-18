@@ -4,7 +4,7 @@
 // ready, so the job runs while the visitor watches the reveal.
 
 import { router } from 'expo-router';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -23,6 +23,7 @@ export default function GenerateScreen() {
     const cardError = useSessionStore((state) => state.cardError);
     const generatedCard = useSessionStore((state) => state.generatedCard);
     const setPrintStatus = useSessionStore((state) => state.setPrintStatus);
+    const claimCardPrint = useSessionStore((state) => state.claimCardPrint);
     const refreshCardData = useSessionStore((state) => state.refreshCardData);
     const printPdf = usePrinterStore((state) => state.printPdf);
 
@@ -33,18 +34,18 @@ export default function GenerateScreen() {
     const ready = cardData !== null && cardData.key === cardKey(selected, location);
 
     // Auto-submit once per card, as soon as the reveal's ready card PDF exists.
-    // Always prints: the "preview PDF" dev toggle does not hold the job back.
+    // The claim lives in the session store, not a component ref, so it still holds
+    // when this screen is mounted more than once. Always prints: the "preview PDF"
+    // dev toggle does not hold the job back.
     const signature = cardKey(selected, location);
-    const printedSignature = useRef<string | null>(null);
     useEffect(() => {
         if (!ready || !generatedCard) return;
-        if (printedSignature.current === signature) return;
-        printedSignature.current = signature;
+        if (!claimCardPrint(signature)) return;
         setPrintStatus('printing');
         printPdf(generatedCard.pdfUri)
             .then(() => setPrintStatus('done'))
             .catch(() => setPrintStatus('error'));
-    }, [ready, generatedCard, signature, printPdf, setPrintStatus]);
+    }, [ready, generatedCard, signature, printPdf, setPrintStatus, claimCardPrint]);
 
     return (
         <SafeAreaView style={styles.screen}>

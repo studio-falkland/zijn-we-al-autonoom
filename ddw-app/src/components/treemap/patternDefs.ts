@@ -133,8 +133,9 @@ export const patternDefs: PatternDef[] = [
 ];
 
 // Serialize a single path to raw SVG markup (kebab-case attrs for WebKit).
-function pathToSvg(path: PatternPath): string {
-    const extra = path.stroke ? ` stroke="${path.stroke}"` : path.fill ? ` fill="${path.fill}"` : '';
+// `color` overrides the path's own paint, so one motif can be emitted per tint.
+function pathToSvg(path: PatternPath, color?: string): string {
+    const extra = path.stroke ? ` stroke="${color ?? path.stroke}"` : path.fill ? ` fill="${color ?? path.fill}"` : '';
     const rules = `${path.fillRule ? ' fill-rule="evenodd"' : ''}${path.clipRule ? ' clip-rule="evenodd"' : ''}`;
     return `<path d="${path.d}"${extra}${rules}/>`;
 }
@@ -161,17 +162,28 @@ export function scaledPatternDef(def: PatternDef, extraScale = 1): PatternDef {
     };
 }
 
-// Render the full set of <pattern> + <mask> defs as an inline SVG string.
-// `scaleOverrides` multiplies a named pattern's size for this render only, so
-// the printed card can tune one motif without touching the on-screen artwork.
-export function renderPatternDefsSvg(scaleOverrides: Record<string, number> = {}): string {
+// The leaf colours each motif is emitted in. The printed tiles fill with these
+// patterns directly, so the print document references no mask at all.
+export type PrintPatternTint = 'red' | 'blue';
+const PRINT_PATTERN_TINTS: PrintPatternTint[] = ['red', 'blue'];
+
+// Render the full set of <pattern> defs as an inline SVG string, one already-
+// painted copy per tint. WebKit's print rasteriser drops a band of the
+// mask-over-pattern route (one viewport-sized mask bitmap for every tile), so
+// the printed card masks nothing and fills the pattern directly. `scaleOverrides`
+// multiplies a named pattern's size for this render only, so the card can tune
+// one motif without touching the on-screen artwork.
+export function renderPatternDefsSvg(
+    scaleOverrides: Record<string, number>,
+    tints: Record<PrintPatternTint, string>,
+): string {
     return patternDefs
         .map((pattern) => {
             const scaled = scaledPatternDef(pattern, scaleOverrides[pattern.id] ?? 1);
-            const paths = scaled.paths.map(pathToSvg).join('');
-            const tile = `<pattern id="${pattern.id}" patternUnits="userSpaceOnUse" width="${scaled.width}" height="${scaled.height}">${paths}</pattern>`;
-            const mask = `<mask id="${pattern.id}-mask" x="0" y="0" width="1" height="1"><rect x="0" y="0" width="100%" height="100%" fill="url(#${pattern.id})"/></mask>`;
-            return `${tile}${mask}`;
+            return PRINT_PATTERN_TINTS.map((tint) => {
+                const paths = scaled.paths.map((path) => pathToSvg(path, tints[tint])).join('');
+                return `<pattern id="${pattern.id}-${tint}" patternUnits="userSpaceOnUse" width="${scaled.width}" height="${scaled.height}">${paths}</pattern>`;
+            }).join('');
         })
         .join('');
 }
