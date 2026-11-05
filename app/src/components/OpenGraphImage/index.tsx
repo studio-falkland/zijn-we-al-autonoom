@@ -4,6 +4,44 @@ import { join } from 'node:path';
 
 const size = { width: 1200, height: 630 };
 
+/**
+ * The logo, fonts and map art are identical for every generated image. They are
+ * read (and base64-encoded) once per process instead of once per image, so the
+ * build does not repeat the same disk I/O for all ~13k organisation images.
+ */
+let assetsPromise: ReturnType<typeof loadAssets> | undefined;
+
+function loadAssets() {
+    return Promise.all([
+        readFile(join(process.cwd(), 'public/logo.svg')),
+        readFile(join(process.cwd(), 'public/fonts/FamiljenGrotesk-SemiBold.otf')),
+        readFile(join(process.cwd(), 'public/fonts/FamiljenGrotesk-Regular.otf')),
+        readFile(join(process.cwd(), 'public/nl-map-art.png')),
+    ]).then(([logoData, fontSemiBoldData, fontRegularData, mapArtData]) => ({
+        logoSrc: `data:image/svg+xml;base64,${logoData.toString('base64')}`,
+        mapArtSrc: `data:image/png;base64,${mapArtData.toString('base64')}`,
+        fonts: [
+            {
+                name: 'Familjen Grotesk',
+                data: fontSemiBoldData,
+                style: 'normal' as const,
+                weight: 600 as const,
+            },
+            {
+                name: 'Familjen Grotesk',
+                data: fontRegularData,
+                style: 'normal' as const,
+                weight: 400 as const,
+            },
+        ],
+    }));
+}
+
+export function getAssets() {
+    assetsPromise ??= loadAssets();
+    return assetsPromise;
+}
+
 export function sanitizeText(text: string): string {
     // Remove replacement characters and other problematic characters
     return text
@@ -26,20 +64,7 @@ export async function createOpenGraphImage({
     subtitle,
     children
 }: OpenGraphImageProps) {
-    const [
-        logoData,
-        fontSemiBoldData,
-        fontRegularData,
-        mapArtData,
-    ] = await Promise.all([
-        readFile(join(process.cwd(), 'public/logo.svg')),
-        readFile(join(process.cwd(), 'public/fonts/FamiljenGrotesk-SemiBold.otf')),
-        readFile(join(process.cwd(), 'public/fonts/FamiljenGrotesk-Regular.otf')),
-        readFile(join(process.cwd(), 'public/nl-map-art.png')),
-    ]);
-
-    const logoSrc = `data:image/svg+xml;base64,${logoData.toString('base64')}`;
-    const mapArtSrc = `data:image/png;base64,${mapArtData.toString('base64')}`;
+    const { logoSrc, mapArtSrc, fonts } = await getAssets();
 
     return new ImageResponse(
         (
@@ -111,20 +136,7 @@ export async function createOpenGraphImage({
         ),
         {
             ...size,
-            fonts: [
-                {
-                    name: 'Familjen Grotesk',
-                    data: fontSemiBoldData,
-                    style: 'normal',
-                    weight: 600,
-                },
-                {
-                    name: 'Familjen Grotesk',
-                    data: fontRegularData,
-                    style: 'normal',
-                    weight: 400,
-                },
-            ],
+            fonts,
         }
     );
 }

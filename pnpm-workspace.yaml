@@ -7,3 +7,7 @@ onlyBuiltDependencies:
   - esbuild
   - sharp
 minimumReleaseAge: 10080 # 7 days
+allowBuilds:
+  better-sqlite3: true
+  esbuild: true
+  sharp: true
