@@ -1,5 +1,6 @@
 packages:
   - app/
+  - cli/
   - data/
   - extraction/
 onlyBuiltDependencies:
@@ -11,3 +12,9 @@ allowBuilds:
   better-sqlite3: true
   esbuild: true
   sharp: true
+packageExtensions:
+  '@inkjs/ui':
+    peerDependencies:
+      react: '*'
+overrides:
+  zwaa: link:cli

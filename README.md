@@ -36,6 +36,7 @@ Lei](https://zijnwealautonoom.nl/about/).
 Deze repository bevat alle code voor Zijn we al autonoom?
 ```
 ├── app # De website als een statische NextJS applicatie
+├── cli # De `zwaa` CLI
 ├── data # De datastructuren voor onze dataset
 ├── extraction # De code om data te verversen
 ```
@@ -63,6 +64,11 @@ Om de app te draaien, moet je eerst data geextraheerd hebben. Run daarna:
 ```
 pnpm app:dev
 ```
+
+### CLI
+Met `zwaa` kun je de webhosting- en e-mailafhankelijkheid van één of meerdere
+domeinen checken. Zie [cli/README.md](./cli/README.md) voor installatie en
+gebruik.
 
 ## Partners
 <div class="grid" markdown>

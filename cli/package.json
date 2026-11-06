@@ -1,0 +1,35 @@
+{
+    "name": "zwaa",
+    "version": "0.1.0",
+    "description": "Check the webhosting and email dependence of one or more domains.",
+    "type": "module",
+    "bin": {
+        "zwaa": "./dist/index.js"
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsx src/index.tsx",
+        "lint": "tsc --noEmit"
+    },
+    "author": "Lei Nelissen",
+    "license": "EUPL-1.2",
+    "dependencies": {
+        "@inkjs/ui": "^2.0.0",
+        "ink": "^6.5.1",
+        "maxmind": "^4.3.23",
+        "psl": "^1.10.0",
+        "react": "^19.2.0",
+        "yargs": "^18.0.0",
+        "zwaa": "link:"
+    },
+    "devDependencies": {
+        "@types/node": "^22.10.1",
+        "@types/react": "^19.0.0",
+        "@types/yargs": "^17.0.33",
+        "tsx": "^4.19.1",
+        "typescript": "^5.7.2"
+    }
+}

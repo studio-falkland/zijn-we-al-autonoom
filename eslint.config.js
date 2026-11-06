@@ -23,6 +23,8 @@ export default [
             parser: parserTs,
         },
         files: [
+            'cli/src/**/*.ts',
+            'cli/src/**/*.tsx',
             'data/src/**/*.ts',
             'extraction/src/**/*.ts',
             'extraction/src/**/*.tsx',

@@ -15,6 +15,7 @@
   "author": "Lei Nelissen",
   "workspaces": [
     "app",
+    "cli",
     "data",
     "extraction"
   ],
@@ -27,7 +28,8 @@
   },
   "dependencies": {
     "eslint-plugin-unused-imports": "^4.1.4",
-    "patch-package": "^8.0.0"
+    "patch-package": "^8.0.0",
+    "zwaa": "link:cli"
   },
   "pnpm": {
     "patchedDependencies": {
