@@ -5,9 +5,14 @@
 
 import type { StyleSpecification } from '@maplibre/maplibre-react-native';
 
-// Public Mapbox token scoped to this kiosk app (hardcoded per the user's setup).
-export const MAPBOX_ACCESS_TOKEN =
-    'REMOVED_MAPBOX_TOKEN';
+// Public Mapbox token, injected at bundle time from .env.local (see .env.example).
+// Metro only inlines static dot-notation reads, so this must not be destructured.
+export const MAPBOX_ACCESS_TOKEN = process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN;
+
+// Fail loudly instead of requesting tiles with access_token=undefined.
+if (!MAPBOX_ACCESS_TOKEN) {
+    throw new Error('Missing EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN — copy .env.example to .env.local.');
+}
 
 // Mapbox hosts the streets-v8 tileset referenced by the Studio style.
 const STREETS_TILES = `https://api.mapbox.com/v4/mapbox.mapbox-streets-v8/{z}/{x}/{y}.vector.pbf?access_token=${MAPBOX_ACCESS_TOKEN}`;
